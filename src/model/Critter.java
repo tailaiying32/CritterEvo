@@ -1,9 +1,12 @@
 package model;
 
+import behavior.InteractionManager;
+import java.awt.geom.Point2D;
+
 /** Represents a model of the critters inhabiting the world
  *
  */
-public class CritterModel {
+public class Critter extends InteractionManager {
 
     public enum Sex {
         MALE, FEMALE
@@ -12,6 +15,16 @@ public class CritterModel {
     enum Priority {
         FOOD, WATER, LOVE
     }
+
+    /**
+     * xy coordinates representing the position of the critter on the world
+     */
+    private Point2D.Double position;
+
+    /**
+     * xy coordinates representing the position of the critter's target on the world
+     */
+    private Point2D.Double target;
 
     /**
      * A non-negative integer representing the critter's maximum age.
@@ -79,6 +92,12 @@ public class CritterModel {
     private final int aggression;
 
     /**
+     * An integer ranging from 0 to 100 representing the critter's breeding length
+     */
+    private final int breedLength;
+
+
+    /**
      * The critter's current priority, either food, water, or love. Will decide to search for food,
      * water, or another mate based on current priority.
      */
@@ -88,7 +107,7 @@ public class CritterModel {
      * Constructs a new Critter. Takes in maxAge, maxHealth, sex, size, and aggression parameter
      * age is set to zero, health is set to maxHealth
      */
-    public CritterModel(int maxAge, int maxHealth, Sex sex, int size, int aggression) {
+    public Critter(int maxAge, int maxHealth, Sex sex, int size, int aggression, int breedLength, Point2D.Double position) {
         this.maxAge = maxAge;
         this.age = 0;
         this.maxHealth = maxHealth;
@@ -98,6 +117,8 @@ public class CritterModel {
         this.aggression = aggression;
         this.speed = (1 / size) * 100; // speed = 1 / size, scaled by 100 to keep the 1-100 scale
         this.power = (int) (Math.pow(size, 2)  / 100); // power = size^2, scaled by 100 to keep the 1-100 scale
+        this.breedLength = breedLength;
+        this.position = position;
     }
 
     /**
@@ -148,5 +169,4 @@ public class CritterModel {
     int getSize() {
         return size;
     }
-
 }
