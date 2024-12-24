@@ -21,6 +21,19 @@ public class Critter extends InteractionManager {
         UP, DOWN, LEFT, RIGHT
     }
 
+    public enum critterState {
+        MOVING, EATING, DRINKING, BREEDING, FIGHTING, RESTING
+    }
+
+    public enum fightOrFlight {
+        FIGHT, SHARE, RUN
+    }
+
+    /**
+     * The current state of the critter
+     */
+    private critterState state;
+
     /**
      * Unique positive integer id for critter, simply iterated up from 1
      */
@@ -156,6 +169,13 @@ public class Critter extends InteractionManager {
     }
 
     /**
+     * Return this critter's state
+     */
+    public critterState getState() {
+        return state;
+    }
+
+    /**
      * Return's the critter's max age
      */
     public int getMaxAge() {
@@ -184,6 +204,13 @@ public class Critter extends InteractionManager {
     }
 
     /**
+     * Returns this critter's maximum health
+     */
+    public int getMaxHealth() {
+        return maxHealth;
+    }
+
+    /**
      * Returns the critter's current health
      */
     public int getHealth() {
@@ -202,5 +229,33 @@ public class Critter extends InteractionManager {
      */
     int getSize() {
         return size;
+    }
+
+    /**
+     * Returns this critter's speed
+     */
+    int getSpeed() {
+        return speed;
+    }
+
+    /**
+     * Returns this critter's power
+     */
+    int getPower() {
+        return power;
+    }
+
+    /**
+     * Returns this critter's aggression
+     */
+    int getAggression() {
+        return aggression;
+    }
+
+    /**
+     * Returns this critter's breeding length
+     */
+    int getBreedLength() {
+        return breedLength;
     }
 }

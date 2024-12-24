@@ -4,6 +4,8 @@ import java.awt.Point;
 import model.Critter;
 import model.Critter.Orientation;
 import model.Critter.Priority;
+import model.Food;
+import model.Water;
 
 /**
  * Abstract class defining the behavior of the critter, and how it interacts with its environment
@@ -16,7 +18,7 @@ public abstract class InteractionManager {
      * Replenish hunger equal to the quantity of food eaten.
      * Returns hunger level after eating.
      */
-    int eat() {
+    int eat(Food food) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -25,7 +27,7 @@ public abstract class InteractionManager {
      * Fully replenishes thirst.
      * Returns thirst level after drinking.
      */
-    int drink() {
+    int drink(Water water) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -38,10 +40,11 @@ public abstract class InteractionManager {
     }
 
     /**
-     * Moves the critter in one of four directions: up, down, left, or right
+     * Moves the critter forward in the direction it is facing
+     * Takes in distance parameter: how many units the critter moves
      * Returns the new coordinates after moving
      */
-    Point move() {
+    Point move(int distance) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -56,9 +59,9 @@ public abstract class InteractionManager {
     }
 
     /**
-     * Uses CritterAi to decide priority and update critter's priority
+     * Uses CritterAI to decide priority and update critter's priority
      */
-    Priority updatePriority() {
+    Priority updatePriority(CritterAI ai) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -66,7 +69,14 @@ public abstract class InteractionManager {
      * Attacks the critter directly in front of itself.
      * Deals damage to other critter's health equivalent to its power.
      */
-    void attack() {
+    void attack(Critter critter) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Determines the outcome in the case that two critters fight over resources.
+     */
+    void fight(CritterAI ai, Critter critter1, Critter critter2) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

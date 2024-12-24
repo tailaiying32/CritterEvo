@@ -10,7 +10,37 @@ public class Food {
     private Point location;
 
     /**
-     * An integer value ranging from 5 to 40
+     * An integer value ranging from 5 to 40 representing how much food is on this square
      */
     private int quantity;
+
+    /**
+     * An integer value ranging from 0 to 4 representing how many critters are currently
+     * at this food source
+     */
+    private int numCritters;
+
+    /**
+     * Returns the location of this food
+     */
+    public Point getLocation() {
+        return location;
+    }
+
+    /**
+     * Returns the quantity of this food
+     */
+    public int getQuantity() {
+        return quantity;
+    }
+
+    /**
+     * Removes "consumed" amount of food from this square's quantity.
+     * "consumed" must be a non-negative integer less than or equal to
+     * Returns the new quantity of food leftover
+     */
+    public int consume(int consumed) {
+        quantity -= consumed;
+        return quantity;
+    }
 }
