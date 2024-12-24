@@ -14,4 +14,12 @@ public class Water {
      * source
      */
     private int numCritters;
+
+    /**
+     * Constructs a square of water
+     */
+    public Water(Point location, int numCritters) {
+        this.location = location;
+        this.numCritters = 0;
+    }
 }

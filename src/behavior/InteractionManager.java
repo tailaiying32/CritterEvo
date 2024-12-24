@@ -34,6 +34,7 @@ public abstract class InteractionManager {
     /**
      * Rotates the critter either left, right, or full 180 degrees.
      * Returns new orientation of critter after rotating.
+     * Uses up a small amount of hunger proportional to its size.
      */
     Orientation rotate(int degrees) {
         throw new UnsupportedOperationException("Not supported yet.");
@@ -41,6 +42,7 @@ public abstract class InteractionManager {
 
     /**
      * Moves the critter forward in the direction it is facing
+     * Uses up hunger proportional to its size
      * Takes in distance parameter: how many units the critter moves
      * Returns the new coordinates after moving
      */
@@ -50,7 +52,8 @@ public abstract class InteractionManager {
 
     /**
      * Creates and returns a new critter based on its parents' attributes.
-     * maxHealth, maxAge, size, breedLength, and aggression are taken as an average of its parents values
+     * Uses up a large amount of hunger
+     * maxHealth, maxAge, size, breedLength, and aggression, offense, and defense are taken as an average of its parents values
      * 50/50 chance for M/F
      * Moves either parent one to the left or right and spawns in between parents with random orientation
      */
@@ -67,7 +70,6 @@ public abstract class InteractionManager {
 
     /**
      * Attacks the critter directly in front of itself.
-     * Deals damage to other critter's health equivalent to its power.
      */
     void attack(Critter critter) {
         throw new UnsupportedOperationException("Not supported yet.");

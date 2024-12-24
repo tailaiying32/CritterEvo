@@ -2,7 +2,6 @@ package model;
 
 import behavior.InteractionManager;
 import java.awt.Point;
-import java.awt.geom.Point2D;
 
 /** Represents a model of the critters inhabiting the world
  *
@@ -26,7 +25,7 @@ public class Critter extends InteractionManager {
     }
 
     public enum fightOrFlight {
-        FIGHT, SHARE, RUN
+        FIGHT, RUN
     }
 
     /**
@@ -96,21 +95,22 @@ public class Critter extends InteractionManager {
 
     /**
      * An integer ranging from 0 to 100 that represents the critter's size.
-     * The critter's size has effects on the critter's movement speed and power.
+     * The critter's size effects its energy consumption when performing tasks
+     * and the amount of damage it gives and the amount of damage it takes.
      */
     private final int size;
 
     /**
-     * An integer ranging from 0 to 100 that represents the critter's movement speed.
-     * ~ speed scales inversely proportionally to size squared
+     * An integer ranging from 0 to 100 representing the critter's offensive power. Used for calculating
+     * attack damage. A critter's offense must equal 100 - defense.
      */
-    private int speed;
+    private int offense;
 
     /**
-     * An integer ranging from 0 to 100 that represents the critter's power
-     * ~ strength scales proportionally to size squared
+     * An integer ranging from 0 to 100 representing the critter's defensive power. Used for calculating
+     * damage taken when attacked. A critter's defense must equal 100 - offense.
      */
-    private int power;
+    private int defense;
 
     /**
      * An integer ranging from 0 to 100 representing the critter's aggression level.
@@ -120,16 +120,20 @@ public class Critter extends InteractionManager {
     private final int aggression;
 
     /**
-     * An integer ranging from 0 to 100 representing the critter's breeding length
+     * A non-negative integer representing the generation of this critter
      */
-    private final int breedLength;
-
+    private int generation;
 
     /**
      * The critter's current priority, either food, water, or love. Will decide to search for food,
      * water, or another mate based on current priority.
      */
     private Priority priority;
+
+    /**
+     * The critter's additional mutation rate, added on top of the world's base mutation rate
+     */
+    private double mutationRate;
 
     /**
      * Constructs a new Critter. Takes in maxAge, maxHealth, sex, size, and aggression parameter
@@ -142,9 +146,12 @@ public class Critter extends InteractionManager {
             int maxHealth,
             Sex sex,
             int size,
+            int offense,
+            int defense,
             int aggression,
-            int breedLength,
-            Priority priority
+            int generation,
+            Priority priority,
+            double mutationRate
             ) {
         this.maxAge = maxAge;
         this.age = 0;
@@ -154,11 +161,12 @@ public class Critter extends InteractionManager {
         this.health = 100;
         this.sex = sex;
         this.size = size;
+        this.offense = offense;
+        this.defense = defense;
         this.aggression = aggression;
-        this.speed =  (int) (Math.pow(1 - size, 2) / 100); // speed = 1 / size, scaled by 100 to keep the 1-100 scale
-        this.power = (int) (Math.pow(size, 2)  / 100); // power = size^2, scaled by 100 to keep the 1-100 scale
-        this.breedLength = breedLength;
+        this.generation = generation;
         this.position = position;
+        this.mutationRate = mutationRate;
     }
 
     /**
@@ -234,15 +242,15 @@ public class Critter extends InteractionManager {
     /**
      * Returns this critter's speed
      */
-    int getSpeed() {
-        return speed;
+    int getOffense() {
+        return offense;
     }
 
     /**
      * Returns this critter's power
      */
-    int getPower() {
-        return power;
+    int getDefense() {
+        return defense;
     }
 
     /**
@@ -255,7 +263,7 @@ public class Critter extends InteractionManager {
     /**
      * Returns this critter's breeding length
      */
-    int getBreedLength() {
-        return breedLength;
+    int getGeneration() {
+        return generation;
     }
 }

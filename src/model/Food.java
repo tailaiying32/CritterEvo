@@ -21,6 +21,15 @@ public class Food {
     private int numCritters;
 
     /**
+     * Constructor for a square of food
+     */
+    public Food(Point location, int quantity, int numCritters) {
+        this.location = location;
+        this.quantity = quantity;
+        this.numCritters = 0; // the food should not spawn within 1 square of an existing critter
+    }
+
+    /**
      * Returns the location of this food
      */
     public Point getLocation() {

@@ -19,9 +19,9 @@ public class CritterAI {
     }
 
     /**
-     * Calculates whether critter chooses to attack, share, or run away when there is a conflict
-     * of resources based off of its power and aggression attributes.
-     * Returns
+     * Calculates whether critter chooses to fight or run away when there is a conflict
+     * of resources based off of its aggression
+     * Returns "FIGHT" or "RUN"
      */
     fightOrFlight fightOrFlight(Critter critter) {
         throw new UnsupportedOperationException();
