@@ -2,6 +2,7 @@ package model;
 
 import graph.WorldGraph;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents the world, and contains all fields necessary to represent the current world state.
@@ -28,7 +29,8 @@ public class WorldModel {
      */
     private double initialFoodDensity;
 
-    /**
+
+    /**6
      * Initial critter density on the map i.e. the percentage of squares that initially have a critter.
      */
     private double initialCritterDensity;
@@ -48,7 +50,7 @@ public class WorldModel {
      * Represents all currently alive critters. Stored in a HashMap with an integer id as a key
      * and a Critter as a value
      */
-    private HashMap<Integer, Critter> critters;
+    private Map<Integer, Critter> critters;
 
     /**
      * The base damage done by critters in the game (default 25)
@@ -87,6 +89,13 @@ public class WorldModel {
     }
 
     /**
+     * Sets width to "width"
+     */
+    public void setWidth(int width) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
      * Returns the height of the world
      */
     public int getHeight() {
@@ -94,10 +103,24 @@ public class WorldModel {
     }
 
     /**
+     * Sets height to "height"
+     */
+    public void setHeight(int height) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
      * Returns the tick count of the world
      */
     public int getTickCount() {
         return tickCount;
+    }
+
+    /**
+     * Increments the tick count by 1
+     */
+    public int incrementTickCount() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     /**
@@ -117,7 +140,30 @@ public class WorldModel {
     /**
      * Returns the list of all live critters
      */
-    public HashMap<Integer, Critter> getCritters() {
+    public Map<Integer, Critter> getCritters() {
         return critters;
     }
+
+    /**
+     * Returns the critter associated with "id"
+     */
+    public Critter getCritter(int id) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Adds a critter to the list of all live critters
+     */
+    public void addCritter(Critter critter) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Removes a critter from the list of all live critters
+     */
+    public void removeCritter(Critter critter) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+
 }

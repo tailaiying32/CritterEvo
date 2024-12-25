@@ -184,6 +184,13 @@ public class Critter extends InteractionManager {
     }
 
     /**
+     * Return's this critter's position
+     */
+    public Point getPosition() {
+        return position;
+    }
+
+    /**
      * Return's the critter's max age
      */
     public int getMaxAge() {
