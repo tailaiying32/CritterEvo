@@ -3,6 +3,7 @@ package model;
 import graph.WorldGraph;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Represents the world, and contains all fields necessary to represent the current world state.
@@ -78,6 +79,28 @@ public class WorldModel {
         this.damageScalingFactor = damageScalingFactor;
 
         // TODO: populate the world such that this.world is seeded with food and critters according to the given initial food and critter density
+        // for each square in this matrix, it will have a probability of initialFoodDensity of being a food square (value = 2),
+        // and a probability of initialCritterDensity of being a critter (value = 4).
+        // (hint: use the java Math.random method -> returns a random double between 0.0 and 1.0)
+        // (you can assume all parameters do not violate class invariants)
+        // The default value will be grass (value = 0).
+        // If the square becomes a food square, construct a new food object with position (j, i),
+        // quantity a random number between 5 and 40, and numCritters = 0.
+        // If the square becomes a critter square, construct a new critter with position (j, i),
+        // and randomized attributes (reference the Critter class!)
+
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                double random1 = Math.random();
+                double random2 = Math.random();
+                if (random1 <= initialFoodDensity) {
+                    world[i][j] = 2;
+                }
+                if (random2 <= initialCritterDensity) {
+                        world[i][j] = 4;
+                }
+            }
+        }
 
     }
 

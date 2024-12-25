@@ -46,9 +46,10 @@ public class WorldView extends JPanel {
         int cols = worldModel.getWidth();
 
         // Draw the grid
+        System.out.println("rows: " + rows + " cols: " + cols);
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
-                int cellState = world[row][col];
+                int cellState = world[col][row];
 
                 // Set color based on the state of the cell
                 switch (cellState) {
@@ -56,6 +57,7 @@ public class WorldView extends JPanel {
                     case 1 -> g.setColor(Color.BLACK); // Mountain
                     case 2 -> g.setColor(Color.GREEN); // Food
                     case 3 -> g.setColor(Color.BLUE); // Water
+                    case 4 -> g.setColor(Color.RED);
                 }
 
                 // Draw cell
@@ -68,13 +70,5 @@ public class WorldView extends JPanel {
                 g.drawRect(x, y, cellSize, cellSize);
             }
         }
-
-        // Draw the critters on top of map
-        worldModel.getCritters().forEach((id, critter) -> {
-           int x = (int) critter.getPosition().getX() * cellSize;
-           int y = (int) critter.getPosition().getY() * cellSize;
-           g.setColor(Color.ORANGE);
-           g.fillOval(x, y, cellSize, cellSize); // Show critter as an orange circle
-        });
     }
 }

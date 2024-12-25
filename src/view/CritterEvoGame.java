@@ -8,6 +8,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import model.WorldModel;
 
 /**
  * A graphical game to simulate evolution!
@@ -50,7 +51,7 @@ public class CritterEvoGame {
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         // set default area for the frame
-        frame.setPreferredSize(new Dimension(1440, 800));
+        frame.setPreferredSize(new Dimension(1920, 1200));
         frame.setLayout(new BorderLayout());
 
         // TODO: Add world component (the grid), living on the left majority of frame
@@ -72,11 +73,11 @@ public class CritterEvoGame {
         heightField = new JTextField("30");
         controlPanel.add(heightField);
 
-        controlPanel.add(new JLabel("Food Density (0-1):"));
+        controlPanel.add(new JLabel("Initial Food Density (0-1):"));
         foodDensityField = new JTextField("0.2");
         controlPanel.add(foodDensityField);
 
-        controlPanel.add(new JLabel("Critter Density (0-1):"));
+        controlPanel.add(new JLabel("Initial Critter Density (0-1):"));
         critterDensityField = new JTextField("0.1");
         controlPanel.add(critterDensityField);
 
@@ -122,11 +123,39 @@ public class CritterEvoGame {
 
         generateWorldButton.addActionListener(e -> {
             // generate world based on user input
-            throw new UnsupportedOperationException();
+            generateWorld();
         });
     }
 
+    /**
+     * generate the world view based on user parameters
+     */
+    private void generateWorld() {
+        // TODO: parse and validate the user inputs, use the inputs to construct a new world, and initialize or update the world view
+        int width = Integer.parseInt(widthField.getText());
+        int height = Integer.parseInt(heightField.getText());
+        double foodDensity = Double.parseDouble(foodDensityField.getText());
+        double critterDensity = Double.parseDouble(critterDensityField.getText());
+        double mutationRate = Double.parseDouble(mutationRateField.getText());
+        double baseDamage = Double.parseDouble(baseDamageField.getText());
+        double damageScaling = Double.parseDouble(damageScalingField.getText());
 
+        // TODO: assert that the parameters do not violate invariants
+
+        // create the new world
+        WorldModel world = new WorldModel(width, height, foodDensity, critterDensity, mutationRate, baseDamage, damageScaling);
+
+        // TODO: using the created "world", create a world view
+        // Initialize or update world view
+        if (worldView != null) {
+            frame.remove(worldView);
+        }
+        worldView = new WorldView(world, 20);
+        frame.add(worldView, BorderLayout.CENTER);
+        frame.revalidate();
+        frame.repaint();
+        // TODO: catch any exceptions thrown
+    }
 
     public void start() {
         frame.pack();
