@@ -9,24 +9,37 @@ import java.awt.Point;
 public class Critter extends InteractionManager {
 
     public enum Sex {
-        MALE, FEMALE
+        MALE(0), FEMALE(1);
+        private int value;
+        Sex(int value) {
+            this.value = value;
+        }
     }
 
     public enum Priority {
-        FOOD, WATER, LOVE
+        FOOD(0), WATER(1), LOVE(2), ATTACK(3), REST(4);
+        private int value;
+        Priority(int value) {
+            this.value = value;
+        }
     }
 
     public enum Orientation {
-        UP, DOWN, LEFT, RIGHT
+        UP(0), DOWN(1), LEFT(2), RIGHT(3);
+        private int value;
+        Orientation(int value) {
+            this.value = value;
+        }
     }
 
     public enum critterState {
-        MOVING, EATING, DRINKING, BREEDING, FIGHTING, RESTING
+        MOVING(0), EATING(1), DRINKING(2), BREEDING(3), FIGHTING(4), RESTING(5);
+        private int value;
+        critterState(int value) {
+            this.value = value;
+        }
     }
 
-    public enum fightOrFlight {
-        FIGHT, RUN
-    }
 
     /**
      * The current state of the critter
@@ -133,7 +146,7 @@ public class Critter extends InteractionManager {
     /**
      * The critter's additional mutation rate, added on top of the world's base mutation rate
      */
-    private double mutationRate;
+    private int mutationRate;
 
     /**
      * Constructs a new Critter. Takes in maxAge, maxHealth, sex, size, and aggression parameter
@@ -150,8 +163,7 @@ public class Critter extends InteractionManager {
             int defense,
             int aggression,
             int generation,
-            Priority priority,
-            double mutationRate
+            int mutationRate
             ) {
         this.maxAge = maxAge;
         this.age = 0;
@@ -167,6 +179,8 @@ public class Critter extends InteractionManager {
         this.generation = generation;
         this.position = position;
         this.mutationRate = mutationRate;
+
+        assertInv();
     }
 
     /**
@@ -272,5 +286,23 @@ public class Critter extends InteractionManager {
      */
     int getGeneration() {
         return generation;
+    }
+
+    /**
+     * Assert that class invariants are satisfied.
+     */
+    private void assertInv() {
+        assert this.orientation == Orientation.UP || this.orientation == Orientation.DOWN;
+        assert this.sex == Sex.MALE || this.sex == Sex.FEMALE;
+        assert this.maxAge >= 0 && this.maxAge <= 100;
+        assert this.maxHealth >= 0 && this.maxHealth <= 100;
+        assert this.hunger >= 0 && this.hunger <= 100;
+        assert this.thirst >= 0 && this.thirst <= 100;
+        assert this.age >= 0 && this.age <= 100;
+        assert this.size >= 0 && this.size <= 100;
+        assert this.offense >= 0 && this.offense <= 100;
+        assert this.defense >= 0 && this.defense <= 100;
+        assert this.aggression >= 0 && this.aggression <= 100;
+
     }
 }

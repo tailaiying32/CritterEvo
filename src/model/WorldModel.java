@@ -1,9 +1,11 @@
 package model;
 
 import graph.WorldGraph;
+import java.awt.Point;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import model.Critter.Orientation;
 
 /**
  * Represents the world, and contains all fields necessary to represent the current world state.
@@ -48,10 +50,16 @@ public class WorldModel {
     private int[][] world;
 
     /**
-     * Represents all currently alive critters. Stored in a HashMap with an integer id as a key
+     * Represents all currently alive critters. Stored in a Map with a Point id as a key
      * and a Critter as a value
      */
-    private Map<Integer, Critter> critters;
+    private Map<Point, Critter> critters;
+
+    /**
+     * Represents all food on the grid currently. Stored in a Map with the Point position as a key
+     * and the food object as a value.
+     */
+    private Map<Point, Food> food;
 
     /**
      * The base damage done by critters in the game (default 25)
@@ -74,34 +82,38 @@ public class WorldModel {
         this.initialCritterDensity = initialCritterDensity;
         this.world = new int[width][height];
         this.mutationRate = mutationRate;
-        this.critters = new HashMap<Integer, Critter>();
+        this.critters = new HashMap<Point, Critter>();
+        this.food = new HashMap<Point, Food>();
         this.baseDamage = baseDamage;
         this.damageScalingFactor = damageScalingFactor;
 
-        // TODO: populate the world such that this.world is seeded with food and critters according to the given initial food and critter density
-        // for each square in this matrix, it will have a probability of initialFoodDensity of being a food square (value = 2),
-        // and a probability of initialCritterDensity of being a critter (value = 4).
-        // (hint: use the java Math.random method -> returns a random double between 0.0 and 1.0)
-        // (you can assume all parameters do not violate class invariants)
-        // The default value will be grass (value = 0).
-        // If the square becomes a food square, construct a new food object with position (j, i),
-        // quantity a random number between 5 and 40, and numCritters = 0.
-        // If the square becomes a critter square, construct a new critter with position (j, i),
-        // and randomized attributes (reference the Critter class!)
+        // seed the world with specified parameters
+        seedWorld();
+    }
 
+    /**
+     * Seeds the world based on the parameters used during construction
+     * Each square as initialFoodDensity and initialCritterDensity probability of being food or a critter, respectively
+     * If a square is initiated as a food square, create a new food object with quantity 5-40 and add to the world's food
+     * Similarly, if a square is initiated as a critter square, create a new critter object with random attributes
+     * and add to the world's critters
+     */
+    private void seedWorld() {
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                double random1 = Math.random();
-                double random2 = Math.random();
-                if (random1 <= initialFoodDensity) {
-                    world[i][j] = 2;
-                }
-                if (random2 <= initialCritterDensity) {
-                        world[i][j] = 4;
+                double randomValue = Math.random(); // random number used for seeding world
+                if (randomValue <= initialFoodDensity) {
+                    this.world[i][j] = 2; // 2 for food
+                    Food food = new Food(new Point(j, i), (int) (Math.random()*35 + 5), 0);
+                    addFood(food);
+                } else if (randomValue <= initialFoodDensity + initialCritterDensity) {
+                    this.world[i][j] = 4; // 4 for critter
+                    // construct a new critter with random attributes
+                    CritterFactory critterFactory = new CritterFactory();
+                    addCritter(critterFactory.generateCritter(new Point(j, i)));
                 }
             }
         }
-
     }
 
     /**
@@ -163,14 +175,14 @@ public class WorldModel {
     /**
      * Returns the list of all live critters
      */
-    public Map<Integer, Critter> getCritters() {
+    public Map<Point, Critter> getCritters() {
         return critters;
     }
 
     /**
-     * Returns the critter associated with "id"
+     * Returns the critter on Point p
      */
-    public Critter getCritter(int id) {
+    public Critter getCritter(Point p) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -188,5 +200,31 @@ public class WorldModel {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    /**
+     * Returns the list of all food on the map
+     */
+    public Map<Point, Food> getFoods() {
+        return food;
+    }
 
+    /**
+     * Returns the food on Point p
+     */
+    public Food getFood(Point p) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Adds food to the list of all food
+     */
+    public void addFood(Food food) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Removes a specified food from the list of all food
+     */
+    public void removeFood(Food food) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }
