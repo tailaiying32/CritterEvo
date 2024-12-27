@@ -50,18 +50,12 @@ public class CritterEvoGame {
         frame = new JFrame("Critter Evo");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
+        // get screen dimensions
+
         // set default area for the frame
-        frame.setPreferredSize(new Dimension(1920, 1200));
+        frame.setPreferredSize(new Dimension(1280, 800));
         frame.setLayout(new BorderLayout());
 
-        // TODO: Add world component (the grid), living on the left majority of frame
-
-        // TODO: Add input fields for world paramters
-        // Create input fields for world parameters
-
-
-
-        // TODO: Add a control panel on right of frame, with play, pause, reset, and speed sliders
         JPanel controlPanel = new JPanel();
         controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
 
@@ -133,6 +127,19 @@ public class CritterEvoGame {
     private void generateWorld() {
         // TODO: parse and validate the user inputs, use the inputs to construct a new world, and initialize or update the world view
         int width = Integer.parseInt(widthField.getText());
+        WorldModel world = getWorldModel(width);
+
+        // Initialize or update world view
+        if (worldView != null) {
+            frame.remove(worldView);
+        }
+        worldView = new WorldView(world, 20);
+        frame.add(worldView, BorderLayout.CENTER);
+        frame.revalidate();
+        frame.repaint();
+    }
+
+    private WorldModel getWorldModel(int width) {
         int height = Integer.parseInt(heightField.getText());
         double foodDensity = Double.parseDouble(foodDensityField.getText());
         double critterDensity = Double.parseDouble(critterDensityField.getText());
@@ -144,17 +151,7 @@ public class CritterEvoGame {
 
         // create the new world
         WorldModel world = new WorldModel(width, height, foodDensity, critterDensity, mutationRate, baseDamage, damageScaling);
-
-        // TODO: using the created "world", create a world view
-        // Initialize or update world view
-        if (worldView != null) {
-            frame.remove(worldView);
-        }
-        worldView = new WorldView(world, 20);
-        frame.add(worldView, BorderLayout.CENTER);
-        frame.revalidate();
-        frame.repaint();
-        // TODO: catch any exceptions thrown
+        return world;
     }
 
     public void start() {

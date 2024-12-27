@@ -7,7 +7,7 @@ public class Food {
     /**
      * xy coordinates representing the location of this food
      */
-    private Point location;
+    private Point position;
 
     /**
      * An integer value ranging from 5 to 40 representing how much food is on this square
@@ -23,8 +23,8 @@ public class Food {
     /**
      * Constructor for a square of food
      */
-    public Food(Point location, int quantity, int numCritters) {
-        this.location = location;
+    public Food(Point position, int quantity, int numCritters) {
+        this.position = position;
         this.quantity = quantity;
         this.numCritters = 0; // the food should not spawn within 1 square of an existing critter
     }
@@ -32,8 +32,8 @@ public class Food {
     /**
      * Returns the location of this food
      */
-    public Point getLocation() {
-        return location;
+    public Point getPosition() {
+        return position;
     }
 
     /**

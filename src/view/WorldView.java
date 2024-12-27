@@ -46,7 +46,7 @@ public class WorldView extends JPanel {
         int cols = worldModel.getWidth();
 
         // Draw the grid
-        System.out.println("rows: " + rows + " cols: " + cols);
+//        System.out.println("rows: " + rows + " cols: " + cols); // debugging log printing out # of rows and cols
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
                 int cellState = world[col][row];
@@ -66,7 +66,7 @@ public class WorldView extends JPanel {
                 g.fillRect(x, y, cellSize, cellSize);
 
                 // Draw grid lines
-                g.setColor(Color.BLACK);
+            g.setColor(Color.LIGHT_GRAY);
                 g.drawRect(x, y, cellSize, cellSize);
             }
         }

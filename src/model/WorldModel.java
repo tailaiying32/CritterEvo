@@ -59,7 +59,7 @@ public class WorldModel {
      * Represents all food on the grid currently. Stored in a Map with the Point position as a key
      * and the food object as a value.
      */
-    private Map<Point, Food> food;
+    private Map<Point, Food> foods;
 
     /**
      * The base damage done by critters in the game (default 25)
@@ -83,12 +83,14 @@ public class WorldModel {
         this.world = new int[width][height];
         this.mutationRate = mutationRate;
         this.critters = new HashMap<Point, Critter>();
-        this.food = new HashMap<Point, Food>();
+        this.foods = new HashMap<Point, Food>();
         this.baseDamage = baseDamage;
         this.damageScalingFactor = damageScalingFactor;
 
         // seed the world with specified parameters
         seedWorld();
+
+//        critters.forEach((p, c) -> {System.out.println(p.toString() + ": " + c.getSize());}); // debugging log to test if seeding worked properly
     }
 
     /**
@@ -98,19 +100,19 @@ public class WorldModel {
      * Similarly, if a square is initiated as a critter square, create a new critter object with random attributes
      * and add to the world's critters
      */
-    private void seedWorld() {
+    public void seedWorld() {
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 double randomValue = Math.random(); // random number used for seeding world
                 if (randomValue <= initialFoodDensity) {
                     this.world[i][j] = 2; // 2 for food
-                    Food food = new Food(new Point(j, i), (int) (Math.random()*35 + 5), 0);
+                    Food food = new Food(new Point(i, j), (int) (Math.random()*35 + 5), 0);
                     addFood(food);
                 } else if (randomValue <= initialFoodDensity + initialCritterDensity) {
                     this.world[i][j] = 4; // 4 for critter
                     // construct a new critter with random attributes
                     CritterFactory critterFactory = new CritterFactory();
-                    addCritter(critterFactory.generateCritter(new Point(j, i)));
+                    addCritter(critterFactory.generateCritter(new Point(i, j)));
                 }
             }
         }
@@ -181,6 +183,7 @@ public class WorldModel {
 
     /**
      * Returns the critter on Point p
+     * If there is no critter on Point p, return null
      */
     public Critter getCritter(Point p) {
         throw new UnsupportedOperationException("Not supported yet.");
@@ -190,7 +193,7 @@ public class WorldModel {
      * Adds a critter to the list of all live critters
      */
     public void addCritter(Critter critter) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        critters.put(critter.getPosition(), critter);
     }
 
     /**
@@ -204,11 +207,12 @@ public class WorldModel {
      * Returns the list of all food on the map
      */
     public Map<Point, Food> getFoods() {
-        return food;
+        return foods;
     }
 
     /**
      * Returns the food on Point p
+     * If there is no food on Point p, return null
      */
     public Food getFood(Point p) {
         throw new UnsupportedOperationException("Not supported yet.");
@@ -218,13 +222,13 @@ public class WorldModel {
      * Adds food to the list of all food
      */
     public void addFood(Food food) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.foods.put(food.getPosition(), food);
     }
 
     /**
      * Removes a specified food from the list of all food
      */
-    public void removeFood(Food food) {
+    public void removeFood(Point p) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }

@@ -2,7 +2,6 @@ package behavior;
 
 import model.Critter;
 import model.Critter.Priority;
-import model.Critter.fightOrFlight;
 
 /**
  * Defines what the critter's next priority is i.e. food, water, or love
@@ -18,12 +17,4 @@ public class CritterAI {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * Calculates whether critter chooses to fight or run away when there is a conflict
-     * of resources based off of its aggression
-     * Returns "FIGHT" or "RUN"
-     */
-    fightOrFlight fightOrFlight(Critter critter) {
-        throw new UnsupportedOperationException();
-    }
 }
