@@ -11,15 +11,27 @@ import model.Water;
  * Abstract class defining the behavior of the critter, and how it interacts with its environment
  * and other critters
  */
-public abstract class InteractionManager {
+public class InteractionManager extends Critter{
+
+    /**
+     * Constructs a new Critter. Takes in maxAge, maxHealth, sex, size, and aggression parameter age is
+     * set to zero, health is set to maxHealth
+     */
+    public InteractionManager(CritterAI ai, Point position, Orientation orientation, int maxAge,
+            int maxHealth, Sex sex, int size, int offense, int defense, int aggression,
+            int generation,
+            int mutationRate) {
+        super(ai, position, orientation, maxAge, maxHealth, sex, size, offense, defense, aggression,
+                generation, mutationRate);
+    }
 
     /**
      * Eat the food directly in front of the critter.
-     * Replenish hunger equal to the quantity of food eaten.
+     * Replenish hunger equal to the food's quantity attribute.
      * Returns hunger level after eating.
      */
     int eat(Food food) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.
     }
 
     /**
@@ -29,25 +41,28 @@ public abstract class InteractionManager {
      */
     int drink(Water water) {
         throw new UnsupportedOperationException("Not supported yet.");
+        //TODO
     }
 
     /**
-     * Rotates the critter either left, right, or full 180 degrees.
+     * Rotates the critter to a new orientation.
      * Returns new orientation of critter after rotating.
      * Uses up a small amount of hunger proportional to its size.
      */
-    Orientation rotate(int degrees) {
+    Orientation rotate(Orientation orientation) {
         throw new UnsupportedOperationException("Not supported yet.");
+        //TODO
     }
 
     /**
      * Moves the critter forward in the direction it is facing
      * Uses up hunger proportional to its size
      * Takes in distance parameter: how many units the critter moves
-     * Returns the new coordinates after moving
+     * Returns the new coordinates after moving (remember that x and y start at 0 and at the top left)
      */
     Point move(int distance) {
         throw new UnsupportedOperationException("Not supported yet.");
+        //TODO
     }
 
     /**
@@ -62,7 +77,7 @@ public abstract class InteractionManager {
     }
 
     /**
-     * Uses CritterAI to decide priority and update critter's priority
+     * Uses the critter's critterAI calculatePriority() to decide priority and update critter's priority
      */
     Priority updatePriority(CritterAI ai) {
         throw new UnsupportedOperationException("Not supported yet.");
@@ -70,9 +85,12 @@ public abstract class InteractionManager {
 
     /**
      * Attacks the critter directly in front of itself.
+     * Takes away health from other critter following this equation: D(S1O1/S2D2)^b,
+     * where D and b are baseDamage and damageScalingFactor of the world the critter inhabits
      */
     void attack(Critter critter) {
         throw new UnsupportedOperationException("Not supported yet.");
+        //TODO
     }
 
     /**

@@ -71,7 +71,7 @@ public class WorldModelTest {
 
         int numCritters = world.getCritters().size();
 
-        world.removeCritter(critter);
+        world.removeCritter(critter.getPosition());
         assertEquals(numCritters - 1, world.getCritters().size());
         assertNull(world.getCritter(new Point(5, 5)));
     }

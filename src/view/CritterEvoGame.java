@@ -146,9 +146,6 @@ public class CritterEvoGame {
         double mutationRate = Double.parseDouble(mutationRateField.getText());
         double baseDamage = Double.parseDouble(baseDamageField.getText());
         double damageScaling = Double.parseDouble(damageScalingField.getText());
-
-        // TODO: assert that the parameters do not violate invariants
-
         // create the new world
         WorldModel world = new WorldModel(width, height, foodDensity, critterDensity, mutationRate, baseDamage, damageScaling);
         return world;

@@ -1,12 +1,13 @@
 package model;
 
+import behavior.CritterAI;
 import behavior.InteractionManager;
 import java.awt.Point;
 
 /** Represents a model of the critters inhabiting the world
  *
  */
-public class Critter extends InteractionManager {
+public class Critter{
 
     public enum Sex {
         MALE(0), FEMALE(1);
@@ -25,7 +26,7 @@ public class Critter extends InteractionManager {
     }
 
     public enum Orientation {
-        UP(0), DOWN(1), LEFT(2), RIGHT(3);
+        N(0), NE(1), E(2), SE(3), S(4), SW(5), W(6), NW(7);
         private int value;
         Orientation(int value) {
             this.value = value;
@@ -45,6 +46,11 @@ public class Critter extends InteractionManager {
      * The current state of the critter
      */
     private critterState state;
+
+    /**
+     * The critter's AI, reponsible for decision-making
+     */
+    private CritterAI ai;
 
     /**
      * Unique positive integer id for critter, simply iterated up from 1
@@ -153,6 +159,7 @@ public class Critter extends InteractionManager {
      * age is set to zero, health is set to maxHealth
      */
     public Critter(
+            CritterAI ai,
             Point position,
             Orientation orientation,
             int maxAge,
@@ -165,6 +172,7 @@ public class Critter extends InteractionManager {
             int generation,
             int mutationRate
             ) {
+        this.ai = ai;
         this.maxAge = maxAge;
         this.age = 0;
         this.maxHealth = maxHealth;
@@ -178,6 +186,7 @@ public class Critter extends InteractionManager {
         this.aggression = aggression;
         this.generation = generation;
         this.position = position;
+        this.orientation = orientation;
         this.mutationRate = mutationRate;
 
         assertInv();
@@ -226,10 +235,27 @@ public class Critter extends InteractionManager {
     }
 
     /**
+     * Sets the critter's hunger level to "hunger"
+     * Returns new hunger level
+     */
+    public void setHunger(int hunger) {
+        this.hunger = hunger;
+
+    }
+
+    /**
      * Returns the critter's current thirst level
      */
     public int getThirst() {
         return thirst;
+    }
+
+    /**
+     * Sets the critter's thirst level to "thirst"
+     * Returns the new thirst level
+     */
+    public void setThirst(int thirst) {
+        this.thirst = thirst;
     }
 
     /**
@@ -244,6 +270,13 @@ public class Critter extends InteractionManager {
      */
     public int getHealth() {
         return health;
+    }
+
+    /**
+     * Sets the critter's health to "health"
+     */
+    public void setHealth(int health) {
+        this.health = health;
     }
 
     /**
@@ -292,7 +325,7 @@ public class Critter extends InteractionManager {
      * Assert that class invariants are satisfied.
      */
     private void assertInv() {
-        assert this.orientation == Orientation.UP || this.orientation == Orientation.DOWN;
+        assert this.orientation == Orientation.N || this.orientation == Orientation.NE || this.orientation == Orientation.E || this.orientation == Orientation.S || this.orientation == Orientation.SE || this.orientation == Orientation.SW || this.orientation == Orientation.W || this.orientation == Orientation.NW;
         assert this.sex == Sex.MALE || this.sex == Sex.FEMALE;
         assert this.maxAge >= 0 && this.maxAge <= 100;
         assert this.maxHealth >= 0 && this.maxHealth <= 100;

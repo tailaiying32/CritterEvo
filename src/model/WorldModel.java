@@ -129,7 +129,7 @@ public class WorldModel {
      * Sets width to "width"
      */
     public void setWidth(int width) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.width = width;
     }
 
     /**
@@ -143,7 +143,7 @@ public class WorldModel {
      * Sets height to "height"
      */
     public void setHeight(int height) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.height= height;
     }
 
     /**
@@ -155,9 +155,11 @@ public class WorldModel {
 
     /**
      * Increments the tick count by 1
+     * Return the new tick count after incrementing
      */
     public int incrementTickCount() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        tickCount++;
+        return tickCount;
     }
 
     /**
@@ -186,7 +188,7 @@ public class WorldModel {
      * If there is no critter on Point p, return null
      */
     public Critter getCritter(Point p) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return critters.get(p);
     }
 
     /**
@@ -197,10 +199,10 @@ public class WorldModel {
     }
 
     /**
-     * Removes a critter from the list of all live critters
+     * Removes the critter at point p from the list of all live critters
      */
-    public void removeCritter(Critter critter) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void removeCritter(Point p) {
+        critters.remove(p);
     }
 
     /**
@@ -215,7 +217,7 @@ public class WorldModel {
      * If there is no food on Point p, return null
      */
     public Food getFood(Point p) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return foods.get(p);
     }
 
     /**
@@ -226,9 +228,16 @@ public class WorldModel {
     }
 
     /**
-     * Removes a specified food from the list of all food
+     * Removes food at point p from the list of all food
      */
     public void removeFood(Point p) {
+        foods.remove(p);
+    }
+
+    /**
+     * asserts that class invariants are not violated
+     */
+    private void assertInv() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }

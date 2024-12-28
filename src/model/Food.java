@@ -30,7 +30,7 @@ public class Food {
     }
 
     /**
-     * Returns the location of this food
+     * Returns the position of this food
      */
     public Point getPosition() {
         return position;
