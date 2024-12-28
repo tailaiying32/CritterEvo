@@ -85,10 +85,22 @@ public class Critter{
     private int age;
 
     /**
+     * An integer 1-100 representing max hunger
+     */
+    private int maxHunger;
+
+
+    /**
      * An integer ranging from 0 to 100 representing the critter's hunger level.
      * If hunger reaches zero, the critter loses health.
      */
     private int hunger;
+
+    /**
+     * An integer 1-100 representing max thirst level
+     */
+    private int maxThirst;
+
 
     /**
      * An integer ranging from 0 to 100 representing the critter's thirst level.
@@ -158,11 +170,15 @@ public class Critter{
      * Constructs a new Critter. Takes in maxAge, maxHealth, sex, size, and aggression parameter
      * age is set to zero, health is set to maxHealth
      */
+
+
     public Critter(
             CritterAI ai,
             Point position,
             Orientation orientation,
             int maxAge,
+            int maxHunger,
+            int maxThirst,
             int maxHealth,
             Sex sex,
             int size,
@@ -176,8 +192,10 @@ public class Critter{
         this.maxAge = maxAge;
         this.age = 0;
         this.maxHealth = maxHealth;
-        this.hunger = 50;
-        this.thirst = 50;
+        this.maxHunger = maxHunger;
+        this.hunger = maxHunger/2;
+        this.maxThirst = maxThirst;
+        this.thirst = maxThirst/2;
         this.health = 100;
         this.sex = sex;
         this.size = size;
@@ -207,11 +225,28 @@ public class Critter{
     }
 
     /**
+     *  Returns the critter's orientation
+     */
+    public Orientation getOrientation() { return orientation; }
+
+    /**
+     * Sets the critter's orientation to "orientation"
+     */
+    public void setOrientation(Orientation orientation) {
+        this.orientation = orientation;
+    }
+
+    /**
      * Return's this critter's position
      */
     public Point getPosition() {
         return position;
     }
+
+    /**
+     * Sets the critters position to "position"
+     */
+    public void setPosition( Point position) { this.position = position; }
 
     /**
      * Return's the critter's max age
@@ -228,6 +263,14 @@ public class Critter{
     }
 
     /**
+     * Returns the critter's max hunger level
+     */
+    public int getMaxHunger() {
+        return this.maxHunger;
+    }
+
+
+    /**
      * Returns the critter's current hunger level
      */
     public int getHunger() {
@@ -240,8 +283,15 @@ public class Critter{
      */
     public void setHunger(int hunger) {
         this.hunger = hunger;
-
     }
+
+    /**
+     * Returns the critter's max thirst level
+     */
+    public int getMaxThirst() {
+        return this.maxThirst;
+    }
+
 
     /**
      * Returns the critter's current thirst level

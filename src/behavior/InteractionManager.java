@@ -15,16 +15,13 @@ import model.Water;
  */
 public class InteractionManager extends Critter{
 
+
     /**
-     * Constructs a new Critter. Takes in maxAge, maxHealth, sex, size, and aggression parameter age is
-     * set to zero, health is set to maxHealth
+     * Constructs a new Critter. Takes in maxAge, maxHealth, sex, size, and aggression parameter
+     * age is set to zero, health is set to maxHealth
      */
-    public InteractionManager(CritterAI ai, Point position, Orientation orientation, int maxAge,
-            int maxHealth, Sex sex, int size, int offense, int defense, int aggression,
-            int generation,
-            int mutationRate) {
-        super(ai, position, orientation, maxAge, maxHealth, sex, size, offense, defense, aggression,
-                generation, mutationRate);
+    public InteractionManager(CritterAI ai, Point position, Orientation orientation, int maxAge, int maxHunger, int maxThirst, int maxHealth, Sex sex, int size, int offense, int defense, int aggression, int generation, int mutationRate) {
+        super(ai, position, orientation, maxAge, maxHunger, maxThirst, maxHealth, sex, size, offense, defense, aggression, generation, mutationRate);
     }
 
     /**
@@ -33,8 +30,9 @@ public class InteractionManager extends Critter{
      * Returns hunger level after eating.
      */
     int eat(Food food) {
-        throw new UnsupportedOperationException("Not supported yet.");
-        //TODO
+        int newHunger = this.getHunger() + food.getQuantity();
+        this.setHunger(newHunger);
+        return this.getHunger();
     }
 
     /**
@@ -43,8 +41,9 @@ public class InteractionManager extends Critter{
      * Returns thirst level after drinking.
      */
     int drink(Water water) {
-        throw new UnsupportedOperationException("Not supported yet.");
-        //TODO
+        int newThirst = this.getMaxThirst();
+        this.setThirst(newThirst);
+        return this.getThirst();
     }
 
     /**
@@ -53,8 +52,8 @@ public class InteractionManager extends Critter{
      * Uses up a small amount of hunger proportional to its size.
      */
     Orientation rotate(Orientation orientation) {
-        throw new UnsupportedOperationException("Not supported yet.");
-        //TODO
+        this.setOrientation(orientation);
+        return this.getOrientation();
     }
 
     /**
@@ -64,8 +63,27 @@ public class InteractionManager extends Critter{
      * Returns the new coordinates after moving (remember that x and y start at 0 and at the top left)
      */
     Point move(int distance) {
-        throw new UnsupportedOperationException("Not supported yet.");
-        //TODO
+        int x = (int) this.getPosition().getX();
+        int y = (int) this.getPosition().getY();
+        if (this.getOrientation().equals(Orientation.N)) {
+            this.setPosition(new Point(x, y - distance));
+        } else if (this.getOrientation().equals(Orientation.NE)){
+            this.setPosition(new Point(x + distance, y - distance));
+        } else if (this.getOrientation().equals(Orientation.E)) {
+            this.setPosition(new Point(x + distance, y));
+        } else if (this.getOrientation().equals(Orientation.SE)) {
+            this.setPosition(new Point(x + distance, y + distance));
+        } else if (this.getOrientation().equals(Orientation.S)) {
+            this.setPosition(new Point(x, y + distance));
+        } else if (this.getOrientation().equals(Orientation.SW)) {
+            this.setPosition(new Point(x - distance, y + distance));
+        } else if (this.getOrientation().equals(Orientation.W)) {
+            this.setPosition(new Point(x - distance, y));
+        } else if (this.getOrientation().equals(Orientation.NW)) {
+            this.setPosition(new Point(x - distance, y - distance));
+        }
+
+        return this.getPosition();
     }
 
     /**
