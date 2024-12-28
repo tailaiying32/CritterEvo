@@ -31,7 +31,8 @@ public class InteractionManager extends Critter{
      * Returns hunger level after eating.
      */
     int eat(Food food) {
-        this.
+        throw new UnsupportedOperationException("Not supported yet.");
+        //TODO
     }
 
     /**
