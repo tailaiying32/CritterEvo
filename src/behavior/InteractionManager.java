@@ -1,38 +1,41 @@
 package behavior;
 
 import java.awt.Point;
+import java.util.ArrayList;
+import java.util.Arrays;
 import model.Critter;
 import model.Critter.Orientation;
 import model.Critter.Priority;
 import model.Food;
 import model.Water;
 
-// testing....
-
 /**
- * Abstract class defining the behavior of the critter, and how it interacts with its environment
+ * class defining the behavior of the critter, and how it interacts with its environment
  * and other critters
  */
-public class InteractionManager extends Critter{
+public class InteractionManager {
 
+    // energy cost constants
+    private static final double MOVE_COST_FACTOR = 0.002;
+    private static final double ROTATE_COST_FACTOR = 0.0004;
 
     /**
-     * Constructs a new Critter. Takes in maxAge, maxHealth, sex, size, and aggression parameter
-     * age is set to zero, health is set to maxHealth
+     * constructor for Interaction Manager
      */
-    public InteractionManager(CritterAI ai, Point position, Orientation orientation, int maxAge, int maxHunger, int maxThirst, int maxHealth, Sex sex, int size, int offense, int defense, int aggression, int generation, int mutationRate) {
-        super(ai, position, orientation, maxAge, maxHunger, maxThirst, maxHealth, sex, size, offense, defense, aggression, generation, mutationRate);
-    }
+    public InteractionManager() {}
 
     /**
      * Eat the food directly in front of the critter.
      * Replenish hunger equal to the food's quantity attribute.
      * Returns hunger level after eating.
      */
-    int eat(Food food) {
-        int newHunger = this.getHunger() + food.getQuantity();
-        this.setHunger(newHunger);
-        return this.getHunger();
+    public int eat(Critter critter, Food food) {
+        int newHunger = Math.min(
+                (critter.getHunger() + food.getQuantity()),
+                critter.getMaxHunger()
+        );
+        critter.setHunger(newHunger);
+        return critter.getHunger();
     }
 
     /**
@@ -40,10 +43,10 @@ public class InteractionManager extends Critter{
      * Fully replenishes thirst.
      * Returns thirst level after drinking.
      */
-    int drink(Water water) {
-        int newThirst = this.getMaxThirst();
-        this.setThirst(newThirst);
-        return this.getThirst();
+    public int drink(Critter critter, Water water) {
+        int newThirst = critter.getMaxThirst();
+        critter.setThirst(newThirst);
+        return critter.getThirst();
     }
 
     /**
@@ -51,9 +54,26 @@ public class InteractionManager extends Critter{
      * Returns new orientation of critter after rotating.
      * Uses up a small amount of hunger proportional to its size.
      */
-    Orientation rotate(Orientation orientation) {
-        this.setOrientation(orientation);
-        return this.getOrientation();
+    public Orientation rotate(Critter critter, Orientation orientation) {
+        // calculate how many unit rotations are needed for the critter to arrive at the new orientation
+        int before = critter.getOrientation().getValue();
+        int after = orientation.getValue();
+        int difference = (after - before) % 4;
+        int factor = 0;
+
+        if (difference == 0 && before != after) {
+            factor = 4;
+        } else {
+            factor = difference;
+        }
+
+        critter.setOrientation(orientation);
+        int hungerUsed = factor * (int) (ROTATE_COST_FACTOR * Math.pow(critter.getSize(), 2));
+        critter.setHunger(Math.max(
+                critter.getHunger() - hungerUsed,
+                0
+        ));
+        return critter.getOrientation();
     }
 
     /**
@@ -62,28 +82,33 @@ public class InteractionManager extends Critter{
      * Takes in distance parameter: how many units the critter moves
      * Returns the new coordinates after moving (remember that x and y start at 0 and at the top left)
      */
-    Point move(int distance) {
-        int x = (int) this.getPosition().getX();
-        int y = (int) this.getPosition().getY();
-        if (this.getOrientation().equals(Orientation.N)) {
-            this.setPosition(new Point(x, y - distance));
-        } else if (this.getOrientation().equals(Orientation.NE)){
-            this.setPosition(new Point(x + distance, y - distance));
-        } else if (this.getOrientation().equals(Orientation.E)) {
-            this.setPosition(new Point(x + distance, y));
-        } else if (this.getOrientation().equals(Orientation.SE)) {
-            this.setPosition(new Point(x + distance, y + distance));
-        } else if (this.getOrientation().equals(Orientation.S)) {
-            this.setPosition(new Point(x, y + distance));
-        } else if (this.getOrientation().equals(Orientation.SW)) {
-            this.setPosition(new Point(x - distance, y + distance));
-        } else if (this.getOrientation().equals(Orientation.W)) {
-            this.setPosition(new Point(x - distance, y));
-        } else if (this.getOrientation().equals(Orientation.NW)) {
-            this.setPosition(new Point(x - distance, y - distance));
+    public Point move(Critter critter, int distance) {
+        int x = (int) critter.getPosition().getX();
+        int y = (int) critter.getPosition().getY();
+        if (critter.getOrientation().equals(Orientation.N)) {
+            critter.setPosition(new Point(x, y - distance));
+        } else if (critter.getOrientation().equals(Orientation.NE)){
+            critter.setPosition(new Point(x + distance, y - distance));
+        } else if (critter.getOrientation().equals(Orientation.E)) {
+            critter.setPosition(new Point(x + distance, y));
+        } else if (critter.getOrientation().equals(Orientation.SE)) {
+            critter.setPosition(new Point(x + distance, y + distance));
+        } else if (critter.getOrientation().equals(Orientation.S)) {
+            critter.setPosition(new Point(x, y + distance));
+        } else if (critter.getOrientation().equals(Orientation.SW)) {
+            critter.setPosition(new Point(x - distance, y + distance));
+        } else if (critter.getOrientation().equals(Orientation.W)) {
+            critter.setPosition(new Point(x - distance, y));
+        } else if (critter.getOrientation().equals(Orientation.NW)) {
+            critter.setPosition(new Point(x - distance, y - distance));
         }
 
-        return this.getPosition();
+        int hungerUsed = distance * (int) (MOVE_COST_FACTOR * Math.pow(critter.getSize(), 2));
+        critter.setHunger(Math.max(
+                critter.getHunger() - hungerUsed,
+                0
+        ));
+        return critter.getPosition();
     }
 
     /**
@@ -93,15 +118,18 @@ public class InteractionManager extends Critter{
      * 50/50 chance for M/F
      * Moves either parent one to the left or right and spawns in between parents with random orientation
      */
-    Critter reproduce(Critter father, Critter mother) {
+    public Critter reproduce(Critter father, Critter mother) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     /**
      * Uses the critter's critterAI calculatePriority() to decide priority and update critter's priority
+     * Returns the new priority
      */
-    Priority updatePriority(CritterAI ai) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public Priority updatePriority(Critter critter) {
+        Priority newPriority = critter.getAi().calculatePriority();
+        critter.setPriority(newPriority);
+        return critter.getPriority();
     }
 
     /**
@@ -109,7 +137,7 @@ public class InteractionManager extends Critter{
      * Takes away health from other critter following this equation: D(S1O1/S2D2)^b,
      * where D and b are baseDamage and damageScalingFactor of the world the critter inhabits
      */
-    void attack(Critter critter) {
+    public void attack(Critter critter1, Critter critter2) {
         throw new UnsupportedOperationException("Not supported yet.");
         //TODO
     }
@@ -117,7 +145,7 @@ public class InteractionManager extends Critter{
     /**
      * Determines the outcome in the case that two critters fight over resources.
      */
-    void fight(CritterAI ai, Critter critter1, Critter critter2) {
+    public void fight(CritterAI ai, Critter critter1, Critter critter2) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -126,7 +154,7 @@ public class InteractionManager extends Critter{
      * Turns the current square critter is on into food with quantity proportional to its size / 2
      * Removes itself from list of live critters
      */
-    void die() {
+    public void die(Critter critter) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }

@@ -57,7 +57,7 @@ public class WorldView extends JPanel {
                     case 1 -> g.setColor(Color.BLACK); // Mountain
                     case 2 -> g.setColor(Color.GREEN); // Food
                     case 3 -> g.setColor(Color.BLUE); // Water
-                    case 4 -> g.setColor(Color.RED);
+                    case 4 -> g.setColor(Color.ORANGE); // Critter
                 }
 
                 // Draw cell

@@ -15,6 +15,9 @@ public class Critter{
         Sex(int value) {
             this.value = value;
         }
+        public int getValue() {
+            return this.value;
+        }
     }
 
     public enum Priority {
@@ -22,6 +25,9 @@ public class Critter{
         private int value;
         Priority(int value) {
             this.value = value;
+        }
+        public int getValue() {
+            return this.value;
         }
     }
 
@@ -31,6 +37,9 @@ public class Critter{
         Orientation(int value) {
             this.value = value;
         }
+        public int getValue() {
+            return this.value;
+        }
     }
 
     public enum critterState {
@@ -38,6 +47,9 @@ public class Critter{
         private int value;
         critterState(int value) {
             this.value = value;
+        }
+        public int getValue() {
+            return this.value;
         }
     }
 
@@ -51,6 +63,11 @@ public class Critter{
      * The critter's AI, reponsible for decision-making
      */
     private CritterAI ai;
+
+    /**
+     * The critter's behavior suite
+     */
+    private InteractionManager interactionManager;
 
     /**
      * Unique positive integer id for critter, simply iterated up from 1
@@ -88,7 +105,6 @@ public class Critter{
      * An integer 1-100 representing max hunger
      */
     private int maxHunger;
-
 
     /**
      * An integer ranging from 0 to 100 representing the critter's hunger level.
@@ -170,10 +186,9 @@ public class Critter{
      * Constructs a new Critter. Takes in maxAge, maxHealth, sex, size, and aggression parameter
      * age is set to zero, health is set to maxHealth
      */
-
-
     public Critter(
             CritterAI ai,
+            InteractionManager interactionManager,
             Point position,
             Orientation orientation,
             int maxAge,
@@ -189,6 +204,7 @@ public class Critter{
             int mutationRate
             ) {
         this.ai = ai;
+        this.interactionManager = interactionManager;
         this.maxAge = maxAge;
         this.age = 0;
         this.maxHealth = maxHealth;
@@ -222,6 +238,34 @@ public class Critter{
      */
     public critterState getState() {
         return state;
+    }
+
+    /**
+     * Return this critter's ai
+     */
+    public CritterAI getAi() {
+        return ai;
+    }
+
+    /**
+     * Sets this critter's ai to "ai"
+     */
+    public void setAi(CritterAI ai) {
+        this.ai = ai;
+    }
+
+    /**
+     * Returns this critter's priority
+     */
+    public Priority getPriority() {
+        return priority;
+    }
+
+    /**
+     * Sets this critter's priority to "priority"
+     */
+    public void setPriority(Priority priority) {
+        this.priority = priority;
     }
 
     /**
@@ -269,6 +313,12 @@ public class Critter{
         return this.maxHunger;
     }
 
+    /**
+     * Sets the critter's max hunger level to "max"
+     */
+    public void setMaxHunger(int max) {
+        maxHunger = max;
+    }
 
     /**
      * Returns the critter's current hunger level
@@ -292,6 +342,12 @@ public class Critter{
         return this.maxThirst;
     }
 
+    /**
+     * Sets the critter's max thirst to "max"
+     */
+    public void setMaxThirst(int max) {
+        maxThirst = max;
+    }
 
     /**
      * Returns the critter's current thirst level
@@ -332,44 +388,81 @@ public class Critter{
     /**
      * Returns the critter's sex
      */
-    Sex getSex() {
+    public Sex getSex() {
         return sex;
     }
 
     /**
      * Returns the critter's size
      */
-    int getSize() {
+    public int getSize() {
         return size;
     }
 
     /**
      * Returns this critter's speed
      */
-    int getOffense() {
+    public int getOffense() {
         return offense;
     }
 
     /**
      * Returns this critter's power
      */
-    int getDefense() {
+    public int getDefense() {
         return defense;
     }
 
     /**
      * Returns this critter's aggression
      */
-    int getAggression() {
+    public int getAggression() {
         return aggression;
     }
 
     /**
-     * Returns this critter's breeding length
+     * Returns this critter's generation
      */
-    int getGeneration() {
+    public int getGeneration() {
         return generation;
     }
+
+    /**
+     * Eats the food directly in front of the critter
+     */
+    public void eat(Critter this, Food food) {
+        interactionManager.eat(this, food);
+    }
+
+    /**
+     * Drinks the water directly in front of the critter
+     */
+    public void drink(Critter this, Water water) {
+        interactionManager.drink(this, water);
+    }
+
+    /**
+     * Rotates the critter to a new orientation
+     */
+    public void rotate(Critter this, Orientation orientation) {
+        interactionManager.rotate(this, orientation);
+    }
+
+    /**
+     * Moves the critter forward in the direction it is facing
+     */
+    public void move(Critter this, int distance) {
+        interactionManager.move(this, distance);
+    }
+
+    /**
+     * updates priority
+     */
+    public void updatePriority(Critter this) {
+        interactionManager.updatePriority(this);
+    }
+
+
 
     /**
      * Assert that class invariants are satisfied.

@@ -1,6 +1,7 @@
 package model;
 
 import behavior.CritterAI;
+import behavior.InteractionManager;
 import java.awt.Point;
 import java.util.concurrent.ThreadLocalRandom;
 import model.Critter.Orientation;
@@ -64,9 +65,12 @@ public class CritterFactory {
 
         Critter critter = new Critter(
                 critterai,
+                new InteractionManager(),
                 p,
                 orientation,
                 maxAge,
+                100,
+                100,
                 maxHealth,
                 sex,
                 size,
