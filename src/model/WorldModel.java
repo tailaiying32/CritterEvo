@@ -184,6 +184,13 @@ public class WorldModel {
     }
 
     /**
+     * Sets the critter list to "critters"
+     */
+    public void setCritters(Map<Point, Critter> critters) {
+        this.critters = critters;
+    }
+
+    /**
      * Returns the critter on Point p
      * If there is no critter on Point p, return null
      */
@@ -196,6 +203,7 @@ public class WorldModel {
      */
     public void addCritter(Critter critter) {
         critters.put(critter.getPosition(), critter);
+
     }
 
     /**
@@ -210,6 +218,13 @@ public class WorldModel {
      */
     public Map<Point, Food> getFoods() {
         return foods;
+    }
+
+    /**
+     * Sets the foods list to "foods"
+     */
+    public void setFoods(Map<Point, Food> foods) {
+        this.foods = foods;
     }
 
     /**
@@ -235,9 +250,18 @@ public class WorldModel {
     }
 
     /**
+     * updates the world
+     */
+    public void update() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
      * asserts that class invariants are not violated
      */
     private void assertInv() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+
 }

@@ -80,6 +80,31 @@ public class InteractionManagerTest {
         assertEquals(Orientation.E, critter.getOrientation());
         hungerTester = critter.getHunger();
     }
+
+    @DisplayName("WHEN a critter moves"
+            + "THEN its coordinates should be updated"
+            + "AND its hunger should be decreased by a proportional amount")
+    @Test
+    public void testMove() {
+        CritterFactory factory = new CritterFactory();
+        Critter critter = factory.generateCritter(new Point(0, 0));
+        critter.setMaxHunger(100);
+        critter.setHunger(100);
+        critter.setOrientation(Orientation.S);
+
+        int size = critter.getSize();
+        int hungerTester = critter.getHunger();
+
+        critter.move(1);
+        assertEquals(hungerTester - (int) (1 + 0.002*Math.pow(size, 2)), critter.getHunger());
+        assertEquals(new Point(0, 1), critter.getPosition());
+
+
+        critter.setHunger(1);
+        critter.move(2);
+        assertEquals(0, critter.getHunger());
+        assertEquals(new Point(0, 3), critter.getPosition());
+    }
 }
 
 

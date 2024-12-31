@@ -53,6 +53,10 @@ public class Critter{
         }
     }
 
+    /**
+     * The world that the critter inhabits
+     */
+    private WorldModel world;
 
     /**
      * The current state of the critter
@@ -224,6 +228,13 @@ public class Critter{
         this.mutationRate = mutationRate;
 
         assertInv();
+    }
+
+    /**
+     * Return's the world that this critter lives in
+     */
+    public WorldModel getWorld() {
+        return world;
     }
 
     /**
@@ -459,7 +470,14 @@ public class Critter{
      * updates priority
      */
     public void updatePriority(Critter this) {
-        interactionManager.updatePriority(this);
+        ai.updatePriority(this);
+    }
+
+    /**
+     * makes move
+     */
+    public void makeMove(Critter this) {
+        ai.makeMove(this);
     }
 
 
