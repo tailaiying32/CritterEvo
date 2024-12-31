@@ -54,21 +54,31 @@ public class InteractionManagerTest {
         critter.setOrientation(Orientation.N);
 
         int size = critter.getSize();
+        int hungerTester = critter.getHunger();
+
         critter.rotate(Orientation.N);
         assertEquals(100, critter.getHunger());
+        assertEquals(Orientation.N, critter.getOrientation());
 
         critter.rotate(Orientation.S);
-        assertEquals(critter.getHunger() - (int) ((0.0016 * Math.pow(size, 2))), critter.getHunger());
+        assertEquals(hungerTester - (int) (1 + 4 * (0.0004 * Math.pow(size, 2))), critter.getHunger());
+        assertEquals(Orientation.S, critter.getOrientation());
+        hungerTester = critter.getHunger();
 
         critter.rotate(Orientation.W);
-        assertEquals(critter.getHunger() - (int) ((0.0008 * Math.pow(size, 2))), critter.getHunger());
+        assertEquals(hungerTester - (int) (1 + 2 * (0.0004 * Math.pow(size, 2))), critter.getHunger());
+        assertEquals(Orientation.W, critter.getOrientation());
+        hungerTester = critter.getHunger();
 
         critter.rotate(Orientation.NE);
-        assertEquals(critter.getHunger() - (int) ((0.0012 * Math.pow(size, 2))), critter.getHunger());
+        assertEquals(hungerTester - (int) (1 + 3 * (0.0004 * Math.pow(size, 2))), critter.getHunger());
+        assertEquals(Orientation.NE, critter.getOrientation());
+        hungerTester = critter.getHunger();
 
         critter.rotate(Orientation.E);
-        assertEquals(critter.getHunger() - (int) ((0.0004 * Math.pow(size, 2))), critter.getHunger());
-
+        assertEquals(hungerTester - (int) (1 + 0.0004 * Math.pow(size, 2)), critter.getHunger());
+        assertEquals(Orientation.E, critter.getOrientation());
+        hungerTester = critter.getHunger();
     }
 }
 

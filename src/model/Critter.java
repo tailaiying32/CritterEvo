@@ -107,7 +107,7 @@ public class Critter{
     private int maxHunger;
 
     /**
-     * An integer ranging from 0 to 100 representing the critter's hunger level.
+     * An int ranging from 0 to 100 representing the critter's hunger level.
      * If hunger reaches zero, the critter loses health.
      */
     private int hunger;

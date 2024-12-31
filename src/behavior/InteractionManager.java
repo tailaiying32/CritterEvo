@@ -18,6 +18,8 @@ public class InteractionManager {
     // energy cost constants
     private static final double MOVE_COST_FACTOR = 0.002;
     private static final double ROTATE_COST_FACTOR = 0.0004;
+    private static final int BASE_MOVE_COST = 1;
+    private static final int BASE_ROTATE_COST = 1;
 
     /**
      * constructor for Interaction Manager
@@ -29,7 +31,7 @@ public class InteractionManager {
      * Replenish hunger equal to the food's quantity attribute.
      * Returns hunger level after eating.
      */
-    public int eat(Critter critter, Food food) {
+    public double eat(Critter critter, Food food) {
         int newHunger = Math.min(
                 (critter.getHunger() + food.getQuantity()),
                 critter.getMaxHunger()
@@ -58,21 +60,22 @@ public class InteractionManager {
         // calculate how many unit rotations are needed for the critter to arrive at the new orientation
         int before = critter.getOrientation().getValue();
         int after = orientation.getValue();
-        int difference = (after - before) % 4;
-        int factor = 0;
+        int difference = Math.abs(after - before);
 
-        if (difference == 0 && before != after) {
-            factor = 4;
-        } else {
-            factor = difference;
+        if (difference > 4) {
+            difference = Math.abs(difference - 8);
         }
 
         critter.setOrientation(orientation);
-        int hungerUsed = factor * (int) (ROTATE_COST_FACTOR * Math.pow(critter.getSize(), 2));
-        critter.setHunger(Math.max(
+        int hungerUsed = (int) (BASE_ROTATE_COST + difference * (ROTATE_COST_FACTOR * Math.pow(critter.getSize(), 2)));
+        if (before == after) {
+            hungerUsed = 0;
+        }
+        critter.setHunger((int) Math.max(
                 critter.getHunger() - hungerUsed,
                 0
         ));
+
         return critter.getOrientation();
     }
 
@@ -103,7 +106,7 @@ public class InteractionManager {
             critter.setPosition(new Point(x - distance, y - distance));
         }
 
-        int hungerUsed = distance * (int) (MOVE_COST_FACTOR * Math.pow(critter.getSize(), 2));
+        int hungerUsed = (int) (BASE_MOVE_COST + distance * MOVE_COST_FACTOR * Math.pow(critter.getSize(), 2));
         critter.setHunger(Math.max(
                 critter.getHunger() - hungerUsed,
                 0
