@@ -21,6 +21,10 @@ public class InteractionManager {
     private static final int BASE_MOVE_COST = 1;
     private static final int BASE_ROTATE_COST = 1;
 
+    //variables representing baseDamage and damageScalingFactor
+    private static final double BASE_DAMAGE = 25;
+    private static final double DAMAGE_SCALING_FACTOR = 1.3;
+
     /**
      * constructor for Interaction Manager
      */
@@ -128,14 +132,17 @@ public class InteractionManager {
 
     /**
      * Attacks the critter directly in front of itself (critter 1 attacks critter 2).
-     * Takes away health from other critter following this equation: D(S1O1/S2D2)^b,
-     * where D and b are baseDamage and damageScalingFactor of the world the critter inhabits
-     * For now, let D=25, and b=1.3 ---DO NOT HARD CODE THESE NUMBERS INTO THE METHOD.
+     * Takes away health from other critter following this equation: B(S1O1/S2D2)^b,
+     * where B and b are baseDamage and damageScalingFactor of the world the critter inhabits
+     * For now, let B=25, and b=1.3 ---DO NOT HARD CODE THESE NUMBERS INTO THE METHOD.
      * CREATE SOME STATIC VARIABLES INSTEAD
      */
     public void attack(Critter critter1, Critter critter2) {
-        throw new UnsupportedOperationException("Not supported yet.");
-        //TODO
+        int oldHealth = critter2.getHealth();
+        double c1Power = critter1.getSize()*critter1.getOffense();
+        double c2Power = critter2.getSize()*critter2.getDefense();
+        int attackDamage = (int) Math.pow((BASE_DAMAGE*(c1Power/c2Power)), DAMAGE_SCALING_FACTOR);
+        critter2.setHealth(oldHealth - attackDamage);
     }
 
     /**

@@ -105,6 +105,25 @@ public class InteractionManagerTest {
         assertEquals(0, critter.getHunger());
         assertEquals(new Point(0, 3), critter.getPosition());
     }
+
+    @Test
+    public void testAttack(){
+        CritterFactory factory = new CritterFactory();
+        Critter critter1 = factory.generateCritter(new Point(0, 0));
+        critter1.setHealth(100);
+        Critter critter2 = factory.generateCritter(new Point(0, 1));
+        critter2.setHealth(100);
+
+        int size1 = critter1.getSize();
+        int size2 = critter2.getSize();
+        int baseDamage = 25;
+        double factor = 1.3;
+        int offense1 = critter1.getOffense();
+        int defense2 = critter2.getDefense();
+
+        critter1.attack(critter2);
+        assertEquals((int) Math.pow(baseDamage*((size1*offense1)/(size2*defense2)), factor), critter2.getHealth());
+    }
 }
 
 

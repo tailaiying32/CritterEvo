@@ -480,6 +480,13 @@ public class Critter{
         ai.makeMove(this);
     }
 
+    /**
+     * attack another critter
+     */
+    public void attack(Critter this, Critter critter) {
+        interactionManager.attack(this, critter);
+    }
+
 
 
     /**
