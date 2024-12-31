@@ -127,7 +127,7 @@ public class InteractionManager {
 
 
     /**
-     * Attacks the critter directly in front of itself.
+     * Attacks the critter directly in front of itself (critter 1 attacks critter 2).
      * Takes away health from other critter following this equation: D(S1O1/S2D2)^b,
      * where D and b are baseDamage and damageScalingFactor of the world the critter inhabits
      * For now, let D=25, and b=1.3 ---DO NOT HARD CODE THESE NUMBERS INTO THE METHOD.
