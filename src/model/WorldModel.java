@@ -294,10 +294,41 @@ public class WorldModel {
     }
 
     /**
-     * updates the world
+     * updates the world array
      */
-    public void update() {
-        throw new UnsupportedOperationException();
+    public void updateWorldArray() {
+        // Clear the current world array (except for mountains/terrain)
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                if (world[i][j] != 1) { // Don't clear mountains
+                    world[i][j] = 0; // Set to grass
+                }
+            }
+        }
+
+        // Update food positions
+        for (Food food : foods.values()) {
+            Point pos = food.getPosition();
+            if (pos.x >= 0 && pos.x < width && pos.y >= 0 && pos.y < height) {
+                world[pos.x][pos.y] = 2; // Food
+            }
+        }
+
+        // Update water positions
+        for (Water water : waters.values()) {
+            Point pos = water.getPosition();
+            if (pos.x >= 0 && pos.x < width && pos.y >= 0 && pos.y < height) {
+                world[pos.x][pos.y] = 3; // Water
+            }
+        }
+
+        // Update critter positions
+        for (Critter critter : critters.values()) {
+            Point pos = critter.getPosition();
+            if (pos.x >= 0 && pos.x < width && pos.y >= 0 && pos.y < height) {
+                world[pos.x][pos.y] = 4; // Critter
+            }
+        }
     }
 
     /**

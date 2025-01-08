@@ -1,6 +1,7 @@
 package controller;
 
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
@@ -19,6 +20,11 @@ public class WorldUpdater {
     private WorldView worldView;
 
     /**
+     * The world model corresponding to the view
+     */
+    private WorldModel worldModel;
+
+    /**
      * Boolean representing whether the simulation is running or not
      */
     private boolean isRunning;
@@ -33,7 +39,7 @@ public class WorldUpdater {
      */
     public WorldUpdater(WorldModel world, WorldView worldView) {
         this.worldView = worldView;
-
+        this.worldModel = worldView.getWorldModel();
         // Create timer that calls tick() every 2000ms
         this.timer = new Timer(1000, e -> tick());
     }
@@ -58,18 +64,15 @@ public class WorldUpdater {
      * If isRunning is true, increment the tick count and update the critters and world state
      */
     public void tick() {
-        if (!isRunning) return;
-
-        // Update model
-        worldView.getWorldModel().incrementTickCount();
-        updateCritters();
-//        addFood();
-
-        // Request GUI update
-        SwingUtilities.invokeLater(() -> {
-            worldView.revalidate();
+        if (isRunning) {
+            worldModel.updateWorldArray();
+            for (Critter critter : new ArrayList<Critter>(worldModel.getCritters().values())) {
+                critter.updatePriority();
+                critter.makeMove();
+            }
+            addFood();
             worldView.repaint();
-        });
+        }
     }
 
     /**
@@ -77,14 +80,14 @@ public class WorldUpdater {
      * inv: critters cannot move out of bounds
      */
     private void updateCritters() {
-        int width = worldView.getWorldModel().getWidth();
-        int height = worldView.getWorldModel().getHeight();
+        int width = worldModel.getWidth();
+        int height = worldModel.getHeight();
 
         // Clear previous critter positions
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                if (worldView.getWorldModel().getWorldArray()[i][j] == 4) {
-                    worldView.getWorldModel().getWorldArray()[i][j] = 0;
+                if (worldModel.getWorldArray()[i][j] == 4) {
+                    worldModel.getWorldArray()[i][j] = 0;
                 }
             }
         }
@@ -112,12 +115,14 @@ public class WorldUpdater {
     private void addFood() {
         WorldModel world = worldView.getWorldModel();
         int numCritters = worldView.getWorldModel().getCritters().size();
-        double random = Math.random() * numCritters;
 
         for (int i = 0; i < world.getWidth(); i++) {
             for (int j = 0; j < world.getHeight(); j++) {
                 if (world.getWorldArray()[i][j] == 0) {
-                    if (random <= 1) {
+                    // Generate random number between 0 and 1
+                    double random = Math.random();
+                    // Check if random number is less than 1/N
+                    if (random < 1.0 / numCritters) {
                         world.getWorldArray()[i][j] = 4;
                         world.addFood(new Food(new Point(i, j), (int) (Math.random() * 40), 0));
                     }

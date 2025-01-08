@@ -8,6 +8,7 @@ import model.Critter.Orientation;
 import model.Critter.Priority;
 import model.Food;
 import model.Water;
+import model.WorldModel;
 
 /**
  * class defining the behavior of the critter, and how it interacts with its environment
@@ -36,11 +37,19 @@ public class InteractionManager {
      * Returns hunger level after eating.
      */
     public double eat(Critter critter, Food food) {
-        int newHunger = Math.min(
-                (critter.getHunger() + food.getQuantity()),
-                critter.getMaxHunger()
-        );
-        critter.setHunger(newHunger);
+        if (food != null) {
+            int newHunger = Math.min(
+                    (critter.getHunger() + food.getQuantity()),
+                    critter.getMaxHunger()
+            );
+            critter.setHunger(newHunger);
+
+            // Remove the food and update the world
+            critter.getWorld().removeFood(food.getPosition());
+            critter.getWorld().updateWorldArray();
+
+            return critter.getHunger();
+        }
         return critter.getHunger();
     }
 
@@ -90,31 +99,40 @@ public class InteractionManager {
      * Returns the new coordinates after moving (remember that x and y start at 0 and at the top left)
      */
     public Point move(Critter critter, int distance) {
+        WorldModel world = critter.getWorld();
         int x = (int) critter.getPosition().getX();
         int y = (int) critter.getPosition().getY();
-        if (critter.getOrientation().equals(Orientation.N)) {
-            critter.setPosition(new Point(x, y - distance));
-        } else if (critter.getOrientation().equals(Orientation.NE)){
-            critter.setPosition(new Point(x + distance, y - distance));
-        } else if (critter.getOrientation().equals(Orientation.E)) {
-            critter.setPosition(new Point(x + distance, y));
-        } else if (critter.getOrientation().equals(Orientation.SE)) {
-            critter.setPosition(new Point(x + distance, y + distance));
-        } else if (critter.getOrientation().equals(Orientation.S)) {
-            critter.setPosition(new Point(x, y + distance));
-        } else if (critter.getOrientation().equals(Orientation.SW)) {
-            critter.setPosition(new Point(x - distance, y + distance));
-        } else if (critter.getOrientation().equals(Orientation.W)) {
-            critter.setPosition(new Point(x - distance, y));
-        } else if (critter.getOrientation().equals(Orientation.NW)) {
-            critter.setPosition(new Point(x - distance, y - distance));
+        int newX = x;
+        int newY = y;
+
+        switch(critter.getOrientation()) {
+            case N:  newY = Math.max(y - distance, 0); break;
+            case NE: newX = Math.min(x + distance, world.getWidth() - 1);
+                newY = Math.max(y - distance, 0); break;
+            case E:  newX = Math.min(x + distance, world.getWidth() - 1); break;
+            case SE: newX = Math.min(x + distance, world.getWidth() - 1);
+                newY = Math.min(y + distance, world.getHeight() - 1); break;
+            case S:  newY = Math.min(y + distance, world.getHeight() - 1); break;
+            case SW: newX = Math.max(x - distance, 0);
+                newY = Math.min(y + distance, world.getHeight() - 1); break;
+            case W:  newX = Math.max(x - distance, 0); break;
+            case NW: newX = Math.max(x - distance, 0);
+                newY = Math.max(y - distance, 0); break;
         }
 
+        // Update position in critters map
+        world.removeCritter(critter.getPosition());
+        Point newPos = new Point(newX, newY);
+        critter.setPosition(newPos);
+        world.addCritter(critter);
+
+        // Update hunger
         int hungerUsed = (int) (BASE_MOVE_COST + distance * MOVE_COST_FACTOR * Math.pow(critter.getSize(), 2));
-        critter.setHunger(Math.max(
-                critter.getHunger() - hungerUsed,
-                0
-        ));
+        critter.setHunger(Math.max(critter.getHunger() - hungerUsed, 0));
+
+        // Update world array
+        world.updateWorldArray();
+
         return critter.getPosition();
     }
 

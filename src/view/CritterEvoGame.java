@@ -110,7 +110,7 @@ public class CritterEvoGame {
         controlPanel.add(damageScalingField);
 
         controlPanel.add(new JLabel("Simulation Speed"));
-        simulationSpeedSlider = new JSlider(1, 4000, 2000);
+        simulationSpeedSlider = new JSlider(1, 1000, 500);
         controlPanel.add(simulationSpeedSlider);
 
         simulationSpeedSlider.addChangeListener(e -> {
@@ -172,7 +172,7 @@ public class CritterEvoGame {
         if (worldView != null) {
             frame.remove(worldView);
         }
-        worldView = new WorldView(world, 20);
+        worldView = new WorldView(world);
         frame.add(worldView, BorderLayout.CENTER);
         frame.revalidate();
         frame.repaint();
