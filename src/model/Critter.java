@@ -205,7 +205,8 @@ public class Critter{
             int defense,
             int aggression,
             int generation,
-            int mutationRate
+            int mutationRate,
+            WorldModel world
             ) {
         this.ai = ai;
         this.interactionManager = interactionManager;
@@ -226,7 +227,34 @@ public class Critter{
         this.position = position;
         this.orientation = orientation;
         this.mutationRate = mutationRate;
+        this.world = world;
+        assertInv();
+    }
 
+    /**
+     * Constructs a critter without a world parameter for testing purposes
+     */
+    public Critter(CritterAI ai, InteractionManager interactionManager, Point position, Orientation orientation, int maxAge, int maxHunger, int maxThirst, int maxHealth, Sex sex, int size, int offense, int defense, int aggression, int generation, int mutationRate) {
+        this.ai = ai;
+        this.interactionManager = interactionManager;
+        this.maxAge = maxAge;
+        this.age = 0;
+        this.maxHealth = maxHealth;
+        this.maxHunger = maxHunger;
+        this.hunger = maxHunger/2;
+        this.maxThirst = maxThirst;
+        this.thirst = maxThirst/2;
+        this.health = 100;
+        this.sex = sex;
+        this.size = size;
+        this.offense = offense;
+        this.defense = defense;
+        this.aggression = aggression;
+        this.generation = generation;
+        this.position = position;
+        this.orientation = orientation;
+        this.mutationRate = mutationRate;
+        this.world = null;
         assertInv();
     }
 
@@ -443,6 +471,7 @@ public class Critter{
      */
     public void eat(Critter this, Food food) {
         interactionManager.eat(this, food);
+        getWorld().removeFood(food.getPosition());
     }
 
     /**
@@ -487,7 +516,19 @@ public class Critter{
         interactionManager.attack(this, critter);
     }
 
+    /**
+     * locates the critter's nearest target
+     */
+    public Point locateTarget(Critter this) {
+        return ai.locateTarget(this, this.getPriority());
+    }
 
+    /**
+     * determines what the critter's orientation should be
+     */
+    public Orientation determineOrientation() {
+        return ai.determineOrientation(this);
+    }
 
     /**
      * Assert that class invariants are satisfied.

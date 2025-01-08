@@ -20,7 +20,7 @@ public class CritterFactory {
     /**
      * Creates and returns a critter with randomized attributes
      */
-    public Critter generateCritter(Point p) {
+    public Critter generateCritter(Point p, WorldModel world) {
         CritterAI critterai = new CritterAI();
 
         // random number generator for attributes for critter construction
@@ -59,7 +59,8 @@ public class CritterFactory {
                 defense,
                 aggression,
                 0,
-                mutationRate
+                mutationRate,
+                world
         );
 
         return critter;

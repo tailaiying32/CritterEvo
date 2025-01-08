@@ -62,6 +62,12 @@ public class WorldModel {
     private Map<Point, Food> foods;
 
     /**
+     * Represents all water on grid currently. Stored in a Map with the Point position as a key
+     * and the water object as a value
+     */
+    private Map<Point, Water> waters;
+
+    /**
      * The base damage done by critters in the game (default 25)
      */
     private double baseDamage;
@@ -84,6 +90,7 @@ public class WorldModel {
         this.mutationRate = mutationRate;
         this.critters = new HashMap<Point, Critter>();
         this.foods = new HashMap<Point, Food>();
+        this.waters = new HashMap<Point, Water>();
         this.baseDamage = baseDamage;
         this.damageScalingFactor = damageScalingFactor;
 
@@ -112,7 +119,8 @@ public class WorldModel {
                     this.world[i][j] = 4; // 4 for critter
                     // construct a new critter with random attributes
                     CritterFactory critterFactory = new CritterFactory();
-                    addCritter(critterFactory.generateCritter(new Point(i, j)));
+                    Critter critter = critterFactory.generateCritter(new Point(i, j), this);
+                    addCritter(critter);
                 }
             }
         }
@@ -165,7 +173,7 @@ public class WorldModel {
     /**
      * Returns the 2D array representing this world
      */
-    public int[][] getWorld() {
+    public int[][] getWorldArray() {
         return world;
     }
 
@@ -247,6 +255,42 @@ public class WorldModel {
      */
     public void removeFood(Point p) {
         foods.remove(p);
+    }
+
+    /**
+     * Returns the list of all food on the map
+     */
+    public Map<Point, Water> getWaters() {
+        return waters;
+    }
+
+    /**
+     * Sets the foods list to "foods"
+     */
+    public void setWaters(Map<Point, Water> waters) {
+        this.waters = waters;
+    }
+
+    /**
+     * Returns the food on Point p
+     * If there is no food on Point p, return null
+     */
+    public Water getWater(Point p) {
+        return waters.get(p);
+    }
+
+    /**
+     * Adds food to the list of all food
+     */
+    public void addWater(Water water) {
+        this.waters.put(water.getPosition(), water);
+    }
+
+    /**
+     * Removes food at point p from the list of all food
+     */
+    public void removeWater(Point p) {
+        waters.remove(p);
     }
 
     /**

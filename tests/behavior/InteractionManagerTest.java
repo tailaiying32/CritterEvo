@@ -8,6 +8,7 @@ import model.Critter.Orientation;
 import model.CritterFactory;
 import model.Food;
 import model.Water;
+import model.WorldFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +20,8 @@ public class InteractionManagerTest {
     @Test
     public void testEatFood() {
         CritterFactory factory = new CritterFactory();
-        Critter critter = factory.generateCritter(new Point(0, 0));
+        WorldFactory worldFactory = new WorldFactory();
+        Critter critter = factory.generateCritter(new Point(0, 0), worldFactory.generateTestWorld());
         critter.setMaxHunger(100);
         critter.setHunger(50);
         Food food = new Food(new Point(1, 1), 40, 1);
@@ -35,7 +37,8 @@ public class InteractionManagerTest {
     @Test
     public void testDrinkWater() {
         CritterFactory factory = new CritterFactory();
-        Critter critter = factory.generateCritter(new Point(0, 0));
+        WorldFactory worldFactory = new WorldFactory();
+        Critter critter = factory.generateCritter(new Point(0, 0), worldFactory.generateTestWorld());
         Water water = new Water(new Point(1, 1), 1);
         critter.setMaxThirst(100);
         critter.drink(water);
@@ -48,7 +51,8 @@ public class InteractionManagerTest {
     @Test
     public void testRotate() {
         CritterFactory factory = new CritterFactory();
-        Critter critter = factory.generateCritter(new Point(0, 0));
+        WorldFactory worldFactory = new WorldFactory();
+        Critter critter = factory.generateCritter(new Point(0, 0), worldFactory.generateTestWorld());
         critter.setMaxHunger(100);
         critter.setHunger(100);
         critter.setOrientation(Orientation.N);
@@ -87,7 +91,9 @@ public class InteractionManagerTest {
     @Test
     public void testMove() {
         CritterFactory factory = new CritterFactory();
-        Critter critter = factory.generateCritter(new Point(0, 0));
+        WorldFactory worldFactory = new WorldFactory();
+
+        Critter critter = factory.generateCritter(new Point(0, 0), worldFactory.generateTestWorld());
         critter.setMaxHunger(100);
         critter.setHunger(100);
         critter.setOrientation(Orientation.S);
@@ -109,9 +115,11 @@ public class InteractionManagerTest {
     @Test
     public void testAttack(){
         CritterFactory factory = new CritterFactory();
-        Critter critter1 = factory.generateCritter(new Point(0, 0));
+        WorldFactory worldFactory = new WorldFactory();
+
+        Critter critter1 = factory.generateCritter(new Point(0, 0), worldFactory.generateTestWorld());
         critter1.setHealth(100);
-        Critter critter2 = factory.generateCritter(new Point(0, 1));
+        Critter critter2 = factory.generateCritter(new Point(0, 1), worldFactory.generateTestWorld());
         critter2.setHealth(100);
 
         int size1 = critter1.getSize();
@@ -122,7 +130,7 @@ public class InteractionManagerTest {
         int defense2 = critter2.getDefense();
 
         critter1.attack(critter2);
-        assertEquals((int) Math.pow(baseDamage*((size1*offense1)/(size2*defense2)), factor), critter2.getHealth());
+        assertEquals((int) Math.pow(baseDamage*((double) (size1 * offense1) /(size2*defense2)), factor), critter2.getHealth());
     }
 }
 

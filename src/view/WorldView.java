@@ -39,9 +39,8 @@ public class WorldView extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
         // get the 2D array representing the world
-        int[][] world = worldModel.getWorld();
+        int[][] world = worldModel.getWorldArray();
         int rows = worldModel.getHeight();
         int cols = worldModel.getWidth();
 
@@ -70,5 +69,12 @@ public class WorldView extends JPanel {
                 g.drawRect(x, y, cellSize, cellSize);
             }
         }
+    }
+
+    /**
+     * get the world model
+     */
+    public WorldModel getWorldModel() {
+        return worldModel;
     }
 }

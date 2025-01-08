@@ -51,7 +51,7 @@ public class WorldModelTest {
         int numCritters = world.getCritters().size();
 
         CritterFactory critterFactory = new CritterFactory();
-        Critter critter = critterFactory.generateCritter(new Point(5, 5));
+        Critter critter = critterFactory.generateCritter(new Point(5, 5), world);
         world.addCritter(critter);
 
         assertEquals(numCritters + 1, world.getCritters().size());
@@ -66,7 +66,7 @@ public class WorldModelTest {
         WorldModel world = new WorldModel(10, 10, 0.0, 0.0, 1, 1, 1);
         world.seedWorld();
         CritterFactory critterFactory = new CritterFactory();
-        Critter critter = critterFactory.generateCritter(new Point(5, 5));
+        Critter critter = critterFactory.generateCritter(new Point(5, 5), world);
         world.addCritter(critter);
 
         int numCritters = world.getCritters().size();

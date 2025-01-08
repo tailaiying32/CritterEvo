@@ -1,5 +1,6 @@
 package view;
 
+import controller.WorldUpdater;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import javax.swing.BoxLayout;
@@ -7,6 +8,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.JTextField;
 import model.WorldModel;
 
@@ -21,9 +23,19 @@ public class CritterEvoGame {
     private final JFrame frame;
 
     /**
+     * The world this game contains
+     */
+    private WorldModel world;
+
+    /**
      * the world panel
      */
     private WorldView worldView;
+
+    /**
+     * the world updater
+     */
+    private WorldUpdater worldUpdater;
 
     /**
      * Start, pause, and reset buttons
@@ -39,6 +51,16 @@ public class CritterEvoGame {
      * User input for world parameters.
      */
     private JTextField widthField, heightField, foodDensityField, critterDensityField, mutationRateField, baseDamageField, damageScalingField;
+
+    /**
+     * Slider for simulation speed
+     */
+    private JSlider simulationSpeedSlider;
+
+    /**
+     * Simulation speed
+     */
+
 
 
     /**
@@ -87,6 +109,16 @@ public class CritterEvoGame {
         damageScalingField = new JTextField("1.3");
         controlPanel.add(damageScalingField);
 
+        controlPanel.add(new JLabel("Simulation Speed"));
+        simulationSpeedSlider = new JSlider(1, 4000, 2000);
+        controlPanel.add(simulationSpeedSlider);
+
+        simulationSpeedSlider.addChangeListener(e -> {
+            if (worldUpdater != null) {
+                int delay = simulationSpeedSlider.getValue();
+                worldUpdater.setTimerDelay(simulationSpeedSlider.getMaximum() - delay);
+            }
+        });
 
         startButton = new JButton("Start");
         pauseButton = new JButton("Pause");
@@ -102,12 +134,19 @@ public class CritterEvoGame {
         // TODO: Add action listeners for buttons
         startButton.addActionListener(e -> {
             // start simulation
-            throw new UnsupportedOperationException();
+            if (worldUpdater == null) {
+                worldUpdater = new WorldUpdater(worldView.getWorldModel(), worldView);
+                worldUpdater.start();
+                worldUpdater.tick();
+            } else {
+                worldUpdater.start();
+                worldUpdater.tick();// Resume if paused
+            }
         });
 
         pauseButton.addActionListener(e -> {
             // pause simulation
-            throw new UnsupportedOperationException();
+            worldUpdater.stop();
         });
 
         resetButton.addActionListener(e -> {
@@ -126,8 +165,8 @@ public class CritterEvoGame {
      */
     private void generateWorld() {
         // TODO: parse and validate the user inputs, use the inputs to construct a new world, and initialize or update the world view
-        int width = Integer.parseInt(widthField.getText());
-        WorldModel world = getWorldModel(width);
+        WorldModel world = createWorldModel();
+        this.world = world;
 
         // Initialize or update world view
         if (worldView != null) {
@@ -137,10 +176,17 @@ public class CritterEvoGame {
         frame.add(worldView, BorderLayout.CENTER);
         frame.revalidate();
         frame.repaint();
+
+        // reset the world updater
+        worldUpdater = null;
     }
 
-    private WorldModel getWorldModel(int width) {
+    /**
+     * Constructs the world, helper method for generateWorld()
+     */
+    private WorldModel createWorldModel() {
         int height = Integer.parseInt(heightField.getText());
+        int width = Integer.parseInt(widthField.getText());
         double foodDensity = Double.parseDouble(foodDensityField.getText());
         double critterDensity = Double.parseDouble(critterDensityField.getText());
         double mutationRate = Double.parseDouble(mutationRateField.getText());
