@@ -60,30 +60,30 @@ public class InteractionManagerTest {
         critter.setHunger(100);
         critter.setOrientation(Orientation.N);
 
-        int size = critter.getSize();
-        int hungerTester = critter.getHunger();
+        double size = critter.getSize();
+        double hungerTester = critter.getHunger();
 
         critter.rotate(Orientation.N);
         assertEquals(100, critter.getHunger());
         assertEquals(Orientation.N, critter.getOrientation());
 
         critter.rotate(Orientation.S);
-        assertEquals(hungerTester - (int) (1 + 4 * (0.0004 * Math.pow(size, 2))), critter.getHunger());
+        assertEquals(hungerTester - (1.0 + 4.0 * (0.0004 * Math.pow(size, 2))), critter.getHunger());
         assertEquals(Orientation.S, critter.getOrientation());
         hungerTester = critter.getHunger();
 
         critter.rotate(Orientation.W);
-        assertEquals(hungerTester - (int) (1 + 2 * (0.0004 * Math.pow(size, 2))), critter.getHunger());
+        assertEquals(hungerTester -  (1.0 + 2.0 * (0.0004 * Math.pow(size, 2))), critter.getHunger());
         assertEquals(Orientation.W, critter.getOrientation());
         hungerTester = critter.getHunger();
 
         critter.rotate(Orientation.NE);
-        assertEquals(hungerTester - (int) (1 + 3 * (0.0004 * Math.pow(size, 2))), critter.getHunger());
+        assertEquals(hungerTester -  (1.0 + 3.0 * (0.0004 * Math.pow(size, 2))), critter.getHunger());
         assertEquals(Orientation.NE, critter.getOrientation());
         hungerTester = critter.getHunger();
 
         critter.rotate(Orientation.E);
-        assertEquals(hungerTester - (int) (1 + 0.0004 * Math.pow(size, 2)), critter.getHunger());
+        assertEquals(hungerTester -  (1 + 0.0004 * Math.pow(size, 2)), critter.getHunger());
         assertEquals(Orientation.E, critter.getOrientation());
         hungerTester = critter.getHunger();
     }
@@ -101,11 +101,11 @@ public class InteractionManagerTest {
         critter.setHunger(100);
         critter.setOrientation(Orientation.S);
 
-        int size = critter.getSize();
-        int hungerTester = critter.getHunger();
+        double size = critter.getSize();
+        double hungerTester = critter.getHunger();
 
         critter.move(1);
-        assertEquals(hungerTester - (int) (1 + 0.002*Math.pow(size, 2)), critter.getHunger());
+        assertEquals(hungerTester - (1 + 0.002*Math.pow(size, 2)), critter.getHunger());
         assertEquals(new Point(0, 1), critter.getPosition());
 
 
@@ -126,15 +126,15 @@ public class InteractionManagerTest {
         Critter critter2 = factory.generateCritter(new Point(0, 1), worldFactory.generateTestWorld());
         critter2.setHealth(100);
 
-        int size1 = critter1.getSize();
-        int size2 = critter2.getSize();
-        int baseDamage = 25;
+        double size1 = critter1.getSize();
+        double size2 = critter2.getSize();
+        double baseDamage = 25;
         double factor = 1.3;
-        int offense1 = critter1.getOffense();
-        int defense2 = critter2.getDefense();
+        double offense1 = critter1.getOffense();
+        double defense2 = critter2.getDefense();
 
         critter1.attack(critter2);
-        assertEquals((int) Math.pow(baseDamage*((double) (size1 * offense1) /(size2*defense2)), factor), critter2.getHealth());
+        assertEquals(100 - Math.pow(baseDamage*((double) (size1 * offense1) /(size2*defense2)), factor), critter2.getHealth());
     }
 
     @DisplayName("WHEN a critter reproduces, THEN it should create a child behind it"
@@ -152,7 +152,29 @@ public class InteractionManagerTest {
 
         critter.reproduce();
         assertNotNull(world.getCritter(new Point(0, 1)));
-        assertEquals(2, world.getCritters().size());
+
+        critter.reproduce();
+        critter.reproduce();
+        assertNotNull(world.getCritter(new Point(1, 1)));
+        assertNotNull(world.getCritter(new Point(1, 0)));
+    }
+
+    @DisplayName("WHEN a critter dies, THEN it should be removed from the world's list of critters"
+            + "AND it should be turned into food")
+    @Test
+    public void testDie() {
+        CritterFactory factory = new CritterFactory();
+        WorldFactory worldFactory = new WorldFactory();
+        WorldModel world = worldFactory.generateTestWorld();
+        Critter critter = factory.generateCritter(new Point(0, 0), world);
+
+        world.addCritter(critter);
+
+        int currsize = world.getCritters().size();
+
+        critter.die();
+        assertEquals(currsize - 1, world.getCritters().size());
+        assertNotNull(world.getFood(new Point(0, 0)));
     }
 }
 

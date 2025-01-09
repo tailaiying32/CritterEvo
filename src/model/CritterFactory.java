@@ -29,12 +29,12 @@ public class CritterFactory {
 
         int maxAge = (int) (Math.random() * 100);
 
-        double maxHealth = (int) (Math.random() * 100);
-
         Sex[] sexes = Sex.values();
         Sex sex = sexes[ThreadLocalRandom.current().nextInt(sexes.length)];
 
         double size =  (Math.random() * 100);
+
+        double maxHealth = size;
 
         double offense =  (Math.random() * 100);
 

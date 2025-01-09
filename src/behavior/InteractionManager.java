@@ -11,6 +11,7 @@ import model.CritterFactory;
 import model.Food;
 import model.Water;
 import model.WorldModel;
+import model.WorldModel.CellState;
 
 /**
  * class defining the behavior of the critter, and how it interacts with its environment
@@ -21,12 +22,15 @@ public class InteractionManager {
     // energy cost constants
     private static final double MOVE_COST_FACTOR = 0.002;
     private static final double ROTATE_COST_FACTOR = 0.0004;
-    private static final int BASE_MOVE_COST = 1;
-    private static final int BASE_ROTATE_COST = 1;
+    private static final double BASE_MOVE_COST = 1;
+    private static final double BASE_ROTATE_COST = 0.5;
 
     //variables representing baseDamage and damageScalingFactor
     private static final double BASE_DAMAGE = 25;
     private static final double DAMAGE_SCALING_FACTOR = 1.3;
+
+    // variable representing the base reproduction energy usage
+    private static final double BASE_REPRODUCTION_COST = 0.5;
 
     /**
      * constructor for Interaction Manager
@@ -141,6 +145,7 @@ public class InteractionManager {
     /**
      * Creates and returns a new critter based its parent's attributes
      * the critter should have at least one empty square around it to reproduce
+     * uses up a large amount of hunger
      */
     public void reproduce(Critter parent) {
         double parentMutationRate = parent.getMutationRate();
@@ -149,13 +154,13 @@ public class InteractionManager {
 
         // Mutate traits based on the combined mutation rate
         int maxAge = (int) Math.round(mutateTrait((double) parent.getMaxAge(), combinedMutationRate));
-        double maxHunger = mutateTrait(parent.getMaxHunger(), combinedMutationRate);
-        double maxThirst = mutateTrait(parent.getMaxThirst(), combinedMutationRate);
-        double maxHealth = mutateTrait(parent.getMaxHealth(), combinedMutationRate);
-        double size = mutateTrait(parent.getSize(), combinedMutationRate);
-        double offense = mutateTrait(parent.getOffense(), combinedMutationRate);
-        double defense = mutateTrait(parent.getDefense(), combinedMutationRate);
-        double aggression = mutateTrait(parent.getAggression(), combinedMutationRate);
+        double maxHunger = Math.min(mutateTrait(parent.getMaxHunger(), combinedMutationRate), 100);
+        double maxThirst = Math.min(mutateTrait(parent.getMaxThirst(), combinedMutationRate), 100);
+        double size = Math.min(mutateTrait(parent.getSize(), combinedMutationRate), 100);
+        double maxHealth = Math.min(mutateTrait(parent.getMaxHealth(), combinedMutationRate), 100);
+        double offense = Math.min(mutateTrait(parent.getOffense(), combinedMutationRate), 100);
+        double defense = Math.min(mutateTrait(parent.getDefense(), combinedMutationRate), 100);
+        double aggression = Math.min(mutateTrait(parent.getAggression(), combinedMutationRate), 100);
         double mutationRate = mutateTrait(parent.getMutationRate(), combinedMutationRate);
 
         if (!emptySquares(parent).isEmpty()) {
@@ -182,6 +187,8 @@ public class InteractionManager {
             // then add the critter to the world
             parent.getWorld().addCritter(child);
         }
+
+        parent.setHunger(BASE_REPRODUCTION_COST * parent.getHunger());
     }
 
     /**
@@ -191,7 +198,7 @@ public class InteractionManager {
     private double mutateTrait(double trait, double mutationRate) {
         double random = Math.random();
         if (random < mutationRate) {
-            double change = Math.random() / 10;
+            double change = Math.random() / 2;
             return (Math.random() < 0.5) ? trait * (1 - change) : trait * (1 + change);
         }
         return trait;
@@ -199,7 +206,7 @@ public class InteractionManager {
 
 
     /**
-     * Attacks the critter directly in front of itself (critter 1 attacks critter 2).
+     * (critter 1 attacks critter 2).
      * Takes away health from other critter following this equation: B(S1O1/S2D2)^b,
      * where B and b are baseDamage and damageScalingFactor of the world the critter inhabits
      * For now, let B=25, and b=1.3 ---DO NOT HARD CODE THESE NUMBERS INTO THE METHOD.
@@ -211,13 +218,6 @@ public class InteractionManager {
         double c2Power = critter2.getSize()*critter2.getDefense();
         double attackDamage = Math.pow((BASE_DAMAGE*(c1Power/c2Power)), DAMAGE_SCALING_FACTOR);
         critter2.setHealth(oldHealth - attackDamage);
-    }
-
-    /**
-     * Determines the outcome in the case that two critters fight over resources.
-     */
-    public void fight(CritterAI ai, Critter critter1, Critter critter2) {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     /**
@@ -260,7 +260,7 @@ public class InteractionManager {
         // check if the new position is within world bounds or if it is already taken up
         if (childX >= 0 && childX < world.getWidth() &&
                 childY >= 0 && childY < world.getHeight() &&
-                world.getWorldArray()[childX][childY] == 0) {
+                world.getWorldArray()[childX][childY] == CellState.GRASS) {
             return birthPos;
         }
 
@@ -291,7 +291,7 @@ public class InteractionManager {
         emptySquares.removeIf(p ->
                 p.x < 0 || p.x >= critter.getWorld().getWidth() ||
                         p.y < 0 || p.y >= critter.getWorld().getHeight() ||
-                        critter.getWorld().getWorldArray()[p.x][p.y] != 0
+                        critter.getWorld().getWorldArray()[p.x][p.y] != CellState.GRASS
         );
 
         return emptySquares;

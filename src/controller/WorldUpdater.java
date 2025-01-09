@@ -11,6 +11,7 @@ import javax.swing.Timer;
 import model.Critter;
 import model.Food;
 import model.WorldModel;
+import model.WorldModel.CellState;
 import view.CritterEvoGame;
 import view.WorldView;
 
@@ -42,6 +43,11 @@ public class WorldUpdater {
     private Timer timer;
 
     /**
+     * Factor to scale food generation by (higher means food is less common)
+     */
+    private static final double FOOD_GENERATION_FACTOR = 2.0;
+
+    /**
      * Constructor for worldUpdater
      */
     public WorldUpdater(WorldModel world, WorldView worldView, CritterEvoGame game) {
@@ -49,7 +55,7 @@ public class WorldUpdater {
         this.worldModel = worldView.getWorldModel();
         this.game = game;
         // Create timer that calls tick() every 2000ms
-        this.timer = new Timer(1000, e -> tick());
+        this.timer = new Timer(100, e -> tick());
     }
 
     /**
@@ -81,8 +87,6 @@ public class WorldUpdater {
             game.statsPanel.updateStats();
             game.statsPanel.repaint();
         }
-//        System.out.println("critter list: " + worldModel.getCritters().size());
-//        System.out.println("food list: " + worldModel.getFoods().size());
     }
 
     /**
@@ -116,12 +120,12 @@ public class WorldUpdater {
 
         for (int i = 0; i < world.getWidth(); i++) {
             for (int j = 0; j < world.getHeight(); j++) {
-                if (world.getWorldArray()[i][j] == 0) {
+                if (world.getWorldArray()[i][j] == CellState.GRASS) {
                     // Generate random number between 0 and 1
                     double random = Math.random();
                     // Check if random number is less than 1/2N
-                    if (random < 1.0 / (numCritters * 2)) {
-                        world.getWorldArray()[i][j] = 4;
+                    if (random < 1.0 / (numCritters * FOOD_GENERATION_FACTOR)) {
+                        world.getWorldArray()[i][j] = CellState.FOOD;
                         world.addFood(new Food(new Point(i, j), (int) (Math.random() * 40), 0));
                     }
                 }

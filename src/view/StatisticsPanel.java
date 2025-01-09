@@ -114,7 +114,7 @@ public class StatisticsPanel extends JPanel {
         traitData.put("Defense", new ArrayList<>());
 
         for (Critter critter : critters.values()) {
-            traitData.get("Health").add((double) critter.getHealth());
+            traitData.get("Health").add((double) critter.getMaxHealth());
             traitData.get("Size").add((double) critter.getSize());
             traitData.get("Offense").add((double) critter.getOffense());
             traitData.get("Defense").add((double) critter.getDefense());

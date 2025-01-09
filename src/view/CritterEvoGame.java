@@ -58,7 +58,14 @@ public class CritterEvoGame {
      */
     private JSlider simulationSpeedSlider;
 
+    /**
+     * tabs to switch between the simulation and stats screen
+     */
     private JTabbedPane tabbedPane;
+
+    /**
+     * the stats screen
+     */
     public StatisticsPanel statsPanel;
 
     /**
@@ -114,7 +121,7 @@ public class CritterEvoGame {
         controlPanel.add(damageScalingField);
 
         controlPanel.add(new JLabel("Simulation Speed"));
-        simulationSpeedSlider = new JSlider(0, 100, 80);
+        simulationSpeedSlider = new JSlider(0, 1000, 800 );
         controlPanel.add(simulationSpeedSlider);
 
         simulationSpeedSlider.addChangeListener(e -> {
@@ -155,8 +162,11 @@ public class CritterEvoGame {
         });
 
         resetButton.addActionListener(e -> {
-            // reset simulation
-            throw new UnsupportedOperationException();
+            // reset simulation, clear world
+            world = null;
+            worldView = null;
+            gamePanel.revalidate();
+            gamePanel.repaint();
         });
 
         // Create statistics panel

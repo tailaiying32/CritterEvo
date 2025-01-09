@@ -10,6 +10,7 @@ import model.Critter.Priority;
 import model.Food;
 import model.Water;
 import model.WorldModel;
+import model.WorldModel.CellState;
 
 /**
  * Defines what the critter's next priority is i.e. food, water, or love
@@ -21,7 +22,7 @@ public class CritterAI {
     /**
      * base hunger expenditure
      */
-    private static final int BASE_HUNGER_EXPENDITURE = 1;
+    private static final double BASE_HUNGER_EXPENDITURE = 0.7;
 
     /**
      * Constructor for ai
@@ -33,11 +34,11 @@ public class CritterAI {
      * Returns the calculated priority
      */
     public void updatePriority(Critter critter) {
-        if (critter.getHunger() >= 80 && critter.getHealth() >= 80) {
+        if (critter.getHunger() >= 0.8 * critter.getMaxHunger() && critter.getHealth() >= 0.8 * critter.getMaxHealth()) {
             critter.setPriority(Priority.LOVE);
         } else {
             if (critter.getHunger() >= critter.getThirst()) {
-                critter.setPriority(Priority.FOOD);
+                critter.setPriority(Priority.ATTACK);
             }
             critter.setPriority(Priority.FOOD);
 //            } else {
@@ -55,7 +56,7 @@ public class CritterAI {
 
         // take away some base hunger, even if resting
         critter.setHunger(critter.getHunger() - (BASE_HUNGER_EXPENDITURE +
-                (int) Math.pow((double) critter.getSize()/10, 1.3)
+                (int) Math.pow((double) critter.getSize()/10, 1.2)
         ));
 
         // increment age by 1
@@ -95,6 +96,12 @@ public class CritterAI {
                 return;
             }
 
+            Critter critterInFront = world.getCritter(frontSquare);
+            if (critterInFront != null && critter.getPriority() == Priority.ATTACK) {
+                critter.attack(critterInFront);
+                return;
+            }
+
             // If there's nothing to eat/drink in front, and we can move, then move
             if (isValidMove(frontSquare, world)) {
                 critter.move(1);
@@ -114,8 +121,10 @@ public class CritterAI {
         }
 
         // Check if position is occupied by a mountain (1) or another critter (4)
-        int[][] worldArray = world.getWorldArray();
-        return worldArray[pos.x][pos.y] != 1 && worldArray[pos.x][pos.y] != 4;
+        CellState[][] worldArray = world.getWorldArray();
+        return worldArray[pos.x][pos.y] != CellState.MOUNTAIN &&
+                worldArray[pos.x][pos.y] != CellState.PEACEFUL_CRITTER &&
+                worldArray[pos.x][pos.y] != CellState.ANGRY_CRITTER;
     }
 
 
@@ -133,6 +142,7 @@ public class CritterAI {
         Map<Point, ?> targets = switch (priority) {
             case FOOD -> world.getFoods();
             case WATER -> world.getWaters();
+            case ATTACK -> world.getCritters();
 //            case LOVE -> world.getCritters();
             default -> new HashMap<>(); // Empty set for unsupported priorities
         };

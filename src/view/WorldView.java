@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import javax.swing.JPanel;
 import model.WorldModel;
+import model.WorldModel.CellState;
 
 /**
  * The GUI representing the world
@@ -70,22 +71,24 @@ public class WorldView extends JPanel {
         int yOffset = (getHeight() - (worldModel.getHeight() * cellSize)) / 2;
 
         // get the 2D array representing the world
-        int[][] world = worldModel.getWorldArray();
+        CellState[][] world = worldModel.getWorldArray();
         int rows = worldModel.getHeight();
         int cols = worldModel.getWidth();
 
         // Draw the grid
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
-                int cellState = world[col][row];
+                CellState cellState = world[col][row];
 
                 // Set color based on the state of the cell
                 switch (cellState) {
-                    case 0 -> g.setColor(Color.WHITE); // Grass
-                    case 1 -> g.setColor(Color.BLACK); // Mountain
-                    case 2 -> g.setColor(Color.GREEN); // Food
-                    case 3 -> g.setColor(Color.BLUE);  // Water
-                    case 4 -> g.setColor(Color.ORANGE); // Critter
+                    case GRASS -> g.setColor(Color.WHITE); // Grass
+                    case MOUNTAIN -> g.setColor(Color.BLACK); // Mountain
+                    case FOOD -> g.setColor(Color.GREEN); // Food
+                    case WATER -> g.setColor(Color.BLUE);  // Water
+                    case PEACEFUL_CRITTER -> {
+                        g.setColor(Color.ORANGE);
+                    } // Critter
                 }
 
                 // Draw cell
@@ -94,7 +97,7 @@ public class WorldView extends JPanel {
                 g.fillRect(x, y, cellSize, cellSize);
 
                 // Draw grid lines
-                g.setColor(Color.LIGHT_GRAY);
+                g.setColor(new Color(220, 220, 220));
                 g.drawRect(x, y, cellSize, cellSize);
             }
         }

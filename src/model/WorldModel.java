@@ -49,7 +49,21 @@ public class WorldModel {
      * 2-D array representing the current world state. Entries in the array are an integer,
      * either 0, 1, 2, 3, 4, for grass, mountain, food, water, or critter, respectively
      */
-    private int[][] worldArray;
+    private CellState[][] worldArray;
+
+    /**
+     * enum for cell state
+     */
+    public enum CellState {
+        GRASS(0), MOUNTAIN(1), FOOD(2), WATER(3), PEACEFUL_CRITTER(4), ANGRY_CRITTER(5);
+        private int value;
+        CellState(int value) {
+            this.value = value;
+        }
+        public int getValue() {
+            return this.value;
+        }
+    }
 
     /**
      * Represents all currently alive critters. Stored in a Map with a Point id as a key
@@ -88,7 +102,7 @@ public class WorldModel {
         this.tickCount = 0;
         this.initialFoodDensity = initialFoodDensity;
         this.initialCritterDensity = initialCritterDensity;
-        this.worldArray = new int[width][height];
+        this.worldArray = new CellState[width][height];
         this.mutationRate = mutationRate;
         this.critters = new HashMap<Point, Critter>();
         this.foods = new HashMap<Point, Food>();
@@ -114,11 +128,11 @@ public class WorldModel {
             for (int j = 0; j < height; j++) {
                 double randomValue = Math.random(); // random number used for seeding world
                 if (randomValue <= initialFoodDensity) {
-                    this.worldArray[i][j] = 2; // 2 for food
+                    this.worldArray[i][j] = CellState.FOOD; // 2 for food
                     Food food = new Food(new Point(i, j), (int) (Math.random()*35 + 5), 0);
                     addFood(food);
                 } else if (randomValue <= initialFoodDensity + initialCritterDensity) {
-                    this.worldArray[i][j] = 4; // 4 for critter
+                    this.worldArray[i][j] = CellState.PEACEFUL_CRITTER; // 4 for critter
                     // construct a new critter with random attributes
                     CritterFactory critterFactory = new CritterFactory();
                     Critter critter = critterFactory.generateCritter(new Point(i, j), this);
@@ -175,7 +189,7 @@ public class WorldModel {
     /**
      * Returns the 2D array representing this world
      */
-    public int[][] getWorldArray() {
+    public CellState[][] getWorldArray() {
         return worldArray;
     }
 
@@ -318,8 +332,8 @@ public class WorldModel {
         // Clear the current world array (except for mountains/terrain)
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                if (worldArray[i][j] != 1) { // Don't clear mountains
-                    worldArray[i][j] = 0; // Set to grass
+                if (worldArray[i][j] != CellState.MOUNTAIN) { // Don't clear mountains
+                    worldArray[i][j] = CellState.GRASS; // Set to grass
                 }
             }
         }
@@ -328,7 +342,7 @@ public class WorldModel {
         for (Food food : foods.values()) {
             Point pos = food.getPosition();
             if (pos.x >= 0 && pos.x < width && pos.y >= 0 && pos.y < height) {
-                worldArray[pos.x][pos.y] = 2; // Food
+                worldArray[pos.x][pos.y] = CellState.FOOD; // Food
             }
         }
 
@@ -336,7 +350,7 @@ public class WorldModel {
         for (Water water : waters.values()) {
             Point pos = water.getPosition();
             if (pos.x >= 0 && pos.x < width && pos.y >= 0 && pos.y < height) {
-                worldArray[pos.x][pos.y] = 3; // Water
+                worldArray[pos.x][pos.y] = CellState.WATER; // Water
             }
         }
 
@@ -344,7 +358,7 @@ public class WorldModel {
         for (Critter critter : critters.values()) {
             Point pos = critter.getPosition();
             if (pos.x >= 0 && pos.x < width && pos.y >= 0 && pos.y < height) {
-                worldArray[pos.x][pos.y] = 4; // Critter
+                worldArray[pos.x][pos.y] = CellState.PEACEFUL_CRITTER; // Critter
             }
         }
     }
@@ -368,6 +382,26 @@ public class WorldModel {
             traits.add(critterData);
         }
         return traits;
+    }
+
+    /**
+     * Returns the list of 8 points around a single point
+     */
+    public List<?> squaresAround(Point p) {
+        List<Point> squaresAround = new ArrayList<>();
+        int currentX = p.x;
+        int currentY = p.y;
+
+        squaresAround.add(new Point(currentX, currentY - 1));
+        squaresAround.add(new Point(currentX, currentY + 1));
+        squaresAround.add(new Point(currentX + 1, currentY));
+        squaresAround.add(new Point(currentX - 1, currentY));
+        squaresAround.add(new Point(currentX + 1, currentY + 1));
+        squaresAround.add(new Point(currentX + 1, currentY - 1));
+        squaresAround.add(new Point(currentX - 1, currentY + 1));
+        squaresAround.add(new Point(currentX - 1, currentY - 1));
+
+        return squaresAround;
     }
 
 
