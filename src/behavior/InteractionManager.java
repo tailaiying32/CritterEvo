@@ -18,9 +18,6 @@ import model.WorldModel.CellState;
  * and other critters
  */
 public class InteractionManager {
-
-
-
     /**
      * constructor for Interaction Manager
      */
@@ -33,11 +30,22 @@ public class InteractionManager {
      */
     public double eat(Critter critter, Food food) {
         if (food != null) {
+//            double newHunger = Math.min(
+//                    (critter.getHunger() + food.getQuantity()),
+//                    critter.getMaxHunger()
+//            );
+            double sizeBonus = 1.0 + (critter.getSize() / 100.0); // Larger creatures get more from food
             double newHunger = Math.min(
-                    (critter.getHunger() + food.getQuantity()),
+                    (critter.getHunger() + food.getQuantity() * sizeBonus),
                     critter.getMaxHunger()
             );
             critter.setHunger(newHunger);
+
+            double newHealth = Math.min(
+                    critter.getHealth() + (food.getQuantity() * 0.5),  // Heal based on food quantity
+                    critter.getMaxHealth()
+            );
+            critter.setHealth(newHealth);
 
             // Remove the food and update the world
             critter.getWorld().removeFood(food.getPosition());
@@ -180,7 +188,13 @@ public class InteractionManager {
             parent.getWorld().addCritter(child);
         }
 
-        parent.setHunger(world.getBASE_REPRODUCTION_COST() * parent.getHunger());
+        if (parent.getSize() > 50) {
+            // Larger creatures have better reproduction success
+            parent.setHunger(world.getBASE_REPRODUCTION_COST() * parent.getHunger() * 0.5);
+        } else {
+            parent.setHunger(world.getBASE_REPRODUCTION_COST() * parent.getHunger());
+        }
+
     }
 
     /**
@@ -190,7 +204,7 @@ public class InteractionManager {
     private double mutateTrait(double trait, double mutationRate) {
         double random = Math.random();
         if (random < mutationRate) {
-            double change = Math.random() / 2;
+            double change = Math.random() / 5;
             return (Math.random() < 0.5) ? trait * (1 - change) : trait * (1 + change);
         }
         return trait;

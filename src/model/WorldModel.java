@@ -16,7 +16,7 @@ import model.Critter.Priority;
 public class WorldModel {
 
     // energy cost constants
-    private double MOVE_COST_FACTOR = 0.002;
+    private double MOVE_COST_FACTOR = 0.001;
     public double getMOVE_COST() {
         return MOVE_COST_FACTOR;
     }
@@ -32,7 +32,7 @@ public class WorldModel {
         this.ROTATE_COST_FACTOR = ROTATE_COST_FACTOR;
     }
 
-    private double BASE_MOVE_COST = 1;
+    private double BASE_MOVE_COST = 0.5;
     public double getBASE_MOVE_COST() {
         return BASE_MOVE_COST;
     }
@@ -48,7 +48,7 @@ public class WorldModel {
         this.BASE_ROTATE_COST = BASE_ROTATE_COST;
     }
 
-    private double SIZE_COST = 1.1;
+    private double SIZE_COST = 1.05;
     public double getSIZE_COST() {
         return SIZE_COST;
     }
@@ -57,7 +57,7 @@ public class WorldModel {
     }
 
     //variables representing baseDamage and damageScalingFactor
-    private double BASE_DAMAGE = 30;
+    private double BASE_DAMAGE = 40;
     public double getBASE_DAMAGE() {
         return BASE_DAMAGE;
     }
@@ -65,7 +65,7 @@ public class WorldModel {
         this.BASE_DAMAGE = BASE_DAMAGE;
     }
 
-    private double DAMAGE_SCALING_FACTOR = 1.3;
+    private double DAMAGE_SCALING_FACTOR = 1.5;
     public double getDAMAGE_SCALING_FACTOR() {
         return DAMAGE_SCALING_FACTOR;
     }
@@ -83,7 +83,7 @@ public class WorldModel {
     }
 
     // base hunger expenditure
-    private double BASE_HUNGER_EXPENDITURE = 0.7;
+    private double BASE_HUNGER_EXPENDITURE = 0.4;
     public double getBASE_HUNGER_EXPENDITURE() {
         return BASE_HUNGER_EXPENDITURE;
     }
@@ -94,7 +94,7 @@ public class WorldModel {
     /**
      * Factor to scale food generation by (higher means food is less common)
      */
-    private double FOOD_GENERATION_FACTOR = 4.0;
+    private double FOOD_GENERATION_FACTOR = 2.0;
     public double getFOOD_GENERATION_FACTOR() {
         return FOOD_GENERATION_FACTOR;
     }
@@ -133,6 +133,11 @@ public class WorldModel {
      * Base mutation rate for the world i.e. the base probability for each trait that a mutation occurs.
      */
     private double mutationRate;
+
+    /**
+     * maximum amount a mutation is allowed to change a trait by
+     */
+    private double maxMutationChange;
 
     /**
      * 2-D array representing the current world state. Entries in the array are an integer,
@@ -196,6 +201,7 @@ public class WorldModel {
             double baseRotateCost,
             double sizeCost,
             double mutationRate,
+//            double maxMutationChange,
             double baseDamage,
             double damageScalingFactor,
             double baseHungerExpenditure,
@@ -213,6 +219,7 @@ public class WorldModel {
         this.SIZE_COST = sizeCost;
         this.worldArray = new CellState[width][height];
         this.mutationRate = mutationRate;
+//        this.maxMutationChange = maxMutationChange;
         this.critters = new HashMap<Point, Critter>();
         this.foods = new HashMap<Point, Food>();
         this.waters = new HashMap<Point, Water>();

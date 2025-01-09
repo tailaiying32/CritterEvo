@@ -123,19 +123,19 @@ public class CritterEvoGame {
         controlPanel.add(critterDensityField);
 
         controlPanel.add(new JLabel("Size Cost"));
-        sizeCostField = new JTextField("1.1");
+        sizeCostField = new JTextField("1.05");
         controlPanel.add(sizeCostField);
 
         controlPanel.add(new JLabel("Base Hunger Expenditure"));
-        baseHungerExpenditureCostField = new JTextField("1");
+        baseHungerExpenditureCostField = new JTextField("0.4");
         controlPanel.add(baseHungerExpenditureCostField);
 
         controlPanel.add(new JLabel("Base Movement Cost"));
-        baseMoveCostField = new JTextField("1.1");
+        baseMoveCostField = new JTextField("0.5");
         controlPanel.add(baseMoveCostField);
 
         controlPanel.add(new JLabel("Movement Cost Factor"));
-        moveCostField = new JTextField("0.002");
+        moveCostField = new JTextField("0.001");
         controlPanel.add(moveCostField);
 
         controlPanel.add(new JLabel("Base Rotate Cost"));
@@ -151,15 +151,15 @@ public class CritterEvoGame {
         controlPanel.add(mutationRateField);
 
         controlPanel.add(new JLabel("Base Damage (0-100)"));
-        baseDamageField = new JTextField("25");
+        baseDamageField = new JTextField("40");
         controlPanel.add(baseDamageField);
 
-        controlPanel.add(new JLabel("Damage Scaling (1.0-2.0"));
-        damageScalingField = new JTextField("1.3");
+        controlPanel.add(new JLabel("Damage Scaling (1.0-2.0)"));
+        damageScalingField = new JTextField("1.5");
         controlPanel.add(damageScalingField);
 
         controlPanel.add(new JLabel("Food Generation Rate (higher is lower)"));
-        foodGenField = new JTextField("4.0");
+        foodGenField = new JTextField("2.0");
         controlPanel.add(foodGenField);
 
         controlPanel.add(new JLabel("Simulation Speed"));

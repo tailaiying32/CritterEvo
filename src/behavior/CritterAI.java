@@ -54,6 +54,14 @@ public class CritterAI {
                 (int) Math.pow((double) critter.getSize()/10, 1.2)
         ));
 
+        if (critter.getHunger() > critter.getMaxHunger() * 0.8) {
+            double newHealth = Math.min(
+                    critter.getHealth() + 1,  // Regenerate 1 health per tick
+                    critter.getMaxHealth()    // But don't exceed maxHealth
+            );
+            critter.setHealth(newHealth);
+        }
+
         // increment age by 1
         critter.setAge(critter.getAge() + 1);
 

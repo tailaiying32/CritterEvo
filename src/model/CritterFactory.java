@@ -34,7 +34,7 @@ public class CritterFactory {
 
         double size =  (Math.random() * 100);
 
-        double maxHealth = (Math.random() * 100);
+        double maxHealth = size;
 
 //        double offense =  (Math.random() * 100);
         double offense = size;
