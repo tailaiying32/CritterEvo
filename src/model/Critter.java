@@ -211,7 +211,7 @@ public class Critter{
         this.hunger = maxHunger/2;
         this.maxThirst = maxThirst;
         this.thirst = maxThirst/2;
-        this.health = 100;
+        this.health = maxHealth;
         this.sex = sex;
         this.size = size;
         this.offense = offense;
