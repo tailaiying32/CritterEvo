@@ -12,12 +12,35 @@ import java.util.List;
 import java.util.Map;
 
 public class StatisticsPanel extends JPanel {
+
+    /**
+     * the stats table
+     */
     private final JTable statsTable;
+
+    /**
+     * the table model
+     */
     private final DefaultTableModel tableModel;
+
+    /**
+     * panel holding the charts
+     */
     private final JPanel chartsPanel;
+
+    /**
+     * Map holding the charts
+     */
     private final Map<String, BarChartPanel> charts;
+
+    /**
+     * world model the stats are coming from
+     */
     private WorldModel world;
 
+    /**
+     * constructor for statistics panel
+     */
     public StatisticsPanel() {
         setLayout(new BorderLayout());
         this.charts = new HashMap<>();
@@ -46,6 +69,9 @@ public class StatisticsPanel extends JPanel {
         createCharts();
     }
 
+    /**
+     * helper function to create the charts
+     */
     private void createCharts() {
         String[] traits = {"Health", "Size", "Offense", "Defense"};
         for (String trait : traits) {
@@ -55,10 +81,17 @@ public class StatisticsPanel extends JPanel {
         }
     }
 
+    /**
+     * set the world the stats are representing to "world"
+     */
     public void setWorld(WorldModel world) {
         this.world = world;
     }
 
+    /**
+     * gather information from the world and updates the stats
+     * used in tick() in worldUpdater
+     */
     public void updateStats() {
         if (world == null || world.getCritters().isEmpty()) {
             tableModel.setRowCount(0);
@@ -96,6 +129,9 @@ public class StatisticsPanel extends JPanel {
         }
     }
 
+    /**
+     * helper function to add a new stat row
+     */
     private void addStatRow(String name, List<Double> values, int population) {
         if (values.isEmpty()) return;
 
@@ -114,6 +150,9 @@ public class StatisticsPanel extends JPanel {
         });
     }
 
+    /**
+     * gathers information from the world and updates the charts
+     */
     private void updateChart(String trait, List<Double> values) {
         BarChartPanel chart = charts.get(trait);
         if (chart != null) {
