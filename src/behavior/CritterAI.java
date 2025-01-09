@@ -19,6 +19,11 @@ import model.WorldModel;
 public class CritterAI {
 
     /**
+     * base hunger expenditure
+     */
+    private static final int BASE_HUNGER_EXPENDITURE = 1;
+
+    /**
      * Constructor for ai
      */
     public CritterAI() {}
@@ -27,20 +32,18 @@ public class CritterAI {
      * Calculates priority based off of critter's current state and attributes
      * Returns the calculated priority
      */
-    public Priority updatePriority(Critter critter) {
-//        if (critter.getHunger() >= 80 && critter.getThirst() >= 80 && critter.getHealth() >= 80) {
-//            critter.setPriority(Priority.LOVE);
-//        } else {
-//            if (critter.getHunger() >= critter.getThirst()) {
-//                critter.setPriority(Priority.FOOD);
+    public void updatePriority(Critter critter) {
+        if (critter.getHunger() >= 80 && critter.getHealth() >= 80) {
+            critter.setPriority(Priority.LOVE);
+        } else {
+            if (critter.getHunger() >= critter.getThirst()) {
+                critter.setPriority(Priority.FOOD);
+            }
+            critter.setPriority(Priority.FOOD);
 //            } else {
 //                critter.setPriority(Priority.WATER);
 //            }
-//        }
-//
-//        return critter.getPriority();
-        critter.setPriority(Priority.FOOD);
-        return critter.getPriority();
+        }
     }
 
     /**
@@ -49,6 +52,19 @@ public class CritterAI {
     public void makeMove(Critter critter) {
         Point target = locateTarget(critter, critter.getPriority());
         WorldModel world = critter.getWorld();
+
+        // take away some base hunger, even if resting
+        critter.setHunger(critter.getHunger() - (BASE_HUNGER_EXPENDITURE +
+                (int) Math.pow((double) critter.getSize()/10, 1.3)
+        ));
+
+        // increment age by 1
+        critter.setAge(critter.getAge() + 1);
+
+        // reproduce if priority is love
+        if (critter.getPriority() == Priority.LOVE) {
+            critter.reproduce();
+        }
 
         // If we're at the same position as the target, we need to orient ourselves correctly
         if (target.equals(critter.getPosition())) {
@@ -109,16 +125,15 @@ public class CritterAI {
      */
     public Point locateTarget(Critter critter, Priority priority) {
         WorldModel world = critter.getWorld();
-        double distance = Double.MAX_VALUE; // the farthest traversable distance in the world
+        double distance = Double.MAX_VALUE;
         Point nearestTarget = critter.getPosition();
-        System.out.println("critter's position: " + critter.getPosition());
-        System.out.println("nearestTarget: " + nearestTarget);
+
 
         // Get the appropriate target set based on priority
         Map<Point, ?> targets = switch (priority) {
             case FOOD -> world.getFoods();
             case WATER -> world.getWaters();
-            case LOVE -> world.getCritters();
+//            case LOVE -> world.getCritters();
             default -> new HashMap<>(); // Empty set for unsupported priorities
         };
 

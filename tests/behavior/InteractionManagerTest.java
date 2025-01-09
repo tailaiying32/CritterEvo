@@ -1,6 +1,8 @@
 package behavior;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.awt.Point;
 import model.Critter;
@@ -9,6 +11,7 @@ import model.CritterFactory;
 import model.Food;
 import model.Water;
 import model.WorldFactory;
+import model.WorldModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -112,6 +115,7 @@ public class InteractionManagerTest {
         assertEquals(new Point(0, 3), critter.getPosition());
     }
 
+    @DisplayName("test for attack yay")
     @Test
     public void testAttack(){
         CritterFactory factory = new CritterFactory();
@@ -131,6 +135,24 @@ public class InteractionManagerTest {
 
         critter1.attack(critter2);
         assertEquals((int) Math.pow(baseDamage*((double) (size1 * offense1) /(size2*defense2)), factor), critter2.getHealth());
+    }
+
+    @DisplayName("WHEN a critter reproduces, THEN it should create a child behind it"
+            + "WHEN a critter attempts to reproduce and there are no empty squares around it,"
+            + "THEN nothing should happen"
+            + "WHEN a critter attempts to reproduce and the square behind it is non-empty"
+            + "THEN the child should be placed at a random empty square around it")
+    @Test
+    public void testReproduce() {
+        CritterFactory factory = new CritterFactory();
+        WorldFactory worldFactory = new WorldFactory();
+        WorldModel world = worldFactory.generateTestWorld();
+        Critter critter = factory.generateCritter(new Point(0, 0), world);
+        critter.setOrientation(Orientation.N);
+
+        critter.reproduce();
+        assertNotNull(world.getCritter(new Point(0, 1)));
+        assertEquals(2, world.getCritters().size());
     }
 }
 

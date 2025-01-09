@@ -108,36 +108,36 @@ public class Critter{
     /**
      * An integer 1-100 representing max hunger
      */
-    private int maxHunger;
+    private double maxHunger;
 
     /**
      * An int ranging from 0 to 100 representing the critter's hunger level.
      * If hunger reaches zero, the critter loses health.
      */
-    private int hunger;
+    private double hunger;
 
     /**
      * An integer 1-100 representing max thirst level
      */
-    private int maxThirst;
+    private double maxThirst;
 
 
     /**
      * An integer ranging from 0 to 100 representing the critter's thirst level.
      * If thirst reaches zero, the critter loses health.
      */
-    private int thirst;
+    private double thirst;
 
     /**
      * An integer ranging from 0 to 100 representing the critter's max health.
      */
-    private final int maxHealth;
+    private final double maxHealth;
 
     /**
      * An integer ranging from 0 to maxHealth representing the critter's current health.
      * If health reaches zero, the critter dies.
      */
-    private int health;
+    private double health;
 
     /**
      * The critter's sex, either male or female
@@ -149,31 +149,26 @@ public class Critter{
      * The critter's size effects its energy consumption when performing tasks
      * and the amount of damage it gives and the amount of damage it takes.
      */
-    private final int size;
+    private final double size;
 
     /**
      * An integer ranging from 0 to 100 representing the critter's offensive power. Used for calculating
      * attack damage. A critter's offense must equal 100 - defense.
      */
-    private int offense;
+    private double offense;
 
     /**
      * An integer ranging from 0 to 100 representing the critter's defensive power. Used for calculating
      * damage taken when attacked. A critter's defense must equal 100 - offense.
      */
-    private int defense;
+    private double defense;
 
     /**
      * An integer ranging from 0 to 100 representing the critter's aggression level.
      * The aggression level is responsible for determining how likely the critter is to fight
      * or attack another critter
      */
-    private final int aggression;
-
-    /**
-     * A non-negative integer representing the generation of this critter
-     */
-    private int generation;
+    private final double aggression;
 
     /**
      * The critter's current priority, either food, water, or love. Will decide to search for food,
@@ -184,7 +179,7 @@ public class Critter{
     /**
      * The critter's additional mutation rate, added on top of the world's base mutation rate
      */
-    private int mutationRate;
+    private double mutationRate;
 
     /**
      * Constructs a new Critter. Takes in maxAge, maxHealth, sex, size, and aggression parameter
@@ -196,16 +191,15 @@ public class Critter{
             Point position,
             Orientation orientation,
             int maxAge,
-            int maxHunger,
-            int maxThirst,
-            int maxHealth,
+            double maxHunger,
+            double maxThirst,
+            double maxHealth,
             Sex sex,
-            int size,
-            int offense,
-            int defense,
-            int aggression,
-            int generation,
-            int mutationRate,
+            double size,
+            double offense,
+            double defense,
+            double aggression,
+            double mutationRate,
             WorldModel world
             ) {
         this.ai = ai;
@@ -223,7 +217,6 @@ public class Critter{
         this.offense = offense;
         this.defense = defense;
         this.aggression = aggression;
-        this.generation = generation;
         this.position = position;
         this.orientation = orientation;
         this.mutationRate = mutationRate;
@@ -250,7 +243,6 @@ public class Critter{
         this.offense = offense;
         this.defense = defense;
         this.aggression = aggression;
-        this.generation = generation;
         this.position = position;
         this.orientation = orientation;
         this.mutationRate = mutationRate;
@@ -259,7 +251,7 @@ public class Critter{
     }
 
     /**
-     * Return's the world that this critter lives in
+     * Returns the world that this critter lives in
      */
     public WorldModel getWorld() {
         return world;
@@ -291,6 +283,13 @@ public class Critter{
      */
     public void setAi(CritterAI ai) {
         this.ai = ai;
+    }
+
+    /**
+     * Returns this critter's interaction manager
+     */
+    public InteractionManager getInteractionManager() {
+        return this.interactionManager;
     }
 
     /**
@@ -346,23 +345,30 @@ public class Critter{
     }
 
     /**
+     * sets the critter's age to "age"
+     */
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    /**
      * Returns the critter's max hunger level
      */
-    public int getMaxHunger() {
+    public double getMaxHunger() {
         return this.maxHunger;
     }
 
     /**
      * Sets the critter's max hunger level to "max"
      */
-    public void setMaxHunger(int max) {
+    public void setMaxHunger(double max) {
         maxHunger = max;
     }
 
     /**
      * Returns the critter's current hunger level
      */
-    public int getHunger() {
+    public double getHunger() {
         return hunger;
     }
 
@@ -370,28 +376,28 @@ public class Critter{
      * Sets the critter's hunger level to "hunger"
      * Returns new hunger level
      */
-    public void setHunger(int hunger) {
+    public void setHunger(double hunger) {
         this.hunger = hunger;
     }
 
     /**
      * Returns the critter's max thirst level
      */
-    public int getMaxThirst() {
+    public double getMaxThirst() {
         return this.maxThirst;
     }
 
     /**
      * Sets the critter's max thirst to "max"
      */
-    public void setMaxThirst(int max) {
+    public void setMaxThirst(double max) {
         maxThirst = max;
     }
 
     /**
      * Returns the critter's current thirst level
      */
-    public int getThirst() {
+    public double getThirst() {
         return thirst;
     }
 
@@ -399,28 +405,28 @@ public class Critter{
      * Sets the critter's thirst level to "thirst"
      * Returns the new thirst level
      */
-    public void setThirst(int thirst) {
+    public void setThirst(double thirst) {
         this.thirst = thirst;
     }
 
     /**
      * Returns this critter's maximum health
      */
-    public int getMaxHealth() {
+    public double getMaxHealth() {
         return maxHealth;
     }
 
     /**
      * Returns the critter's current health
      */
-    public int getHealth() {
+    public double getHealth() {
         return health;
     }
 
     /**
      * Sets the critter's health to "health"
      */
-    public void setHealth(int health) {
+    public void setHealth(double health) {
         this.health = health;
     }
 
@@ -434,36 +440,36 @@ public class Critter{
     /**
      * Returns the critter's size
      */
-    public int getSize() {
+    public double getSize() {
         return size;
     }
 
     /**
      * Returns this critter's speed
      */
-    public int getOffense() {
+    public double getOffense() {
         return offense;
     }
 
     /**
      * Returns this critter's power
      */
-    public int getDefense() {
+    public double getDefense() {
         return defense;
     }
 
     /**
      * Returns this critter's aggression
      */
-    public int getAggression() {
+    public double getAggression() {
         return aggression;
     }
 
     /**
-     * Returns this critter's generation
+     * Returns this critter's mutation rate
      */
-    public int getGeneration() {
-        return generation;
+    public double getMutationRate() {
+        return this.mutationRate;
     }
 
     /**
@@ -503,6 +509,13 @@ public class Critter{
     }
 
     /**
+     * Critter asexually reproduces
+     */
+    public void reproduce(Critter this) {
+        interactionManager.reproduce(this);
+    }
+
+    /**
      * makes move
      */
     public void makeMove(Critter this) {
@@ -528,6 +541,20 @@ public class Critter{
      */
     public Orientation determineOrientation() {
         return ai.determineOrientation(this);
+    }
+
+    /**
+     * decrements health when critter runs out of hunger
+     */
+    public void starve(Critter this) {
+        this.health -= getMaxHealth()/4;
+    }
+
+    /**
+     * the critter dies
+     */
+    public void die(Critter this) {
+        this.interactionManager.die(this);
     }
 
     /**

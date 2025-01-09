@@ -24,6 +24,7 @@ public class WorldUpdater {
      */
     private WorldModel worldModel;
 
+
     /**
      * Boolean representing whether the simulation is running or not
      */
@@ -66,47 +67,36 @@ public class WorldUpdater {
     public void tick() {
         if (isRunning) {
             worldModel.updateWorldArray();
-            for (Critter critter : new ArrayList<Critter>(worldModel.getCritters().values())) {
-                critter.updatePriority();
-                critter.makeMove();
-            }
+            updateCritters(worldModel);
+
             addFood();
             worldView.repaint();
+//            statsPanel.updateState();
         }
+//        System.out.println("critter list: " + worldModel.getCritters().size());
+//        System.out.println("food list: " + worldModel.getFoods().size());
     }
 
     /**
-     * Updates states of critters and refreshes data in world model
-     * inv: critters cannot move out of bounds
+     * Updates states of critters in this world
      */
-    private void updateCritters() {
-        int width = worldModel.getWidth();
-        int height = worldModel.getHeight();
-
-        // Clear previous critter positions
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
-                if (worldModel.getWorldArray()[i][j] == 4) {
-                    worldModel.getWorldArray()[i][j] = 0;
-                }
-            }
-        }
-
-        // Update critter positions
-        HashMap<Point, Critter> updatedCritters = new HashMap<>();
-        for (Critter critter : worldView.getWorldModel().getCritters().values()) {
+    private void updateCritters(WorldModel worldModel) {
+        for (Critter critter : new ArrayList<>(worldModel.getCritters().values())) {
             critter.updatePriority();
             critter.makeMove();
 
-            Point pos = critter.getPosition();
-            if (pos.x >= 0 && pos.x < width && pos.y >= 0 && pos.y < height) {
-                worldView.getWorldModel().getWorldArray()[pos.x][pos.y] = 4;
-                updatedCritters.put(pos, critter);
-            } else {
-                System.out.println("Warning: Critter tried to move out of bounds: " + pos);
+            if (critter.getHunger() <= 0) {
+                critter.starve();
+            }
+
+            if (critter.getHealth() <= 0) {
+                critter.die();
+            }
+
+            if (critter.getAge() >= critter.getMaxAge()) {
+                critter.die();
             }
         }
-        worldView.getWorldModel().setCritters(updatedCritters);
     }
 
     /**
@@ -121,8 +111,8 @@ public class WorldUpdater {
                 if (world.getWorldArray()[i][j] == 0) {
                     // Generate random number between 0 and 1
                     double random = Math.random();
-                    // Check if random number is less than 1/N
-                    if (random < 1.0 / numCritters) {
+                    // Check if random number is less than 1/2N
+                    if (random < 1.0 / (numCritters * 2)) {
                         world.getWorldArray()[i][j] = 4;
                         world.addFood(new Food(new Point(i, j), (int) (Math.random() * 40), 0));
                     }
@@ -131,12 +121,12 @@ public class WorldUpdater {
         }
     }
 
+
     /**
      * Takes data from slider in gui to change simulation speed
      */
     public void setTimerDelay(int delay) {
         if (timer != null) {
-            System.out.println("Setting timer delay to " + delay);
             timer.setDelay(delay);
         }
     }

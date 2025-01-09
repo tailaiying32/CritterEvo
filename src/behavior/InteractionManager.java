@@ -3,9 +3,11 @@ package behavior;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import model.Critter;
 import model.Critter.Orientation;
 import model.Critter.Priority;
+import model.CritterFactory;
 import model.Food;
 import model.Water;
 import model.WorldModel;
@@ -38,7 +40,7 @@ public class InteractionManager {
      */
     public double eat(Critter critter, Food food) {
         if (food != null) {
-            int newHunger = Math.min(
+            double newHunger = Math.min(
                     (critter.getHunger() + food.getQuantity()),
                     critter.getMaxHunger()
             );
@@ -58,8 +60,8 @@ public class InteractionManager {
      * Fully replenishes thirst.
      * Returns thirst level after drinking.
      */
-    public int drink(Critter critter, Water water) {
-        int newThirst = critter.getMaxThirst();
+    public double drink(Critter critter, Water water) {
+        double newThirst = critter.getMaxThirst();
         critter.setThirst(newThirst);
         return critter.getThirst();
     }
@@ -80,7 +82,7 @@ public class InteractionManager {
         }
 
         critter.setOrientation(orientation);
-        int hungerUsed = (int) (BASE_ROTATE_COST + difference * (ROTATE_COST_FACTOR * Math.pow(critter.getSize(), 2)));
+        double hungerUsed = (BASE_ROTATE_COST + difference * (ROTATE_COST_FACTOR * Math.pow(critter.getSize(), 2)));
         if (before == after) {
             hungerUsed = 0;
         }
@@ -127,7 +129,7 @@ public class InteractionManager {
         world.addCritter(critter);
 
         // Update hunger
-        int hungerUsed = (int) (BASE_MOVE_COST + distance * MOVE_COST_FACTOR * Math.pow(critter.getSize(), 2));
+        double hungerUsed =  (BASE_MOVE_COST + distance * MOVE_COST_FACTOR * Math.pow(critter.getSize(), 2));
         critter.setHunger(Math.max(critter.getHunger() - hungerUsed, 0));
 
         // Update world array
@@ -137,14 +139,62 @@ public class InteractionManager {
     }
 
     /**
-     * Creates and returns a new critter based on its parents' attributes.
-     * Uses up a large amount of hunger
-     * maxHealth, maxAge, size, breedLength, and aggression, offense, and defense are taken as an average of its parents values
-     * 50/50 chance for M/F
-     * Moves either parent one to the left or right and spawns in between parents with random orientation
+     * Creates and returns a new critter based its parent's attributes
+     * the critter should have at least one empty square around it to reproduce
      */
-    public Critter reproduce(Critter father, Critter mother) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void reproduce(Critter parent) {
+        double parentMutationRate = parent.getMutationRate();
+        double baseMutationRate = parent.getWorld().getMutationRate();
+        double combinedMutationRate = parentMutationRate + baseMutationRate;
+
+        // Mutate traits based on the combined mutation rate
+        int maxAge = (int) Math.round(mutateTrait((double) parent.getMaxAge(), combinedMutationRate));
+        double maxHunger = mutateTrait(parent.getMaxHunger(), combinedMutationRate);
+        double maxThirst = mutateTrait(parent.getMaxThirst(), combinedMutationRate);
+        double maxHealth = mutateTrait(parent.getMaxHealth(), combinedMutationRate);
+        double size = mutateTrait(parent.getSize(), combinedMutationRate);
+        double offense = mutateTrait(parent.getOffense(), combinedMutationRate);
+        double defense = mutateTrait(parent.getDefense(), combinedMutationRate);
+        double aggression = mutateTrait(parent.getAggression(), combinedMutationRate);
+        double mutationRate = mutateTrait(parent.getMutationRate(), combinedMutationRate);
+
+        if (!emptySquares(parent).isEmpty()) {
+            // first determine what square the child should be born on
+            Point birthPosition = birthPoint(parent);
+            Critter child = new Critter(
+                    parent.getAi(),
+                    parent.getInteractionManager(),
+                    birthPosition,
+                    parent.getOrientation(),
+                    maxAge,
+                    maxHunger,
+                    maxThirst,
+                    maxHealth,
+                    parent.getSex(),
+                    size,
+                    offense,
+                    defense,
+                    aggression,
+                    mutationRate,
+                    parent.getWorld()
+            );
+
+            // then add the critter to the world
+            parent.getWorld().addCritter(child);
+        }
+    }
+
+    /**
+     * Mutates a given trait
+     * helper method for reproduce
+     */
+    private double mutateTrait(double trait, double mutationRate) {
+        double random = Math.random();
+        if (random < mutationRate) {
+            double change = Math.random() / 10;
+            return (Math.random() < 0.5) ? trait * (1 - change) : trait * (1 + change);
+        }
+        return trait;
     }
 
 
@@ -156,10 +206,10 @@ public class InteractionManager {
      * CREATE SOME STATIC VARIABLES INSTEAD
      */
     public void attack(Critter critter1, Critter critter2) {
-        int oldHealth = critter2.getHealth();
+        double oldHealth = critter2.getHealth();
         double c1Power = critter1.getSize()*critter1.getOffense();
         double c2Power = critter2.getSize()*critter2.getDefense();
-        int attackDamage = (int) Math.pow((BASE_DAMAGE*(c1Power/c2Power)), DAMAGE_SCALING_FACTOR);
+        double attackDamage = Math.pow((BASE_DAMAGE*(c1Power/c2Power)), DAMAGE_SCALING_FACTOR);
         critter2.setHealth(oldHealth - attackDamage);
     }
 
@@ -176,6 +226,74 @@ public class InteractionManager {
      * Removes itself from list of live critters
      */
     public void die(Critter critter) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Point currentPos = critter.getPosition();
+        WorldModel world = critter.getWorld();
+        critter.getWorld().removeCritter(critter.getPosition());
+        Food newFood = new Food(currentPos, (int) (critter.getSize()/2), 0);
+        world.addFood(newFood);
+    }
+
+    /**
+     * private helper method to calculate where the child should be born
+     */
+    private Point birthPoint(Critter critter) {
+        WorldModel world = critter.getWorld();
+        Point position = critter.getPosition();
+        Orientation orientation = critter.getOrientation();
+        int childX = position.x;
+        int childY = position.y;
+        Point birthPos = null;
+
+        switch (orientation) {
+            case N:  childY = position.y + 1; break;
+            case NE: childX = position.x + 1; childY = position.y + 1; break;
+            case E:  childX = position.x - 1; break;
+            case SE: childX = position.x - 1; childY = position.y - 1; break;
+            case S:  childY = position.y - 1; break;
+            case SW: childX = position.x + 1; childY = position.y - 1; break;
+            case W:  childX = position.x + 1; break;
+            case NW: childX = position.x - 1; childY = position.y + 1; break;
+        }
+
+        birthPos = new Point(childX, childY);
+
+        // check if the new position is within world bounds or if it is already taken up
+        if (childX >= 0 && childX < world.getWidth() &&
+                childY >= 0 && childY < world.getHeight() &&
+                world.getWorldArray()[childX][childY] == 0) {
+            return birthPos;
+        }
+
+        // otherwise, choose any random empty square around the parent
+        List<Point> emptySquares = emptySquares(critter);
+        int randomNum = (int) (Math.random() * emptySquares.size());
+        return emptySquares.get(randomNum);
+    }
+
+    /**
+     * private helper method to return a list of empty squares around the parent
+     */
+    private List<Point> emptySquares(Critter critter) {
+        List<Point> emptySquares = new ArrayList<>();
+        Point position = critter.getPosition();
+        int currentX = position.x;
+        int currentY = position.y;
+
+        emptySquares.add(new Point(currentX, currentY - 1));
+        emptySquares.add(new Point(currentX, currentY + 1));
+        emptySquares.add(new Point(currentX + 1, currentY));
+        emptySquares.add(new Point(currentX - 1, currentY));
+        emptySquares.add(new Point(currentX + 1, currentY + 1));
+        emptySquares.add(new Point(currentX + 1, currentY - 1));
+        emptySquares.add(new Point(currentX - 1, currentY + 1));
+        emptySquares.add(new Point(currentX - 1, currentY - 1));
+
+        emptySquares.removeIf(p ->
+                p.x < 0 || p.x >= critter.getWorld().getWidth() ||
+                        p.y < 0 || p.y >= critter.getWorld().getHeight() ||
+                        critter.getWorld().getWorldArray()[p.x][p.y] != 0
+        );
+
+        return emptySquares;
     }
 }

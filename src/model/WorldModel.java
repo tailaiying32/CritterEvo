@@ -2,7 +2,9 @@ package model;
 
 import graph.WorldGraph;
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import model.Critter.Orientation;
@@ -47,7 +49,7 @@ public class WorldModel {
      * 2-D array representing the current world state. Entries in the array are an integer,
      * either 0, 1, 2, 3, 4, for grass, mountain, food, water, or critter, respectively
      */
-    private int[][] world;
+    private int[][] worldArray;
 
     /**
      * Represents all currently alive critters. Stored in a Map with a Point id as a key
@@ -86,7 +88,7 @@ public class WorldModel {
         this.tickCount = 0;
         this.initialFoodDensity = initialFoodDensity;
         this.initialCritterDensity = initialCritterDensity;
-        this.world = new int[width][height];
+        this.worldArray = new int[width][height];
         this.mutationRate = mutationRate;
         this.critters = new HashMap<Point, Critter>();
         this.foods = new HashMap<Point, Food>();
@@ -112,11 +114,11 @@ public class WorldModel {
             for (int j = 0; j < height; j++) {
                 double randomValue = Math.random(); // random number used for seeding world
                 if (randomValue <= initialFoodDensity) {
-                    this.world[i][j] = 2; // 2 for food
+                    this.worldArray[i][j] = 2; // 2 for food
                     Food food = new Food(new Point(i, j), (int) (Math.random()*35 + 5), 0);
                     addFood(food);
                 } else if (randomValue <= initialFoodDensity + initialCritterDensity) {
-                    this.world[i][j] = 4; // 4 for critter
+                    this.worldArray[i][j] = 4; // 4 for critter
                     // construct a new critter with random attributes
                     CritterFactory critterFactory = new CritterFactory();
                     Critter critter = critterFactory.generateCritter(new Point(i, j), this);
@@ -174,7 +176,7 @@ public class WorldModel {
      * Returns the 2D array representing this world
      */
     public int[][] getWorldArray() {
-        return world;
+        return worldArray;
     }
 
     /**
@@ -196,6 +198,7 @@ public class WorldModel {
      */
     public void setCritters(Map<Point, Critter> critters) {
         this.critters = critters;
+        updateWorldArray();
     }
 
     /**
@@ -211,7 +214,7 @@ public class WorldModel {
      */
     public void addCritter(Critter critter) {
         critters.put(critter.getPosition(), critter);
-
+        updateWorldArray();
     }
 
     /**
@@ -219,6 +222,7 @@ public class WorldModel {
      */
     public void removeCritter(Point p) {
         critters.remove(p);
+        updateWorldArray();
     }
 
     /**
@@ -233,6 +237,7 @@ public class WorldModel {
      */
     public void setFoods(Map<Point, Food> foods) {
         this.foods = foods;
+        updateWorldArray();
     }
 
     /**
@@ -248,6 +253,7 @@ public class WorldModel {
      */
     public void addFood(Food food) {
         this.foods.put(food.getPosition(), food);
+        updateWorldArray();
     }
 
     /**
@@ -255,6 +261,7 @@ public class WorldModel {
      */
     public void removeFood(Point p) {
         foods.remove(p);
+        updateWorldArray();
     }
 
     /**
@@ -269,6 +276,7 @@ public class WorldModel {
      */
     public void setWaters(Map<Point, Water> waters) {
         this.waters = waters;
+        updateWorldArray();
     }
 
     /**
@@ -284,6 +292,7 @@ public class WorldModel {
      */
     public void addWater(Water water) {
         this.waters.put(water.getPosition(), water);
+        updateWorldArray();
     }
 
     /**
@@ -291,17 +300,26 @@ public class WorldModel {
      */
     public void removeWater(Point p) {
         waters.remove(p);
+        updateWorldArray();
     }
 
     /**
-     * updates the world array
+     * Return's the world's mutation rate
+     */
+    public double getMutationRate() {
+        return this.mutationRate;
+    }
+
+
+    /**
+     * updates the world array per tick
      */
     public void updateWorldArray() {
         // Clear the current world array (except for mountains/terrain)
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                if (world[i][j] != 1) { // Don't clear mountains
-                    world[i][j] = 0; // Set to grass
+                if (worldArray[i][j] != 1) { // Don't clear mountains
+                    worldArray[i][j] = 0; // Set to grass
                 }
             }
         }
@@ -310,7 +328,7 @@ public class WorldModel {
         for (Food food : foods.values()) {
             Point pos = food.getPosition();
             if (pos.x >= 0 && pos.x < width && pos.y >= 0 && pos.y < height) {
-                world[pos.x][pos.y] = 2; // Food
+                worldArray[pos.x][pos.y] = 2; // Food
             }
         }
 
@@ -318,7 +336,7 @@ public class WorldModel {
         for (Water water : waters.values()) {
             Point pos = water.getPosition();
             if (pos.x >= 0 && pos.x < width && pos.y >= 0 && pos.y < height) {
-                world[pos.x][pos.y] = 3; // Water
+                worldArray[pos.x][pos.y] = 3; // Water
             }
         }
 
@@ -326,10 +344,32 @@ public class WorldModel {
         for (Critter critter : critters.values()) {
             Point pos = critter.getPosition();
             if (pos.x >= 0 && pos.x < width && pos.y >= 0 && pos.y < height) {
-                world[pos.x][pos.y] = 4; // Critter
+                worldArray[pos.x][pos.y] = 4; // Critter
             }
         }
     }
+
+    /**
+     * Retrieves all info about critters
+     */
+    public List<Map<String, Object>> getCritterTraits() {
+        List<Map<String, Object>> traits = new ArrayList<>();
+        for (Critter critter : critters.values()) {
+            Map<String, Object> critterData = new HashMap<>();
+            critterData.put("Position", critter.getPosition());
+            critterData.put("Orientation", critter.getOrientation());
+            critterData.put("Health", critter.getHealth());
+            critterData.put("Hunger", critter.getHunger());
+            critterData.put("Thirst", critter.getThirst());
+            critterData.put("Age", critter.getAge());
+            critterData.put("Size", critter.getSize());
+            critterData.put("Offense", critter.getOffense());
+            critterData.put("Defense", critter.getDefense());
+            traits.add(critterData);
+        }
+        return traits;
+    }
+
 
     /**
      * asserts that class invariants are not violated

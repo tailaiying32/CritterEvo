@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import model.WorldModel;
 
@@ -57,11 +58,8 @@ public class CritterEvoGame {
      */
     private JSlider simulationSpeedSlider;
 
-    /**
-     * Simulation speed
-     */
-
-
+    private JTabbedPane tabbedPane;
+    private StatisticsPanel statsPanel;
 
     /**
      * Construct a new application instance. Initializes GUI components, so must be invoked on the
@@ -78,23 +76,29 @@ public class CritterEvoGame {
         frame.setPreferredSize(new Dimension(1280, 800));
         frame.setLayout(new BorderLayout());
 
+        // Create tabbed pane
+        tabbedPane= new JTabbedPane();
+
+        // Create main game panel
+        JPanel gamePanel = new JPanel(new BorderLayout());
+
         JPanel controlPanel = new JPanel();
         controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
 
         controlPanel.add(new JLabel("World Width:"));
-        widthField = new JTextField("40");
+        widthField = new JTextField("60");
         controlPanel.add(widthField);
 
         controlPanel.add(new JLabel("World Height:"));
-        heightField = new JTextField("30");
+        heightField = new JTextField("45");
         controlPanel.add(heightField);
 
         controlPanel.add(new JLabel("Initial Food Density (0-1):"));
-        foodDensityField = new JTextField("0.2");
+        foodDensityField = new JTextField("0.02");
         controlPanel.add(foodDensityField);
 
         controlPanel.add(new JLabel("Initial Critter Density (0-1):"));
-        critterDensityField = new JTextField("0.1");
+        critterDensityField = new JTextField("0.01");
         controlPanel.add(critterDensityField);
 
         controlPanel.add(new JLabel("Mutation Rate (0-1):"));
@@ -110,7 +114,7 @@ public class CritterEvoGame {
         controlPanel.add(damageScalingField);
 
         controlPanel.add(new JLabel("Simulation Speed"));
-        simulationSpeedSlider = new JSlider(1, 1000, 500);
+        simulationSpeedSlider = new JSlider(1, 4000, 2000);
         controlPanel.add(simulationSpeedSlider);
 
         simulationSpeedSlider.addChangeListener(e -> {
@@ -130,8 +134,9 @@ public class CritterEvoGame {
         controlPanel.add(generateWorldButton);
         frame.add(controlPanel, BorderLayout.EAST);
 
+        gamePanel.add(controlPanel, BorderLayout.EAST);
 
-        // TODO: Add action listeners for buttons
+
         startButton.addActionListener(e -> {
             // start simulation
             if (worldUpdater == null) {
@@ -154,6 +159,21 @@ public class CritterEvoGame {
             throw new UnsupportedOperationException();
         });
 
+        // Create statistics panel
+        statsPanel = new StatisticsPanel();
+
+        // Add tabs
+        tabbedPane.addTab("Simulation", gamePanel);
+        tabbedPane.addTab("Statistics", statsPanel);
+
+        frame.add(tabbedPane, BorderLayout.CENTER);
+
+        // Modify the generate world button action
+        generateWorldButton.addActionListener(e -> {
+            generateWorld();
+            statsPanel.setWorld(world);  // Set the world in stats panel
+        });
+
         generateWorldButton.addActionListener(e -> {
             // generate world based on user input
             generateWorld();
@@ -164,20 +184,21 @@ public class CritterEvoGame {
      * generate the world view based on user parameters
      */
     private void generateWorld() {
-        // TODO: parse and validate the user inputs, use the inputs to construct a new world, and initialize or update the world view
         WorldModel world = createWorldModel();
         this.world = world;
 
         // Initialize or update world view
         if (worldView != null) {
-            frame.remove(worldView);
+            JPanel gamePanel = (JPanel) tabbedPane.getComponentAt(0);
+            gamePanel.remove(worldView);
         }
         worldView = new WorldView(world);
-        frame.add(worldView, BorderLayout.CENTER);
-        frame.revalidate();
-        frame.repaint();
+        JPanel gamePanel = (JPanel) tabbedPane.getComponentAt(0);
+        gamePanel.add(worldView, BorderLayout.CENTER);
+        gamePanel.revalidate();
+        gamePanel.repaint();
 
-        // reset the world updater
+        // Reset the world updater
         worldUpdater = null;
     }
 
@@ -209,5 +230,3 @@ public class CritterEvoGame {
         game.start();
     }
 }
-
-
