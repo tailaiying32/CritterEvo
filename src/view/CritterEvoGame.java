@@ -168,7 +168,7 @@ public class CritterEvoGame {
         controlPanel.add(foodGenField);
 
         controlPanel.add(new JLabel("Terrain Scale:"));
-        scaleField = new JTextField("0.2"); // Default scale
+        scaleField = new JTextField("0.03"); // Default scale
         controlPanel.add(scaleField);
 
 //        controlPanel.add(new JLabel("Terrain Seed:"));

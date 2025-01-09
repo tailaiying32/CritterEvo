@@ -1,5 +1,8 @@
 package controller;
 
+import java.awt.Point;
+import model.Mountain;
+import model.Water;
 import model.WorldModel;
 import model.WorldModel.CellState;
 
@@ -72,16 +75,13 @@ public class WorldGenerator {
                 }
 
                 noiseValue = (noiseValue / maxAmplitude + 1) / 2.0;  // Normalize to [0, 1]
-                for (int i = 0; i < width/10; i++) {
-                    for (int j = 0; j < height/10; j++) {
-                        System.out.println("x=" + i + " y=" + j + " noiseValue=" + noiseValue);
-                    }
-                }
 
                 // Map to terrain types
                 if (noiseValue < 0.3) {
                     worldArray[x][y] = CellState.WATER;
-                } else if (noiseValue < 0.7) {
+                    Water water = new Water(new Point(x, y), 0);
+                    world.addWater(water);
+                } else if (noiseValue < 0.6) {
                     worldArray[x][y] = CellState.GRASS;
                 } else {
                     worldArray[x][y] = CellState.MOUNTAIN;

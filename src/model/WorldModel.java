@@ -92,6 +92,12 @@ public class WorldModel {
         this.BASE_HUNGER_EXPENDITURE = BASE_HUNGER_EXPENDITURE;
     }
 
+    // base thirst expenditure
+    private double BASE_THIRST_EXPENDITURE = 1;
+    public double getBASE_THIRST_EXPENDITURE() {
+        return BASE_THIRST_EXPENDITURE;
+    }
+
     /**
      * Factor to scale food generation by (higher means food is less common)
      */
@@ -256,7 +262,6 @@ public class WorldModel {
         // loop through the world array
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-
                 // only place critters and food on grass squares
                 if (this.getWorldArray()[i][j] == CellState.GRASS) {
                     double randomValue = Math.random(); // random number used for seeding world
@@ -466,7 +471,7 @@ public class WorldModel {
         // Clear the current world array (except for mountains/terrain)
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                if (worldArray[i][j] != CellState.MOUNTAIN) { // Don't clear mountains
+                if (worldArray[i][j] != CellState.MOUNTAIN) { // Don't clear mountains or water
                     worldArray[i][j] = CellState.GRASS; // Set to grass
                 }
             }

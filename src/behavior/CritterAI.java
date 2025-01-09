@@ -32,13 +32,15 @@ public class CritterAI {
         if (critter.getHunger() >= 0.8 * critter.getMaxHunger() && critter.getHealth() >= 0.8 * critter.getMaxHealth()) {
             critter.setPriority(Priority.LOVE);
         } else {
-            if (critter.getHunger() >= critter.getThirst()) {
-                critter.setPriority(Priority.ATTACK);
+            if (critter.getHunger() <= critter.getThirst()) {
+                double random = Math.random(); // used with aggression to determine if critter tries to kill another critter or decides to search for food
+                if (random < critter.getAggression()) {
+                    critter.setPriority(Priority.ATTACK);
+                }
+                critter.setPriority(Priority.FOOD);
+            } else if (critter.getHunger() > critter.getThirst()){
+                critter.setPriority(Priority.WATER);
             }
-            critter.setPriority(Priority.FOOD);
-//            } else {
-//                critter.setPriority(Priority.WATER);
-//            }
         }
     }
 
@@ -49,10 +51,14 @@ public class CritterAI {
         Point target = locateTarget(critter, critter.getPriority());
         WorldModel world = critter.getWorld();
 
-        // take away some base hunger, even if resting
+        // take away some base hunger, even if resting (smaller critters have a faster metabolic rate)
         critter.setHunger(critter.getHunger() - (world.getBASE_HUNGER_EXPENDITURE() +
-                (int) Math.pow((double) critter.getSize()/10, world.getSIZE_COST())
+                (int) Math.pow((double) ((100 - critter.getSize()))/10, world.getSIZE_COST())
         ));
+
+        // take away some thirst, even when resting
+        critter.setThirst(critter.getThirst() - (world.getBASE_THIRST_EXPENDITURE()));
+
 
         if (critter.getHunger() > critter.getMaxHunger() * 0.8) {
             double newHealth = Math.min(
@@ -126,6 +132,7 @@ public class CritterAI {
         // Check if position is occupied by a mountain (1) or another critter (4)
         CellState[][] worldArray = world.getWorldArray();
         return worldArray[pos.x][pos.y] != CellState.MOUNTAIN &&
+                worldArray[pos.x][pos.y] != CellState.WATER &&
                 worldArray[pos.x][pos.y] != CellState.PEACEFUL_CRITTER &&
                 worldArray[pos.x][pos.y] != CellState.ANGRY_CRITTER;
     }

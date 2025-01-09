@@ -27,7 +27,7 @@ public class CritterFactory {
         Orientation[] orientations = Orientation.values();
         Orientation orientation = orientations[ThreadLocalRandom.current().nextInt(orientations.length)];
 
-        int maxAge = (int) (Math.random() * 100);
+        int maxAge = (int) (Math.random() * 1000);
 
         Sex[] sexes = Sex.values();
         Sex sex = sexes[ThreadLocalRandom.current().nextInt(sexes.length)];

@@ -66,9 +66,9 @@ public class InteractionManager {
             }
 
 
-            double sizeBonus = 1.0 + (critter.getSize() / 100.0); // Larger creatures get more from food
+//            double sizeBonus = 1.0 + (critter.getSize() / 100.0); // Larger creatures get more from food
             double newHunger = Math.min(
-                    (critter.getHunger() + (food.getQuantity() * sizeBonus) * ratio),
+                    (critter.getHunger() + (food.getQuantity()) * ratio),
                     critter.getMaxHunger()
             );
             critter.setHunger(newHunger);
@@ -190,8 +190,8 @@ public class InteractionManager {
 
         // Mutate traits based on the combined mutation rate
         int maxAge = (int) Math.round(mutateTrait((double) parent.getMaxAge(), combinedMutationRate));
-//        double maxHunger = Math.min(mutateTrait(parent.getMaxHunger(), combinedMutationRate), 100);
-//        double maxThirst = Math.min(mutateTrait(parent.getMaxThirst(), combinedMutationRate), 100);
+        double maxHunger = Math.min(mutateTrait(parent.getMaxHunger(), combinedMutationRate), 100);
+        double maxThirst = Math.min(mutateTrait(parent.getMaxThirst(), combinedMutationRate), 100);
         double size = Math.min(mutateTrait(parent.getSize(), combinedMutationRate), 100);
         double maxHealth = Math.min(mutateTrait(parent.getMaxHealth(), combinedMutationRate), 100);
         double offense = Math.min(mutateTrait(parent.getOffense(), combinedMutationRate), 100);
@@ -208,8 +208,8 @@ public class InteractionManager {
                     birthPosition,
                     parent.getOrientation(),
                     maxAge,
-                    100,
-                    100,
+                    maxHunger,
+                    maxThirst,
                     maxHealth,
                     parent.getSex(),
                     size,
@@ -224,12 +224,14 @@ public class InteractionManager {
             parent.getWorld().addCritter(child);
         }
 
-        if (parent.getSize() > 50) {
-            // Larger creatures have better reproduction success
-            parent.setHunger(world.getBASE_REPRODUCTION_COST() * parent.getHunger() * 0.5);
-        } else {
-            parent.setHunger(world.getBASE_REPRODUCTION_COST() * parent.getHunger());
-        }
+//        if (parent.getSize() > 50) {
+//            // Larger creatures have better reproduction success
+//            parent.setHunger(world.getBASE_REPRODUCTION_COST() * parent.getHunger() * 0.5);
+//        } else {
+//            parent.setHunger(world.getBASE_REPRODUCTION_COST() * parent.getHunger());
+//        }
+        parent.setHunger(world.getBASE_REPRODUCTION_COST() * parent.getMaxHunger());
+
 
     }
 
