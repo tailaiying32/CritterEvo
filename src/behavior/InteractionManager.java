@@ -19,18 +19,7 @@ import model.WorldModel.CellState;
  */
 public class InteractionManager {
 
-    // energy cost constants
-    private static final double MOVE_COST_FACTOR = 0.002;
-    private static final double ROTATE_COST_FACTOR = 0.0004;
-    private static final double BASE_MOVE_COST = 1;
-    private static final double BASE_ROTATE_COST = 0.5;
 
-    //variables representing baseDamage and damageScalingFactor
-    private static final double BASE_DAMAGE = 25;
-    private static final double DAMAGE_SCALING_FACTOR = 1.3;
-
-    // variable representing the base reproduction energy usage
-    private static final double BASE_REPRODUCTION_COST = 0.5;
 
     /**
      * constructor for Interaction Manager
@@ -76,6 +65,7 @@ public class InteractionManager {
      * Uses up a small amount of hunger proportional to its size.
      */
     public Orientation rotate(Critter critter, Orientation orientation) {
+        WorldModel world = critter.getWorld();
         // calculate how many unit rotations are needed for the critter to arrive at the new orientation
         int before = critter.getOrientation().getValue();
         int after = orientation.getValue();
@@ -86,7 +76,7 @@ public class InteractionManager {
         }
 
         critter.setOrientation(orientation);
-        double hungerUsed = (BASE_ROTATE_COST + difference * (ROTATE_COST_FACTOR * Math.pow(critter.getSize(), 2)));
+        double hungerUsed = (world.getBASE_ROTATE_COST() + difference * (world.getROTATE_COST() * Math.pow(critter.getSize(), world.getSIZE_COST())));
         if (before == after) {
             hungerUsed = 0;
         }
@@ -133,7 +123,7 @@ public class InteractionManager {
         world.addCritter(critter);
 
         // Update hunger
-        double hungerUsed =  (BASE_MOVE_COST + distance * MOVE_COST_FACTOR * Math.pow(critter.getSize(), 2));
+        double hungerUsed =  (world.getBASE_MOVE_COST() + distance * world.getMOVE_COST() * Math.pow(critter.getSize(), world.getSIZE_COST()));
         critter.setHunger(Math.max(critter.getHunger() - hungerUsed, 0));
 
         // Update world array
@@ -148,6 +138,8 @@ public class InteractionManager {
      * uses up a large amount of hunger
      */
     public void reproduce(Critter parent) {
+        WorldModel world = parent.getWorld();
+
         double parentMutationRate = parent.getMutationRate();
         double baseMutationRate = parent.getWorld().getMutationRate();
         double combinedMutationRate = parentMutationRate + baseMutationRate;
@@ -188,7 +180,7 @@ public class InteractionManager {
             parent.getWorld().addCritter(child);
         }
 
-        parent.setHunger(BASE_REPRODUCTION_COST * parent.getHunger());
+        parent.setHunger(world.getBASE_REPRODUCTION_COST() * parent.getHunger());
     }
 
     /**
@@ -213,10 +205,12 @@ public class InteractionManager {
      * CREATE SOME STATIC VARIABLES INSTEAD
      */
     public void attack(Critter critter1, Critter critter2) {
+        WorldModel world = critter1.getWorld();
+
         double oldHealth = critter2.getHealth();
         double c1Power = critter1.getSize()*critter1.getOffense();
         double c2Power = critter2.getSize()*critter2.getDefense();
-        double attackDamage = Math.pow((BASE_DAMAGE*(c1Power/c2Power)), DAMAGE_SCALING_FACTOR);
+        double attackDamage = Math.pow((world.getBASE_DAMAGE()*(c1Power/c2Power)), world.getDAMAGE_SCALING_FACTOR());
         critter2.setHealth(oldHealth - attackDamage);
     }
 
@@ -229,7 +223,7 @@ public class InteractionManager {
         Point currentPos = critter.getPosition();
         WorldModel world = critter.getWorld();
         critter.getWorld().removeCritter(critter.getPosition());
-        Food newFood = new Food(currentPos, (int) (critter.getSize()/2), 0);
+        Food newFood = new Food(currentPos, (int) (critter.getSize()), 0);
         world.addFood(newFood);
     }
 

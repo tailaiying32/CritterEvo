@@ -86,9 +86,8 @@ public class WorldView extends JPanel {
                     case MOUNTAIN -> g.setColor(Color.BLACK); // Mountain
                     case FOOD -> g.setColor(Color.GREEN); // Food
                     case WATER -> g.setColor(Color.BLUE);  // Water
-                    case PEACEFUL_CRITTER -> {
-                        g.setColor(Color.ORANGE);
-                    } // Critter
+                    case PEACEFUL_CRITTER -> g.setColor(Color.ORANGE);
+                    case ANGRY_CRITTER -> g.setColor(Color.RED);
                 }
 
                 // Draw cell

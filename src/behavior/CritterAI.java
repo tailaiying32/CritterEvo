@@ -20,11 +20,6 @@ import model.WorldModel.CellState;
 public class CritterAI {
 
     /**
-     * base hunger expenditure
-     */
-    private static final double BASE_HUNGER_EXPENDITURE = 0.7;
-
-    /**
      * Constructor for ai
      */
     public CritterAI() {}
@@ -55,7 +50,7 @@ public class CritterAI {
         WorldModel world = critter.getWorld();
 
         // take away some base hunger, even if resting
-        critter.setHunger(critter.getHunger() - (BASE_HUNGER_EXPENDITURE +
+        critter.setHunger(critter.getHunger() - (world.getBASE_HUNGER_EXPENDITURE() +
                 (int) Math.pow((double) critter.getSize()/10, 1.2)
         ));
 

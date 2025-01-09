@@ -8,11 +8,100 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import model.Critter.Orientation;
+import model.Critter.Priority;
 
 /**
  * Represents the world, and contains all fields necessary to represent the current world state.
  */
 public class WorldModel {
+
+    // energy cost constants
+    private double MOVE_COST_FACTOR = 0.002;
+    public double getMOVE_COST() {
+        return MOVE_COST_FACTOR;
+    }
+    public void setMOVE_COST(double MOVE_COST_FACTOR) {
+        this.MOVE_COST_FACTOR = MOVE_COST_FACTOR;
+    }
+
+    private double ROTATE_COST_FACTOR = 0.0004;
+    public double getROTATE_COST() {
+        return ROTATE_COST_FACTOR;
+    }
+    public void setROTATE_COST_FACTOR(double ROTATE_COST_FACTOR) {
+        this.ROTATE_COST_FACTOR = ROTATE_COST_FACTOR;
+    }
+
+    private double BASE_MOVE_COST = 1;
+    public double getBASE_MOVE_COST() {
+        return BASE_MOVE_COST;
+    }
+    public void setBASE_MOVE_COST(double BASE_MOVE_COST) {
+        this.BASE_MOVE_COST = BASE_MOVE_COST;
+    }
+
+    private double BASE_ROTATE_COST = 0.5;
+    public double getBASE_ROTATE_COST() {
+        return BASE_ROTATE_COST;
+    }
+    public void setBASE_ROTATE_COST(double BASE_ROTATE_COST) {
+        this.BASE_ROTATE_COST = BASE_ROTATE_COST;
+    }
+
+    private double SIZE_COST = 1.1;
+    public double getSIZE_COST() {
+        return SIZE_COST;
+    }
+    public void setSIZE_COST(double SIZE_COST) {
+        this.SIZE_COST = SIZE_COST;
+    }
+
+    //variables representing baseDamage and damageScalingFactor
+    private double BASE_DAMAGE = 30;
+    public double getBASE_DAMAGE() {
+        return BASE_DAMAGE;
+    }
+    public void setBASE_DAMAGE(double BASE_DAMAGE) {
+        this.BASE_DAMAGE = BASE_DAMAGE;
+    }
+
+    private double DAMAGE_SCALING_FACTOR = 1.3;
+    public double getDAMAGE_SCALING_FACTOR() {
+        return DAMAGE_SCALING_FACTOR;
+    }
+    public void setDAMAGE_SCALING_FACTOR(double DAMAGE_SCALING_FACTOR) {
+        this.DAMAGE_SCALING_FACTOR = DAMAGE_SCALING_FACTOR;
+    }
+
+    // variable representing the base reproduction energy usage
+    private double BASE_REPRODUCTION_COST = 0.5;
+    public double getBASE_REPRODUCTION_COST() {
+        return BASE_REPRODUCTION_COST;
+    }
+    public void setBASE_REPRODUCTION_COST(double BASE_REPRODUCTION_COST) {
+        this.BASE_REPRODUCTION_COST = BASE_REPRODUCTION_COST;
+    }
+
+    // base hunger expenditure
+    private double BASE_HUNGER_EXPENDITURE = 0.7;
+    public double getBASE_HUNGER_EXPENDITURE() {
+        return BASE_HUNGER_EXPENDITURE;
+    }
+    public void setBaseHungerExpenditure(double BASE_HUNGER_EXPENDITURE) {
+        this.BASE_HUNGER_EXPENDITURE = BASE_HUNGER_EXPENDITURE;
+    }
+
+    /**
+     * Factor to scale food generation by (higher means food is less common)
+     */
+    private double FOOD_GENERATION_FACTOR = 4.0;
+    public double getFOOD_GENERATION_FACTOR() {
+        return FOOD_GENERATION_FACTOR;
+    }
+    public void setFOOD_GENERATION_FACTOR(double FOOD_GENERATION_FACTOR) {
+        this.FOOD_GENERATION_FACTOR = FOOD_GENERATION_FACTOR;
+    }
+
 
     /**
      * Positive integer representing the width of the world.
@@ -96,12 +185,32 @@ public class WorldModel {
     /**
      * Constructor for the world. Takes in width and height parameters
      */
-    public WorldModel(int width, int height, double initialFoodDensity, double initialCritterDensity, double mutationRate, double baseDamage, double damageScalingFactor) {
+    public WorldModel(
+            int width,
+            int height,
+            double initialFoodDensity,
+            double initialCritterDensity,
+            double moveCost,
+            double rotateCost,
+            double baseMoveCost,
+            double baseRotateCost,
+            double sizeCost,
+            double mutationRate,
+            double baseDamage,
+            double damageScalingFactor,
+            double baseHungerExpenditure,
+            double foodGenRate
+    ) {
         this.width = width;
         this.height = height;
         this.tickCount = 0;
         this.initialFoodDensity = initialFoodDensity;
         this.initialCritterDensity = initialCritterDensity;
+        this.MOVE_COST_FACTOR = moveCost;
+        this.ROTATE_COST_FACTOR = rotateCost;
+        this.BASE_MOVE_COST = baseMoveCost;
+        this.BASE_ROTATE_COST = baseRotateCost;
+        this.SIZE_COST = sizeCost;
         this.worldArray = new CellState[width][height];
         this.mutationRate = mutationRate;
         this.critters = new HashMap<Point, Critter>();
@@ -109,12 +218,19 @@ public class WorldModel {
         this.waters = new HashMap<Point, Water>();
         this.baseDamage = baseDamage;
         this.damageScalingFactor = damageScalingFactor;
+        this.BASE_HUNGER_EXPENDITURE = baseHungerExpenditure;
+        this.FOOD_GENERATION_FACTOR = foodGenRate;
 
         // seed the world with specified parameters
         seedWorld();
 
 //        critters.forEach((p, c) -> {System.out.println(p.toString() + ": " + c.getSize());}); // debugging log to test if seeding worked properly
     }
+
+    /**
+     * constructor for worldFactory and testing purposes
+     */
+    public WorldModel(int width, int height, double initialFoodDensity, double initialCritterDensity, double mutationRate, double baseDamage, double damageScalingFactor) {}
 
     /**
      * Seeds the world based on the parameters used during construction
@@ -358,6 +474,9 @@ public class WorldModel {
         for (Critter critter : critters.values()) {
             Point pos = critter.getPosition();
             if (pos.x >= 0 && pos.x < width && pos.y >= 0 && pos.y < height) {
+                if (critter.getPriority() == Priority.ATTACK) {
+                    worldArray[pos.x][pos.y] = CellState.ANGRY_CRITTER;
+                }
                 worldArray[pos.x][pos.y] = CellState.PEACEFUL_CRITTER; // Critter
             }
         }

@@ -51,7 +51,21 @@ public class CritterEvoGame {
     /**
      * User input for world parameters.
      */
-    private JTextField widthField, heightField, foodDensityField, critterDensityField, mutationRateField, baseDamageField, damageScalingField;
+    private JTextField widthField,
+            heightField,
+            foodDensityField,
+            critterDensityField,
+            mutationRateField,
+            baseDamageField,
+            damageScalingField,
+            baseMoveCostField,
+            moveCostField,
+            baseRotateCostField,
+            rotateCostField,
+            sizeCostField,
+            reproductionCostField,
+            baseHungerExpenditureCostField,
+            foodGenField;
 
     /**
      * Slider for simulation speed
@@ -75,7 +89,7 @@ public class CritterEvoGame {
     public CritterEvoGame() {
         // initialize application window
         frame = new JFrame("Critter Evo");
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // get screen dimensions
 
@@ -108,6 +122,30 @@ public class CritterEvoGame {
         critterDensityField = new JTextField("0.01");
         controlPanel.add(critterDensityField);
 
+        controlPanel.add(new JLabel("Size Cost"));
+        sizeCostField = new JTextField("1.1");
+        controlPanel.add(sizeCostField);
+
+        controlPanel.add(new JLabel("Base Hunger Expenditure"));
+        baseHungerExpenditureCostField = new JTextField("1");
+        controlPanel.add(baseHungerExpenditureCostField);
+
+        controlPanel.add(new JLabel("Base Movement Cost"));
+        baseMoveCostField = new JTextField("1.1");
+        controlPanel.add(baseMoveCostField);
+
+        controlPanel.add(new JLabel("Movement Cost Factor"));
+        moveCostField = new JTextField("0.002");
+        controlPanel.add(moveCostField);
+
+        controlPanel.add(new JLabel("Base Rotate Cost"));
+        baseRotateCostField = new JTextField("1.1");
+        controlPanel.add(baseRotateCostField);
+
+        controlPanel.add(new JLabel("Rotate Cost Factor"));
+        rotateCostField = new JTextField("0.0004");
+        controlPanel.add(rotateCostField);
+
         controlPanel.add(new JLabel("Mutation Rate (0-1):"));
         mutationRateField = new JTextField("0.05");
         controlPanel.add(mutationRateField);
@@ -119,6 +157,10 @@ public class CritterEvoGame {
         controlPanel.add(new JLabel("Damage Scaling (1.0-2.0"));
         damageScalingField = new JTextField("1.3");
         controlPanel.add(damageScalingField);
+
+        controlPanel.add(new JLabel("Food Generation Rate (higher is lower)"));
+        foodGenField = new JTextField("4.0");
+        controlPanel.add(foodGenField);
 
         controlPanel.add(new JLabel("Simulation Speed"));
         simulationSpeedSlider = new JSlider(0, 1000, 800 );
@@ -163,9 +205,7 @@ public class CritterEvoGame {
 
         resetButton.addActionListener(e -> {
             // reset simulation, clear world
-            world = null;
-            worldView = null;
-            gamePanel.revalidate();
+            gamePanel.remove(worldView);
             gamePanel.repaint();
         });
 
@@ -220,12 +260,34 @@ public class CritterEvoGame {
         int width = Integer.parseInt(widthField.getText());
         double foodDensity = Double.parseDouble(foodDensityField.getText());
         double critterDensity = Double.parseDouble(critterDensityField.getText());
+        double moveCostFactor = Double.parseDouble(moveCostField.getText());
+        double rotateCostFactor = Double.parseDouble(rotateCostField.getText());
+        double baseMoveCostFactor = Double.parseDouble(baseMoveCostField.getText());
+        double baseRotateCostFactor = Double.parseDouble(baseRotateCostField.getText());
+        double sizeCost = Double.parseDouble(sizeCostField.getText());
         double mutationRate = Double.parseDouble(mutationRateField.getText());
         double baseDamage = Double.parseDouble(baseDamageField.getText());
         double damageScaling = Double.parseDouble(damageScalingField.getText());
+        double baseHungerExpenditure = Double.parseDouble(baseHungerExpenditureCostField.getText());
+        double foodGenRate = Double.parseDouble(foodGenField.getText());
+
         // create the new world
-        WorldModel world = new WorldModel(width, height, foodDensity, critterDensity, mutationRate, baseDamage, damageScaling);
-        return world;
+        return new WorldModel(
+                width,
+                height,
+                foodDensity,
+                critterDensity,
+                moveCostFactor,
+                rotateCostFactor,
+                baseMoveCostFactor,
+                baseRotateCostFactor,
+                sizeCost,
+                mutationRate,
+                baseDamage,
+                damageScaling,
+                baseHungerExpenditure,
+                foodGenRate
+        );
     }
 
     public void start() {

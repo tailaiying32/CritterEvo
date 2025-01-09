@@ -547,7 +547,7 @@ public class Critter{
      * decrements health when critter runs out of hunger
      */
     public void starve(Critter this) {
-        this.health -= getMaxHealth()/4;
+        this.health -= 25;
     }
 
     /**

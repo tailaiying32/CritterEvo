@@ -42,10 +42,7 @@ public class WorldUpdater {
      */
     private Timer timer;
 
-    /**
-     * Factor to scale food generation by (higher means food is less common)
-     */
-    private static final double FOOD_GENERATION_FACTOR = 2.0;
+
 
     /**
      * Constructor for worldUpdater
@@ -124,7 +121,7 @@ public class WorldUpdater {
                     // Generate random number between 0 and 1
                     double random = Math.random();
                     // Check if random number is less than 1/2N
-                    if (random < 1.0 / (numCritters * FOOD_GENERATION_FACTOR)) {
+                    if (random < 1.0 / (numCritters * world.getFOOD_GENERATION_FACTOR())) {
                         world.getWorldArray()[i][j] = CellState.FOOD;
                         world.addFood(new Food(new Point(i, j), (int) (Math.random() * 40), 0));
                     }
