@@ -5,11 +5,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
+import javax.management.DescriptorRead;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import model.Critter;
 import model.Food;
 import model.WorldModel;
+import view.CritterEvoGame;
 import view.WorldView;
 
 public class WorldUpdater {
@@ -24,6 +26,10 @@ public class WorldUpdater {
      */
     private WorldModel worldModel;
 
+    /**
+     * the game instance
+     */
+    private CritterEvoGame game;
 
     /**
      * Boolean representing whether the simulation is running or not
@@ -38,9 +44,10 @@ public class WorldUpdater {
     /**
      * Constructor for worldUpdater
      */
-    public WorldUpdater(WorldModel world, WorldView worldView) {
+    public WorldUpdater(WorldModel world, WorldView worldView, CritterEvoGame game) {
         this.worldView = worldView;
         this.worldModel = worldView.getWorldModel();
+        this.game = game;
         // Create timer that calls tick() every 2000ms
         this.timer = new Timer(1000, e -> tick());
     }
@@ -71,7 +78,8 @@ public class WorldUpdater {
 
             addFood();
             worldView.repaint();
-//            statsPanel.updateState();
+            game.statsPanel.updateStats();
+            game.statsPanel.repaint();
         }
 //        System.out.println("critter list: " + worldModel.getCritters().size());
 //        System.out.println("food list: " + worldModel.getFoods().size());

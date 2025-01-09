@@ -5,13 +5,40 @@ import java.awt.*;
 import java.util.List;
 
 public class BarChartPanel extends JPanel {
+
+    /**
+     * title for the bar chart
+     */
     private final String title;
-    private final int NUM_BINS = 10;
+
+    /**
+     * the number of bars
+     */
+    private final int NUM_BINS = 100;
+
+    /**
+     * the array holding the bins
+     */
     private int[] bins;
+
+    /**
+     * the maximum value for the y-axis
+     */
     private int maxCount;
+
+    /**
+     * the maximum value for the x-axis
+     */
     private double minValue;
+
+    /**
+     * the maximum value for the x-axis
+     */
     private double maxValue;
 
+    /**
+     * constructor for the bar chart
+     */
     public BarChartPanel(String title) {
         this.title = title;
         this.bins = new int[NUM_BINS];
@@ -19,6 +46,9 @@ public class BarChartPanel extends JPanel {
         setPreferredSize(new Dimension(200, 200));
     }
 
+    /**
+     * updates the data in the chart
+     */
     public void updateData(List<Double> values) {
         if (values.isEmpty()) {
             bins = new int[NUM_BINS];
@@ -30,10 +60,8 @@ public class BarChartPanel extends JPanel {
         // Reset bins
         bins = new int[NUM_BINS];
         maxCount = 0;
-
-        // Find min and max values
-        minValue = values.stream().mapToDouble(v -> v).min().getAsDouble();
-        maxValue = values.stream().mapToDouble(v -> v).max().getAsDouble();
+        minValue = 0;
+        maxValue = 100;
         double range = maxValue - minValue;
 
         // Handle case where all values are the same
@@ -48,8 +76,12 @@ public class BarChartPanel extends JPanel {
 
         // Fill bins
         for (double value : values) {
+            // Calculate bin index
             int binIndex = (int) ((value - minValue) / binSize);
-            if (binIndex == NUM_BINS) binIndex--; // Handle maximum value
+
+            // Ensure the index is within bounds
+            binIndex = Math.min(Math.max(0, binIndex), NUM_BINS - 1);
+
             bins[binIndex]++;
             maxCount = Math.max(maxCount, bins[binIndex]);
         }

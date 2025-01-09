@@ -59,7 +59,7 @@ public class CritterEvoGame {
     private JSlider simulationSpeedSlider;
 
     private JTabbedPane tabbedPane;
-    private StatisticsPanel statsPanel;
+    public StatisticsPanel statsPanel;
 
     /**
      * Construct a new application instance. Initializes GUI components, so must be invoked on the
@@ -114,7 +114,7 @@ public class CritterEvoGame {
         controlPanel.add(damageScalingField);
 
         controlPanel.add(new JLabel("Simulation Speed"));
-        simulationSpeedSlider = new JSlider(1, 4000, 2000);
+        simulationSpeedSlider = new JSlider(0, 100, 80);
         controlPanel.add(simulationSpeedSlider);
 
         simulationSpeedSlider.addChangeListener(e -> {
@@ -140,7 +140,7 @@ public class CritterEvoGame {
         startButton.addActionListener(e -> {
             // start simulation
             if (worldUpdater == null) {
-                worldUpdater = new WorldUpdater(worldView.getWorldModel(), worldView);
+                worldUpdater = new WorldUpdater(worldView.getWorldModel(), worldView, this);
                 worldUpdater.start();
                 worldUpdater.tick();
             } else {
