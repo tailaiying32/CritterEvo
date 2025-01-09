@@ -83,7 +83,7 @@ public class WorldView extends JPanel {
                 // Set color based on the state of the cell
                 switch (cellState) {
                     case GRASS -> g.setColor(Color.WHITE); // Grass
-                    case MOUNTAIN -> g.setColor(Color.BLACK); // Mountain
+                    case MOUNTAIN -> g.setColor(Color.GRAY); // Mountain
                     case FOOD -> g.setColor(Color.GREEN); // Food
                     case WATER -> g.setColor(Color.BLUE);  // Water
                     case PEACEFUL_CRITTER -> g.setColor(Color.ORANGE);

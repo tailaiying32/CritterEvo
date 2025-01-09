@@ -27,16 +27,48 @@ public class InteractionManager {
      * Eat the food directly in front of the critter.
      * Replenish hunger equal to the food's quantity attribute.
      * Returns hunger level after eating.
+     * give advantage to larger creatures
      */
     public double eat(Critter critter, Food food) {
         if (food != null) {
-//            double newHunger = Math.min(
-//                    (critter.getHunger() + food.getQuantity()),
-//                    critter.getMaxHunger()
-//            );
+            // add in advantage for larger creatures if more than two creatures arrive at the same food source at the same time
+            Point foodPos = food.getPosition();
+            WorldModel world = critter.getWorld();
+
+            List<Point> aroundFood = world.squaresAround(foodPos);
+            aroundFood.removeIf(p -> world.getCritter(p) == null);
+            // ratio to be used to size advantage
+            double ratio = 1;
+
+            if (!aroundFood.isEmpty()) {
+                List<Double> sizeCrittersAround = new ArrayList<>();
+                for (Point p : aroundFood) {
+                    sizeCrittersAround.add(world.getCritter(p).getSize());
+                }
+                // sum up the sizes and calculate the size advantage of this critter
+//                double sum = 0;
+//                for (double size : sizeCrittersAround) {
+//                    sum += size;
+//                }
+//                ratio = critter.getSize()/sum;
+
+                // if this critter is the largest, it gets all the food, otherwise it gets nothing
+                double largestSize = 0;
+                for (double size : sizeCrittersAround) {
+                    if (size > largestSize) {
+                        largestSize = size;
+                    }
+                }
+
+                if (critter.getSize() < largestSize) {
+                    ratio = 0;
+                }
+            }
+
+
             double sizeBonus = 1.0 + (critter.getSize() / 100.0); // Larger creatures get more from food
             double newHunger = Math.min(
-                    (critter.getHunger() + food.getQuantity() * sizeBonus),
+                    (critter.getHunger() + (food.getQuantity() * sizeBonus) * ratio),
                     critter.getMaxHunger()
             );
             critter.setHunger(newHunger);
@@ -48,13 +80,17 @@ public class InteractionManager {
             critter.setHealth(newHealth);
 
             // Remove the food and update the world
-            critter.getWorld().removeFood(food.getPosition());
-            critter.getWorld().updateWorldArray();
+            world.removeFood(food.getPosition());
+            world.updateWorldArray();
 
             return critter.getHunger();
         }
         return critter.getHunger();
     }
+
+    /**
+     * calculates size advantage when more than one critter arrives at the same food source
+     */
 
     /**
      * Drink the water directly in front of the critter.
@@ -154,8 +190,8 @@ public class InteractionManager {
 
         // Mutate traits based on the combined mutation rate
         int maxAge = (int) Math.round(mutateTrait((double) parent.getMaxAge(), combinedMutationRate));
-        double maxHunger = Math.min(mutateTrait(parent.getMaxHunger(), combinedMutationRate), 100);
-        double maxThirst = Math.min(mutateTrait(parent.getMaxThirst(), combinedMutationRate), 100);
+//        double maxHunger = Math.min(mutateTrait(parent.getMaxHunger(), combinedMutationRate), 100);
+//        double maxThirst = Math.min(mutateTrait(parent.getMaxThirst(), combinedMutationRate), 100);
         double size = Math.min(mutateTrait(parent.getSize(), combinedMutationRate), 100);
         double maxHealth = Math.min(mutateTrait(parent.getMaxHealth(), combinedMutationRate), 100);
         double offense = Math.min(mutateTrait(parent.getOffense(), combinedMutationRate), 100);
@@ -172,8 +208,8 @@ public class InteractionManager {
                     birthPosition,
                     parent.getOrientation(),
                     maxAge,
-                    maxHunger,
-                    maxThirst,
+                    100,
+                    100,
                     maxHealth,
                     parent.getSex(),
                     size,

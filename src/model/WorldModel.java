@@ -1,5 +1,6 @@
 package model;
 
+import controller.WorldGenerator;
 import graph.WorldGraph;
 import java.awt.Point;
 import java.util.ArrayList;
@@ -94,7 +95,7 @@ public class WorldModel {
     /**
      * Factor to scale food generation by (higher means food is less common)
      */
-    private double FOOD_GENERATION_FACTOR = 2.0;
+    private double FOOD_GENERATION_FACTOR = 1.0;
     public double getFOOD_GENERATION_FACTOR() {
         return FOOD_GENERATION_FACTOR;
     }
@@ -102,6 +103,10 @@ public class WorldModel {
         this.FOOD_GENERATION_FACTOR = FOOD_GENERATION_FACTOR;
     }
 
+    /**
+     * the world generator
+     */
+    private WorldGenerator worldGenerator;
 
     /**
      * Positive integer representing the width of the world.
@@ -201,11 +206,12 @@ public class WorldModel {
             double baseRotateCost,
             double sizeCost,
             double mutationRate,
-//            double maxMutationChange,
             double baseDamage,
             double damageScalingFactor,
             double baseHungerExpenditure,
-            double foodGenRate
+            double foodGenRate,
+            double scale,
+            long seed
     ) {
         this.width = width;
         this.height = height;
@@ -219,7 +225,6 @@ public class WorldModel {
         this.SIZE_COST = sizeCost;
         this.worldArray = new CellState[width][height];
         this.mutationRate = mutationRate;
-//        this.maxMutationChange = maxMutationChange;
         this.critters = new HashMap<Point, Critter>();
         this.foods = new HashMap<Point, Food>();
         this.waters = new HashMap<Point, Water>();
@@ -228,10 +233,11 @@ public class WorldModel {
         this.BASE_HUNGER_EXPENDITURE = baseHungerExpenditure;
         this.FOOD_GENERATION_FACTOR = foodGenRate;
 
+        // generate the terrain
+        this.worldGenerator = new WorldGenerator(scale, seed);
+        worldGenerator.generateTerrain(this);
         // seed the world with specified parameters
         seedWorld();
-
-//        critters.forEach((p, c) -> {System.out.println(p.toString() + ": " + c.getSize());}); // debugging log to test if seeding worked properly
     }
 
     /**
@@ -247,19 +253,24 @@ public class WorldModel {
      * and add to the world's critters
      */
     public void seedWorld() {
+        // loop through the world array
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                double randomValue = Math.random(); // random number used for seeding world
-                if (randomValue <= initialFoodDensity) {
-                    this.worldArray[i][j] = CellState.FOOD; // 2 for food
-                    Food food = new Food(new Point(i, j), (int) (Math.random()*35 + 5), 0);
-                    addFood(food);
-                } else if (randomValue <= initialFoodDensity + initialCritterDensity) {
-                    this.worldArray[i][j] = CellState.PEACEFUL_CRITTER; // 4 for critter
-                    // construct a new critter with random attributes
-                    CritterFactory critterFactory = new CritterFactory();
-                    Critter critter = critterFactory.generateCritter(new Point(i, j), this);
-                    addCritter(critter);
+
+                // only place critters and food on grass squares
+                if (this.getWorldArray()[i][j] == CellState.GRASS) {
+                    double randomValue = Math.random(); // random number used for seeding world
+                    if (randomValue <= initialFoodDensity) {
+                        this.worldArray[i][j] = CellState.FOOD; // 2 for food
+                        Food food = new Food(new Point(i, j), (int) (Math.random()*35 + 5), 0);
+                        addFood(food);
+                    } else if (randomValue <= initialFoodDensity + initialCritterDensity) {
+                        this.worldArray[i][j] = CellState.PEACEFUL_CRITTER; // 4 for critter
+                        // construct a new critter with random attributes
+                        CritterFactory critterFactory = new CritterFactory();
+                        Critter critter = critterFactory.generateCritter(new Point(i, j), this);
+                        addCritter(critter);
+                    }
                 }
             }
         }
@@ -513,7 +524,7 @@ public class WorldModel {
     /**
      * Returns the list of 8 points around a single point
      */
-    public List<?> squaresAround(Point p) {
+    public List<Point> squaresAround(Point p) {
         List<Point> squaresAround = new ArrayList<>();
         int currentX = p.x;
         int currentY = p.y;

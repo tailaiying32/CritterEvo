@@ -51,7 +51,7 @@ public class CritterAI {
 
         // take away some base hunger, even if resting
         critter.setHunger(critter.getHunger() - (world.getBASE_HUNGER_EXPENDITURE() +
-                (int) Math.pow((double) critter.getSize()/10, 1.2)
+                (int) Math.pow((double) critter.getSize()/10, world.getSIZE_COST())
         ));
 
         if (critter.getHunger() > critter.getMaxHunger() * 0.8) {

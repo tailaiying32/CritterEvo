@@ -3,6 +3,8 @@ package view;
 import controller.WorldUpdater;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.GraphicsDevice;
+import java.util.Random;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -65,7 +67,9 @@ public class CritterEvoGame {
             sizeCostField,
             reproductionCostField,
             baseHungerExpenditureCostField,
-            foodGenField;
+            foodGenField,
+            scaleField,
+            seedField;
 
     /**
      * Slider for simulation speed
@@ -94,8 +98,9 @@ public class CritterEvoGame {
         // get screen dimensions
 
         // set default area for the frame
-        frame.setPreferredSize(new Dimension(1280, 800));
+        frame.setPreferredSize(new Dimension(1920, 1040));
         frame.setLayout(new BorderLayout());
+
 
         // Create tabbed pane
         tabbedPane= new JTabbedPane();
@@ -147,7 +152,7 @@ public class CritterEvoGame {
         controlPanel.add(rotateCostField);
 
         controlPanel.add(new JLabel("Mutation Rate (0-1):"));
-        mutationRateField = new JTextField("0.05");
+        mutationRateField = new JTextField("0.1");
         controlPanel.add(mutationRateField);
 
         controlPanel.add(new JLabel("Base Damage (0-100)"));
@@ -161,6 +166,14 @@ public class CritterEvoGame {
         controlPanel.add(new JLabel("Food Generation Rate (higher is lower)"));
         foodGenField = new JTextField("2.0");
         controlPanel.add(foodGenField);
+
+        controlPanel.add(new JLabel("Terrain Scale:"));
+        scaleField = new JTextField("0.2"); // Default scale
+        controlPanel.add(scaleField);
+
+//        controlPanel.add(new JLabel("Terrain Seed:"));
+//        seedField = new JTextField(Long.toString(new Random().nextLong())); // Default random seed
+//        controlPanel.add(seedField);
 
         controlPanel.add(new JLabel("Simulation Speed"));
         simulationSpeedSlider = new JSlider(0, 1000, 800 );
@@ -181,7 +194,7 @@ public class CritterEvoGame {
         controlPanel.add(pauseButton);
         controlPanel.add(resetButton);
         controlPanel.add(generateWorldButton);
-        frame.add(controlPanel, BorderLayout.EAST);
+//        frame.add(controlPanel, BorderLayout.EAST);
 
         gamePanel.add(controlPanel, BorderLayout.EAST);
 
@@ -208,6 +221,11 @@ public class CritterEvoGame {
             gamePanel.remove(worldView);
             gamePanel.repaint();
         });
+        // Modify the generate world button action
+        generateWorldButton.addActionListener(e -> {
+            generateWorld();
+            statsPanel.setWorld(world);  // Set the world in stats panel
+        });
 
         // Create statistics panel
         statsPanel = new StatisticsPanel();
@@ -217,17 +235,8 @@ public class CritterEvoGame {
         tabbedPane.addTab("Statistics", statsPanel);
 
         frame.add(tabbedPane, BorderLayout.CENTER);
-
-        // Modify the generate world button action
-        generateWorldButton.addActionListener(e -> {
-            generateWorld();
-            statsPanel.setWorld(world);  // Set the world in stats panel
-        });
-
-        generateWorldButton.addActionListener(e -> {
-            // generate world based on user input
-            generateWorld();
-        });
+        frame.pack();
+        frame.setVisible(true);
     }
 
     /**
@@ -270,6 +279,9 @@ public class CritterEvoGame {
         double damageScaling = Double.parseDouble(damageScalingField.getText());
         double baseHungerExpenditure = Double.parseDouble(baseHungerExpenditureCostField.getText());
         double foodGenRate = Double.parseDouble(foodGenField.getText());
+        double scale = Double.parseDouble(scaleField.getText());
+        long seed = new Random().nextLong();
+
 
         // create the new world
         return new WorldModel(
@@ -286,7 +298,9 @@ public class CritterEvoGame {
                 baseDamage,
                 damageScaling,
                 baseHungerExpenditure,
-                foodGenRate
+                foodGenRate,
+                scale,
+                seed
         );
     }
 
