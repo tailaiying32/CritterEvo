@@ -112,11 +112,11 @@ public class CritterEvoGame {
         controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
 
         controlPanel.add(new JLabel("World Width:"));
-        widthField = new JTextField("60");
+        widthField = new JTextField("120");
         controlPanel.add(widthField);
 
         controlPanel.add(new JLabel("World Height:"));
-        heightField = new JTextField("45");
+        heightField = new JTextField("90");
         controlPanel.add(heightField);
 
         controlPanel.add(new JLabel("Initial Food Density (0-1):"));
@@ -128,7 +128,7 @@ public class CritterEvoGame {
         controlPanel.add(critterDensityField);
 
         controlPanel.add(new JLabel("Size Cost"));
-        sizeCostField = new JTextField("1.05");
+        sizeCostField = new JTextField("1.1");
         controlPanel.add(sizeCostField);
 
         controlPanel.add(new JLabel("Base Hunger Expenditure"));
@@ -160,7 +160,7 @@ public class CritterEvoGame {
         controlPanel.add(baseDamageField);
 
         controlPanel.add(new JLabel("Damage Scaling (1.0-2.0)"));
-        damageScalingField = new JTextField("1.5");
+        damageScalingField = new JTextField("1.3");
         controlPanel.add(damageScalingField);
 
         controlPanel.add(new JLabel("Food Generation Rate (higher is lower)"));

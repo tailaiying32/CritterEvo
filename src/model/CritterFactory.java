@@ -36,11 +36,13 @@ public class CritterFactory {
 
         double maxHealth = size;
 
-//        double offense =  (Math.random() * 100);
-        double offense = size;
+        double offense =  (Math.random() * 100);
+//        double offense = size;
 
-//        double defense =  (Math.random() * 100);
-        double defense = size;
+        double defense =  (Math.random() * 100);
+//        double defense = size;
+        double maxHunger = (Math.random() * 100);
+        double maxThirst = (Math.random() * 100);
 
         double aggression = (Math.random() * 100);
 
@@ -52,8 +54,8 @@ public class CritterFactory {
                 p,
                 orientation,
                 maxAge,
-                100,
-                100,
+                maxHunger,
+                maxThirst,
                 maxHealth,
                 sex,
                 size,

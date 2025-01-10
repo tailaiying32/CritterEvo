@@ -40,6 +40,8 @@ public class CritterAI {
                 critter.setPriority(Priority.FOOD);
             } else if (critter.getHunger() > critter.getThirst()){
                 critter.setPriority(Priority.WATER);
+            } else {
+                critter.setPriority(Priority.REST);
             }
         }
     }
@@ -51,25 +53,10 @@ public class CritterAI {
         Point target = locateTarget(critter, critter.getPriority());
         WorldModel world = critter.getWorld();
 
-        // take away some base hunger, even if resting (smaller critters have a faster metabolic rate)
-        critter.setHunger(critter.getHunger() - (world.getBASE_HUNGER_EXPENDITURE() +
-                (int) Math.pow((double) ((100 - critter.getSize()))/10, world.getSIZE_COST())
-        ));
-
-        // take away some thirst, even when resting
-        critter.setThirst(critter.getThirst() - (world.getBASE_THIRST_EXPENDITURE()));
-
-
-        if (critter.getHunger() > critter.getMaxHunger() * 0.8) {
-            double newHealth = Math.min(
-                    critter.getHealth() + 1,  // Regenerate 1 health per tick
-                    critter.getMaxHealth()    // But don't exceed maxHealth
-            );
-            critter.setHealth(newHealth);
-        }
-
-        // increment age by 1
-        critter.setAge(critter.getAge() + 1);
+        reduceHunger(critter); // take away some hunger per turn
+        reduceThirst(critter); // take away some thirst per turn
+        heal(critter); // heal health if hunger and thirst are high enough
+        age(critter); // age the critter by 1 every turn
 
         // reproduce if priority is love
         if (critter.getPriority() == Priority.LOVE) {
@@ -241,6 +228,57 @@ public class CritterAI {
         }
 
         return null;
+    }
+
+    /**
+     * private helper method for reducing base hunger per turn
+     */
+    private void reduceHunger(Critter critter) {
+        WorldModel world = critter.getWorld();
+
+        // Calculate size factor: smaller critters expend more energy
+        double sizeFactor = Math.log((100 - critter.getSize()) + 1); // Adding 1 to avoid log(0)
+
+        // Base hunger expenditure (scaled by size)
+        double baseExpenditure = world.getBASE_HUNGER_EXPENDITURE() * sizeFactor;
+
+        // Apply rest reduction: e.g., 50% less expenditure while resting
+        if (critter.getPriority() == Priority.REST) {
+            baseExpenditure *= 0.5;
+        }
+
+        // Update hunger, ensuring it doesn't go below 0
+        critter.setHunger(Math.max(0, critter.getHunger() - baseExpenditure));
+    }
+
+    /**
+     * private helper method for reducing base thirst per turn
+     */
+    private void reduceThirst(Critter critter) {
+        WorldModel world = critter.getWorld();
+        // take away some thirst, even when resting
+        critter.setThirst(critter.getThirst() - (world.getBASE_THIRST_EXPENDITURE()));
+    }
+
+    /**
+     * private helper method for healing when hunger and thirst are high enough
+     */
+    private void heal(Critter critter) {
+        if (critter.getHunger() > critter.getMaxHunger() * 0.8) {
+            double newHealth = Math.min(
+                    critter.getHealth() + critter.getMaxHealth() * 0.01,  // Regenerate 1% health per tick
+                    critter.getMaxHealth()    // But don't exceed maxHealth
+            );
+            critter.setHealth(newHealth);
+        }
+    }
+
+    /**
+     * private helper method for aging the critter per turn
+     */
+    private void age(Critter critter) {
+        // increment age by 1
+        critter.setAge(critter.getAge() + 1);
     }
 }
 

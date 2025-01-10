@@ -73,7 +73,7 @@ public class StatisticsPanel extends JPanel {
      * helper function to create the charts
      */
     private void createCharts() {
-        String[] traits = {"Health", "Size", "Offense", "Defense"};
+        String[] traits = {"Max Health", "Max Hunger", "Max Thirst", "Size", "Offense", "Defense", "Aggression"};
         for (String trait : traits) {
             BarChartPanel chart = new BarChartPanel(trait);
             charts.put(trait, chart);
@@ -108,16 +108,22 @@ public class StatisticsPanel extends JPanel {
 
         // Collect data
         Map<String, List<Double>> traitData = new HashMap<>();
-        traitData.put("Health", new ArrayList<>());
+        traitData.put("Max Health", new ArrayList<>());
+        traitData.put("Max Hunger", new ArrayList<>());
+        traitData.put("Max Thirst", new ArrayList<>());
         traitData.put("Size", new ArrayList<>());
         traitData.put("Offense", new ArrayList<>());
         traitData.put("Defense", new ArrayList<>());
+        traitData.put("Aggression", new ArrayList<>());
 
         for (Critter critter : critters.values()) {
-            traitData.get("Health").add((double) critter.getMaxHealth());
+            traitData.get("Max Health").add((double) critter.getMaxHealth());
+            traitData.get("Max Hunger").add((double) critter.getMaxHunger());
+            traitData.get("Max Thirst").add((double) critter.getMaxThirst());
             traitData.get("Size").add((double) critter.getSize());
             traitData.get("Offense").add((double) critter.getOffense());
             traitData.get("Defense").add((double) critter.getDefense());
+            traitData.get("Aggression").add((double) critter.getAggression());
         }
 
         // Update table and charts
