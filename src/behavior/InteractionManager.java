@@ -189,7 +189,7 @@ public class InteractionManager {
         double combinedMutationRate = parentMutationRate + baseMutationRate;
 
         // Mutate traits based on the combined mutation rate
-        int maxAge = (int) Math.round(mutateTrait((double) parent.getMaxAge(), combinedMutationRate));
+        int maxAge = (int) Math.min(Math.round(mutateTrait((double) parent.getMaxAge(), combinedMutationRate)), 2000);
         double maxHunger = Math.min(mutateTrait(parent.getMaxHunger(), combinedMutationRate), 100);
         double maxThirst = Math.min(mutateTrait(parent.getMaxThirst(), combinedMutationRate), 100);
         double size = Math.min(mutateTrait(parent.getSize(), combinedMutationRate), 100);
