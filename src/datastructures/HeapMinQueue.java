@@ -115,7 +115,6 @@ public class HeapMinQueue<KeyType> implements MinQueue<KeyType> {
      */
     @Override
     public KeyType remove() {
-        // TODO A6.3c: Implement this method as specified
         if (isEmpty()) {
             throw new NoSuchElementException();
         }
@@ -169,7 +168,6 @@ public class HeapMinQueue<KeyType> implements MinQueue<KeyType> {
         // update index map to reflect new positions
         index.put(entryI.key, j);
         index.put(entryJ.key, i);
-        // TODO A6.3a: Implement this method as specified
     }
 
     /**
@@ -178,9 +176,6 @@ public class HeapMinQueue<KeyType> implements MinQueue<KeyType> {
      */
     private void add(KeyType key, int priority) {
         assert !index.containsKey(key);
-
-        // TODO A6.3d: Implement this method as specified
-
         // add new entry to end of heap
         int newIndex = heap.size();
         heap.add(new Entry<>(key, priority));
@@ -198,9 +193,6 @@ public class HeapMinQueue<KeyType> implements MinQueue<KeyType> {
      */
     private void update(KeyType key, int priority) {
         assert index.containsKey(key);
-
-        // TODO A6.3e: Implement this method as specified
-
         // get current index and update priority
         int i = index.get(key);
         int oldPriority = heap.get(i).priority();
@@ -216,9 +208,6 @@ public class HeapMinQueue<KeyType> implements MinQueue<KeyType> {
 
         assert checkInvariant();
     }
-
-    // TODO A6.3b: Implement private helper methods for bubbling entries up and down in the heap.
-    //  Their interfaces are up to you, but you must write precise specifications.
 
     /*
      * Moves entry at given index upward in heap until heap property is restored.
