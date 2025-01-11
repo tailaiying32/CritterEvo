@@ -16,12 +16,7 @@ public class HeapMinQueue<KeyType> implements MinQueue<KeyType> {
     /**
      * Pairs an element `key` with its associated priority `priority`.
      */
-    private record Entry<KeyType>(KeyType key, int priority) {
-        // Note: This is equivalent to declaring a static nested class with fields `key` and
-        //  `priority` and a corresponding constructor and observers, overriding `equals()` and
-        //  `hashCode()` to depend on the fields, and overriding `toString()` to print their values.
-        // https://docs.oracle.com/en/java/javase/17/language/records.html
-    }
+    private record Entry<KeyType>(KeyType key, int priority) {}
 
     /**
      * Associates each element in the queue with its index in `heap`.  Satisfies

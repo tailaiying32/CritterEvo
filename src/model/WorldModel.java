@@ -1,7 +1,7 @@
 package model;
 
 import controller.WorldGenerator;
-import graph.WorldGraph;
+//import graph.WorldGraph;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -93,7 +93,7 @@ public class WorldModel {
     }
 
     // base thirst expenditure
-    private double BASE_THIRST_EXPENDITURE = 1;
+    private double BASE_THIRST_EXPENDITURE = 0.8;
     public double getBASE_THIRST_EXPENDITURE() {
         return BASE_THIRST_EXPENDITURE;
     }
@@ -335,9 +335,9 @@ public class WorldModel {
     /**
      * Returns the graph representation of this world
      */
-    public WorldGraph getWorldGraph() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+//    public WorldGraph getWorldGraph() {
+//        throw new UnsupportedOperationException("Not supported yet.");
+//    }
 
     /**
      * Returns the list of all live critters

@@ -3,6 +3,10 @@ package view;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.EnumMap;
+import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import model.WorldModel;
 import model.WorldModel.CellState;
@@ -28,17 +32,42 @@ public class WorldView extends JPanel {
     private static final int MIN_CELL_SIZE = 4;
 
     /**
+     * Map to hold the sprites in
+     */
+    private EnumMap<CellState, BufferedImage> sprites;
+
+    /**
      * Constructs the world view. Takes in a world model as a parameter, and sets the dimensions of the panel
      * equal to the height and width multiplied by cell size.
      */
     public WorldView(WorldModel worldModel) {
         this.worldModel = worldModel;
 
+        // Initialize the sprites map
+        sprites = new EnumMap<>(CellState.class);
+        loadSprites();
+
         // Set a minimum size to prevent the grid from becoming too small
         setMinimumSize(new Dimension(
                 worldModel.getWidth() * MIN_CELL_SIZE,
                 worldModel.getHeight() * MIN_CELL_SIZE
         ));
+    }
+
+    /**
+     * helper method to load sprites
+     */
+    private void loadSprites() {
+        try {
+            sprites.put(CellState.GRASS, ImageIO.read(new File("C:\\Users\\taila\\Projects\\CritterEvo\\src\\sprites/Grass.png")));
+            sprites.put(CellState.MOUNTAIN, ImageIO.read(new File("C:\\Users\\taila\\Projects\\CritterEvo\\src\\sprites/Mountain.png")));
+            sprites.put(CellState.FOOD, ImageIO.read(new File("C:\\Users\\taila\\Projects\\CritterEvo\\src\\sprites/Food.png")));
+            sprites.put(CellState.WATER, ImageIO.read(new File("C:\\Users\\taila\\Projects\\CritterEvo\\src\\sprites/Water.png")));
+            sprites.put(CellState.PEACEFUL_CRITTER, ImageIO.read(new File("C:\\Users\\taila\\Projects\\CritterEvo\\src\\sprites/Critter.png")));
+            sprites.put(CellState.ANGRY_CRITTER, ImageIO.read(new File("C:\\Users\\taila\\Projects\\CritterEvo\\src\\sprites/Critter.png")));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -76,28 +105,50 @@ public class WorldView extends JPanel {
         int cols = worldModel.getWidth();
 
         // Draw the grid
+//        for (int row = 0; row < rows; row++) {
+//            for (int col = 0; col < cols; col++) {
+//                CellState cellState = world[col][row];
+
+                // Set color based on the state of the cell
+//                switch (cellState) {
+//                    case GRASS -> g.setColor(new Color(137, 199, 42)); // Grass
+//                    case MOUNTAIN -> g.setColor(new Color(103, 73, 35)); // Mountain
+//                    case FOOD -> g.setColor(new Color(70, 120, 0)); // Food
+//                    case WATER -> g.setColor(new Color(49, 128, 210));  // Water
+//                    case PEACEFUL_CRITTER -> g.setColor(new Color(115, 115, 115));
+//                    case ANGRY_CRITTER -> g.setColor(new Color(147, 0, 0));
+//                }
+//
+//                // Draw cell
+//                int x = xOffset + (col * cellSize);
+//                int y = yOffset + (row * cellSize);
+//                g.fillRect(x, y, cellSize, cellSize);
+//
+//                // Draw grid lines
+//                g.setColor(new Color(100, 100, 100));
+//                g.drawRect(x, y, cellSize, cellSize);
+//            }
+//        }
+
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
                 CellState cellState = world[col][row];
+                BufferedImage sprite = sprites.get(cellState);
 
-                // Set color based on the state of the cell
-                switch (cellState) {
-                    case GRASS -> g.setColor(Color.WHITE); // Grass
-                    case MOUNTAIN -> g.setColor(Color.GRAY); // Mountain
-                    case FOOD -> g.setColor(Color.GREEN); // Food
-                    case WATER -> g.setColor(Color.BLUE);  // Water
-                    case PEACEFUL_CRITTER -> g.setColor(Color.ORANGE);
-                    case ANGRY_CRITTER -> g.setColor(Color.RED);
-                }
-
-                // Draw cell
                 int x = xOffset + (col * cellSize);
                 int y = yOffset + (row * cellSize);
-                g.fillRect(x, y, cellSize, cellSize);
+
+                if (sprite != null) {
+                    g.drawImage(sprite, x, y, cellSize, cellSize, null);
+                } else {
+                    // Fallback to a color if no image is available
+                    g.setColor(Color.LIGHT_GRAY);
+                    g.fillRect(x, y, cellSize, cellSize);
+                }
 
                 // Draw grid lines
-                g.setColor(new Color(220, 220, 220));
-                g.drawRect(x, y, cellSize, cellSize);
+//                g.setColor(new Color(220, 220, 220));
+//                g.drawRect(x, y, cellSize, cellSize);
             }
         }
     }

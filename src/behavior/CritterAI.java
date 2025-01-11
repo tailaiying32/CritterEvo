@@ -40,9 +40,10 @@ public class CritterAI {
                 critter.setPriority(Priority.FOOD);
             } else if (critter.getHunger() > critter.getThirst()){
                 critter.setPriority(Priority.WATER);
-            } else {
-                critter.setPriority(Priority.REST);
             }
+//            else {
+//                critter.setPriority(Priority.REST);
+//            }
         }
     }
 

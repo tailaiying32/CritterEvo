@@ -182,6 +182,11 @@ public class Critter{
     private double mutationRate;
 
     /**
+     * The critter's vision range, which controls how far the critter can see, defined by its vision radius
+     */
+    private int vision;
+
+    /**
      * Constructs a new Critter. Takes in maxAge, maxHealth, sex, size, and aggression parameter
      * age is set to zero, health is set to maxHealth
      */
@@ -200,6 +205,7 @@ public class Critter{
             double defense,
             double aggression,
             double mutationRate,
+            int vision,
             WorldModel world
             ) {
         this.ai = ai;
@@ -220,6 +226,7 @@ public class Critter{
         this.position = position;
         this.orientation = orientation;
         this.mutationRate = mutationRate;
+        this.vision = vision;
         this.world = world;
         assertInv();
     }
@@ -470,6 +477,13 @@ public class Critter{
      */
     public double getMutationRate() {
         return this.mutationRate;
+    }
+
+    /**
+     * Returns this critter's vision
+     */
+    public int getVision() {
+        return this.vision;
     }
 
     /**

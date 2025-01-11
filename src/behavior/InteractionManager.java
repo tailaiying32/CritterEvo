@@ -198,6 +198,7 @@ public class InteractionManager {
         double defense = Math.min(mutateTrait(parent.getDefense(), combinedMutationRate), 100);
         double aggression = Math.min(mutateTrait(parent.getAggression(), combinedMutationRate), 100);
         double mutationRate = mutateTrait(parent.getMutationRate(), combinedMutationRate);
+        int vision = (int) Math.round(mutateTrait(parent.getVision(), combinedMutationRate));
 
         if (!emptySquares(parent).isEmpty()) {
             // first determine what square the child should be born on
@@ -217,6 +218,7 @@ public class InteractionManager {
                     defense,
                     aggression,
                     mutationRate,
+                    vision,
                     parent.getWorld()
             );
 
@@ -275,7 +277,7 @@ public class InteractionManager {
         Point currentPos = critter.getPosition();
         WorldModel world = critter.getWorld();
         critter.getWorld().removeCritter(critter.getPosition());
-        Food newFood = new Food(currentPos, (int) (critter.getSize()), 0);
+        Food newFood = new Food(currentPos, (int) (critter.getSize() * 2), 0);
         world.addFood(newFood);
     }
 

@@ -48,6 +48,8 @@ public class CritterFactory {
 
         double mutationRate = (Math.random() / 10);
 
+        int vision = (int) (Math.random() * 50);
+
         Critter critter = new Critter(
                 critterai,
                 new InteractionManager(),
@@ -63,6 +65,7 @@ public class CritterFactory {
                 defense,
                 aggression,
                 mutationRate,
+                vision,
                 world
         );
 
