@@ -1,5 +1,6 @@
 package datastructures;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 public interface Vertex<EdgeType extends Edge> {
@@ -17,5 +18,5 @@ public interface Vertex<EdgeType extends Edge> {
      * Returns an iterable of all edges connecting this node
      * to another in the graph. This node serves as the "source" node for all outgoing edges
      */
-     LinkedList<EdgeType> outgoingEdges();
+     ArrayList<EdgeType> outgoingEdges();
 }

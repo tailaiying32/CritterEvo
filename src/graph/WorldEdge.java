@@ -32,8 +32,12 @@ public class WorldEdge implements Edge {
     /**
      * constructs an edge between two squares on the world
      */
-    public WorldEdge () {
-
+    public WorldEdge (WorldModel world, boolean isDirected, int startId, int endId, double weight) {
+        this.world = world;
+        this.isDirected = isDirected;
+        this.startId = startId;
+        this.endId = endId;
+        this.weight = weight;
     }
 
     /**
