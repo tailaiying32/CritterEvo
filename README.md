@@ -4,7 +4,7 @@ CritterEvo is a Java-based artificial life simulator, inspired by evolutionary b
 
 I created this simulation because I was very interested in how I could model the biological process of evolution using concepts I learned in my CS and Networks (game theory) classes. As such, everything in this program: classes, datastructures, algorithms, etc., are all written and implemented from scratch in vanilla Java (and Swing for the GUI).
 
-To run the simulation on your machine, simply download the source code and run the CritterEvoGame class.
+To run the simulation on your machine, simply download the source code and run the main `CritterEvoGame` class.
 
 ## Core Features and Systems
 
