@@ -4,7 +4,7 @@
 
 CritterEvo is a Java-based artificial life simulator, inspired by evolutionary biology and game theory, used to model evolutionary dynamics within an artificial ecosystem. Players configure parameters such as world size, resource distribution, and mutation rates to customize a procedurally generated grid-based world populated by autonomous critters whose main goal is to survive and reproduce. Critters interact with their environment and each other, making decisions based on inputs like hunger, thirst, proximity to resources, and population density. Using genetic algorithms and natural selection, these critters adapt over generations, developing unique behavior and trait sets optimized for survival. 
 
-I created this simulation because I was very interested in how I could model the biological process of evolution using concepts I learned in my CS and Networks (game theory) classes. As such, everything in this program: classes, datastructures, algorithms, etc., are all written and implemented from scratch in vanilla Java (and Swing for the GUI).
+I created this simulation because I was very interested in how I could model the biological process of evolution using concepts I learned in my CS and Networks (game theory) classes. As such, everything in this program: classes, data structures, algorithms, etc., are all written and implemented from scratch in vanilla Java (and Swing for the GUI).
 
 To run the simulation on your machine, simply download the source code and run the main `CritterEvoGame` class.
 
