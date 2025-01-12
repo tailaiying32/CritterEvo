@@ -30,6 +30,7 @@ public class WorldGraph implements Graph<WorldVertex> {
     public WorldGraph(WorldModel world) {
         this.world = world;
         this.vertices = new ArrayList<>();
+        setVertices(world);
     }
 
     /**
@@ -54,11 +55,28 @@ public class WorldGraph implements Graph<WorldVertex> {
     }
 
     /**
+     * calculates the id for a vertex at (x, y)
+     * x and y must be within world bounds
+     */
+    public int calculateId(int x, int y) {
+        assert x >= 0 && x < world.getWidth() && y >= 0 && y < world.getHeight();
+        return x + y * world.getWidth();
+    }
+
+    /**
      * Returns a representation of the vertex at coordinates (x, y)
+     * Not the actual vertex, just a copy!!!
      */
     public WorldVertex vertexAt(int x, int y) {
         assert x >= 0 && x < world.getWidth() && y >= 0 && y < world.getHeight();
         return new WorldVertex(world, x, y);
+    }
+
+    /**
+     * asserts that xy coordinates are within world bounds
+     */
+    private boolean validCoordinates(int x, int y) {
+        return x >= 0 && x < world.getWidth() && y >= 0 && y < world.getHeight();
     }
 
     /**
@@ -69,7 +87,7 @@ public class WorldGraph implements Graph<WorldVertex> {
         CellState[][] worldArray = world.getWorldArray();
         for (int x = 0; x < world.getWidth(); x++) {
             for (int y = 0; y < world.getHeight(); y++) {
-                if (worldArray[x][y] == CellState.GRASS) {
+                if (worldArray[x][y] == CellState.GRASS || worldArray[x][y] == null) {
                     WorldVertex vertex = new WorldVertex(world, x, y);
                     vertices.add(vertex);
                 }
@@ -78,7 +96,10 @@ public class WorldGraph implements Graph<WorldVertex> {
 
         // then, for each vertex, populate its edge list
         for (WorldVertex v : vertices) {
+            System.out.println("populating edge list at " + v.getX() + ", " + v.getY());
+            System.out.println("object at position " + v.getX() + ", " + v.getY() + worldArray[v.getX()][v.getY()]);
             v.setOutgoingEdges(calculateOutgoingEdges(v));
+            System.out.println(v.outgoingEdges().size());
         }
     }
 
@@ -98,13 +119,23 @@ public class WorldGraph implements Graph<WorldVertex> {
         for (Point p : neighbors) {
             int px = p.x;
             int py = p.y;
-            if (worldArray[px][py] == CellState.GRASS) {
-                WorldVertex neighbor = getVertex(vertexAt(px, py).getId());
-                WorldEdge outgoingEdge = new WorldEdge(vertex.getWorld(), false, vertex.getId(), neighbor.getId(), 1);
-                vertex.outgoingEdges().add(outgoingEdge);
+            if (validCoordinates(px, py)) {
+                if (worldArray[px][py] == CellState.GRASS) {
+                    WorldVertex neighbor = getVertex(vertexAt(px, py).getId());
+                    WorldEdge outgoingEdge = new WorldEdge(vertex.getWorld(), false, vertex.getId(), neighbor.getId(), 1);
+                    edges.add(outgoingEdge);
+                }
             }
         }
         return edges;
+    }
+
+    /**
+     * Updates the world graph
+     */
+    public void updateGraph() {
+        vertices.clear();
+        setVertices(world);
     }
 
 }

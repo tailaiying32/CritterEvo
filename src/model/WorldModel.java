@@ -2,6 +2,7 @@ package model;
 
 import controller.WorldGenerator;
 //import graph.WorldGraph;
+import graph.WorldGraph;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -157,6 +158,11 @@ public class WorldModel {
     private CellState[][] worldArray;
 
     /**
+     * The graph representing this world
+     */
+    private WorldGraph worldGraph;
+
+    /**
      * enum for cell state
      */
     public enum CellState {
@@ -230,6 +236,7 @@ public class WorldModel {
         this.BASE_ROTATE_COST = baseRotateCost;
         this.SIZE_COST = sizeCost;
         this.worldArray = new CellState[width][height];
+        this.worldGraph = new WorldGraph(this);
         this.mutationRate = mutationRate;
         this.critters = new HashMap<Point, Critter>();
         this.foods = new HashMap<Point, Food>();
@@ -249,7 +256,21 @@ public class WorldModel {
     /**
      * constructor for worldFactory and testing purposes
      */
-    public WorldModel(int width, int height, double initialFoodDensity, double initialCritterDensity, double mutationRate, double baseDamage, double damageScalingFactor) {}
+    public WorldModel(int width, int height, double initialFoodDensity, double initialCritterDensity, double mutationRate, double baseDamage, double damageScalingFactor) {
+        this.width = width;
+        this.height = height;
+        this.worldArray = new CellState[width][height];
+        this.critters = new HashMap<>();
+        this.foods = new HashMap<>();
+        this.waters = new HashMap<>();
+        this.initialFoodDensity = initialFoodDensity;
+        this.initialCritterDensity = initialCritterDensity;
+        this.mutationRate = mutationRate;
+        this.baseDamage = baseDamage;
+        this.damageScalingFactor = damageScalingFactor;
+
+        seedWorld();
+    }
 
     /**
      * Seeds the world based on the parameters used during construction
@@ -335,9 +356,9 @@ public class WorldModel {
     /**
      * Returns the graph representation of this world
      */
-//    public WorldGraph getWorldGraph() {
-//        throw new UnsupportedOperationException("Not supported yet.");
-//    }
+    public WorldGraph getWorldGraph() {
+        return this.worldGraph;
+    }
 
     /**
      * Returns the list of all live critters
@@ -499,8 +520,9 @@ public class WorldModel {
             if (pos.x >= 0 && pos.x < width && pos.y >= 0 && pos.y < height) {
                 if (critter.getPriority() == Priority.ATTACK) {
                     worldArray[pos.x][pos.y] = CellState.ANGRY_CRITTER;
+                } else {
+                    worldArray[pos.x][pos.y] = CellState.PEACEFUL_CRITTER; // Critter
                 }
-                worldArray[pos.x][pos.y] = CellState.PEACEFUL_CRITTER; // Critter
             }
         }
     }

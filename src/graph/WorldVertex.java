@@ -41,6 +41,7 @@ public class WorldVertex implements Vertex<WorldEdge> {
         this.world = world;
         this.x = x;
         this.y = y;
+        this.outgoingEdges = new ArrayList<>();
         setId((calculateId(x, y)));
     }
 
@@ -67,6 +68,7 @@ public class WorldVertex implements Vertex<WorldEdge> {
 
     /**
      * Calculates this vertex's id based on its x and y coordinates
+     * Formula: x + y * world.getWidth()
      */
     private int calculateId(int x, int y) {
         assert x >= 0 && y >= 0;

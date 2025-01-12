@@ -105,52 +105,48 @@ public class WorldView extends JPanel {
         int cols = worldModel.getWidth();
 
         // Draw the grid
-//        for (int row = 0; row < rows; row++) {
-//            for (int col = 0; col < cols; col++) {
-//                CellState cellState = world[col][row];
-
-                // Set color based on the state of the cell
-//                switch (cellState) {
-//                    case GRASS -> g.setColor(new Color(137, 199, 42)); // Grass
-//                    case MOUNTAIN -> g.setColor(new Color(103, 73, 35)); // Mountain
-//                    case FOOD -> g.setColor(new Color(70, 120, 0)); // Food
-//                    case WATER -> g.setColor(new Color(49, 128, 210));  // Water
-//                    case PEACEFUL_CRITTER -> g.setColor(new Color(115, 115, 115));
-//                    case ANGRY_CRITTER -> g.setColor(new Color(147, 0, 0));
-//                }
-//
-//                // Draw cell
-//                int x = xOffset + (col * cellSize);
-//                int y = yOffset + (row * cellSize);
-//                g.fillRect(x, y, cellSize, cellSize);
-//
-//                // Draw grid lines
-//                g.setColor(new Color(100, 100, 100));
-//                g.drawRect(x, y, cellSize, cellSize);
-//            }
-//        }
-
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
                 CellState cellState = world[col][row];
-                BufferedImage sprite = sprites.get(cellState);
 
-                int x = xOffset + (col * cellSize);
-                int y = yOffset + (row * cellSize);
-
-                if (sprite != null) {
-                    g.drawImage(sprite, x, y, cellSize, cellSize, null);
-                } else {
-                    // Fallback to a color if no image is available
-                    g.setColor(Color.LIGHT_GRAY);
-                    g.fillRect(x, y, cellSize, cellSize);
+//                 Set color based on the state of the cell
+                switch (cellState) {
+                    case GRASS -> g.setColor(new Color(137, 199, 42)); // Grass
+                    case MOUNTAIN -> g.setColor(new Color(103, 73, 35)); // Mountain
+                    case FOOD -> g.setColor(new Color(70, 120, 0)); // Food
+                    case WATER -> g.setColor(new Color(49, 128, 210));  // Water
+                    case PEACEFUL_CRITTER -> g.setColor(new Color(115, 115, 115));
+                    case ANGRY_CRITTER -> g.setColor(new Color(147, 0, 0));
                 }
 
+                // Draw cell
+                int x = xOffset + (col * cellSize);
+                int y = yOffset + (row * cellSize);
+                g.fillRect(x, y, cellSize, cellSize);
+
                 // Draw grid lines
-//                g.setColor(new Color(220, 220, 220));
-//                g.drawRect(x, y, cellSize, cellSize);
+                g.setColor(new Color(100, 100, 100));
+                g.drawRect(x, y, cellSize, cellSize);
             }
         }
+
+//        for (int row = 0; row < rows; row++) {
+//            for (int col = 0; col < cols; col++) {
+//                CellState cellState = world[col][row];
+//                BufferedImage sprite = sprites.get(cellState);
+//
+//                int x = xOffset + (col * cellSize);
+//                int y = yOffset + (row * cellSize);
+//
+//                if (sprite != null) {
+//                    g.drawImage(sprite, x, y, cellSize, cellSize, null);
+//                } else {
+//                    // Fallback to a color if no image is available
+//                    g.setColor(Color.LIGHT_GRAY);
+//                    g.fillRect(x, y, cellSize, cellSize);
+//                }
+//            }
+//        }
     }
 
     /**

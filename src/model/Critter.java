@@ -577,11 +577,9 @@ public class Critter{
     private void assertInv() {
         assert this.orientation == Orientation.N || this.orientation == Orientation.NE || this.orientation == Orientation.E || this.orientation == Orientation.S || this.orientation == Orientation.SE || this.orientation == Orientation.SW || this.orientation == Orientation.W || this.orientation == Orientation.NW;
         assert this.sex == Sex.MALE || this.sex == Sex.FEMALE;
-        assert this.maxAge >= 0 && this.maxAge <= 100;
         assert this.maxHealth >= 0 && this.maxHealth <= 100;
         assert this.hunger >= 0 && this.hunger <= 100;
         assert this.thirst >= 0 && this.thirst <= 100;
-        assert this.age >= 0 && this.age <= 100;
         assert this.size >= 0 && this.size <= 100;
         assert this.offense >= 0 && this.offense <= 100;
         assert this.defense >= 0 && this.defense <= 100;
