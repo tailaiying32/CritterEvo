@@ -2,7 +2,6 @@ package model;
 
 import controller.WorldGenerator;
 //import graph.WorldGraph;
-import graph.WorldGraph;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -160,7 +159,7 @@ public class WorldModel {
     /**
      * The graph representing this world
      */
-    private WorldGraph worldGraph;
+//    private WorldGraph worldGraph;
 
     /**
      * enum for cell state
@@ -236,7 +235,7 @@ public class WorldModel {
         this.BASE_ROTATE_COST = baseRotateCost;
         this.SIZE_COST = sizeCost;
         this.worldArray = new CellState[width][height];
-        this.worldGraph = new WorldGraph(this);
+//        this.worldGraph = new WorldGraph(this);
         this.mutationRate = mutationRate;
         this.critters = new HashMap<Point, Critter>();
         this.foods = new HashMap<Point, Food>();
@@ -356,9 +355,9 @@ public class WorldModel {
     /**
      * Returns the graph representation of this world
      */
-    public WorldGraph getWorldGraph() {
-        return this.worldGraph;
-    }
+//    public WorldGraph getWorldGraph() {
+//        return this.worldGraph;
+//    }
 
     /**
      * Returns the list of all live critters
@@ -446,7 +445,7 @@ public class WorldModel {
     }
 
     /**
-     * Sets the foods list to "foods"
+     * Sets the waters list to "water"
      */
     public void setWaters(Map<Point, Water> waters) {
         this.waters = waters;
@@ -462,7 +461,7 @@ public class WorldModel {
     }
 
     /**
-     * Adds food to the list of all food
+     * Adds water to the list of all water
      */
     public void addWater(Water water) {
         this.waters.put(water.getPosition(), water);
@@ -470,7 +469,7 @@ public class WorldModel {
     }
 
     /**
-     * Removes food at point p from the list of all food
+     * Removes water at point p from the list of all water
      */
     public void removeWater(Point p) {
         waters.remove(p);
@@ -525,6 +524,13 @@ public class WorldModel {
                 }
             }
         }
+    }
+
+    /**
+     * Updates the world graph
+     */
+    public void updateGraph() {
+//        worldGraph.updateGraph();
     }
 
     /**

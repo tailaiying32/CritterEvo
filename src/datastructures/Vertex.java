@@ -18,5 +18,5 @@ public interface Vertex<EdgeType extends Edge> {
      * Returns an iterable of all edges connecting this node
      * to another in the graph. This node serves as the "source" node for all outgoing edges
      */
-     ArrayList<EdgeType> outgoingEdges();
+     Iterable<EdgeType> outgoingEdges();
 }

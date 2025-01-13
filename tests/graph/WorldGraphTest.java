@@ -30,7 +30,6 @@ public class WorldGraphTest {
         CritterFactory critterFactory = new CritterFactory();
         Critter critter1 = critterFactory.generateCritter(new Point(0, 0), world);
         world.addCritter(critter1);
-        graph.updateGraph();
         assertEquals(5 * 5 - 1, graph.vertexCount());
         assertNull(graph.getVertex(graph.calculateId(0, 0)));
         assertEquals(7, graph.getVertex(graph.calculateId(1, 1)).outgoingEdges().size());
