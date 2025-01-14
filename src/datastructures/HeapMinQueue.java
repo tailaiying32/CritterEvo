@@ -16,7 +16,7 @@ public class HeapMinQueue<KeyType> implements MinQueue<KeyType> {
     /**
      * Pairs an element `key` with its associated priority `priority`.
      */
-    private record Entry<KeyType>(KeyType key, int priority) {}
+    private record Entry<KeyType>(KeyType key, double priority) {}
 
     /**
      * Associates each element in the queue with its index in `heap`.  Satisfies
@@ -86,7 +86,7 @@ public class HeapMinQueue<KeyType> implements MinQueue<KeyType> {
      * NoSuchElementException if this queue is empty.
      */
     @Override
-    public int minPriority() {
+    public double minPriority() {
         return heap.getFirst().priority();
     }
 
@@ -95,7 +95,7 @@ public class HeapMinQueue<KeyType> implements MinQueue<KeyType> {
      * Otherwise, add it to this queue with that priority.
      */
     @Override
-    public void addOrUpdate(KeyType key, int priority) {
+    public void addOrUpdate(KeyType key, double priority) {
         if (!index.containsKey(key)) {
             add(key, priority);
         } else {
@@ -169,7 +169,7 @@ public class HeapMinQueue<KeyType> implements MinQueue<KeyType> {
      * Add element `key` to this queue, associated with priority `priority`.  Requires `key` is not
      * contained in this queue.
      */
-    private void add(KeyType key, int priority) {
+    private void add(KeyType key, double priority) {
         assert !index.containsKey(key);
         // add new entry to end of heap
         int newIndex = heap.size();
@@ -186,11 +186,11 @@ public class HeapMinQueue<KeyType> implements MinQueue<KeyType> {
      * Change the priority associated with element `key` to `priority`.  Requires that `key` is
      * contained in this queue.
      */
-    private void update(KeyType key, int priority) {
+    private void update(KeyType key, double priority) {
         assert index.containsKey(key);
         // get current index and update priority
         int i = index.get(key);
-        int oldPriority = heap.get(i).priority();
+        double oldPriority = heap.get(i).priority();
         heap.set(i, new Entry<>(key, priority));
 
         // bubble up or down depending on priority change

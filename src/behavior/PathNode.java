@@ -17,6 +17,11 @@ public class PathNode implements Comparable<PathNode> {
     private PathNode parent;
 
     /**
+     * Boolean representing whether this node has been discovered or not. Used in A* algorithm
+     */
+    private boolean discovered;
+
+    /**
      * The cost of the path from the start node to this node
      */
     private double gCost;
@@ -48,14 +53,16 @@ public class PathNode implements Comparable<PathNode> {
      */
     public Point getPosition() { return position; }
     public PathNode getParent() { return parent; }
+    public boolean discovered() { return discovered; }
     public double getGCost() { return gCost; }
     public double getHCost() { return hCost; }
     public double getFCost() { return fCost; }
 
     /**
-     * setters for parent and gCost
+     * setters for parent, discovered, and gCost
      */
     public void setParent(PathNode parent) { this.parent = parent; }
+    public void setDiscovered(boolean discovered) { this.discovered = discovered; }
     public void setGCost(double gCost) {
         this.gCost = gCost;
         this.fCost = gCost + hCost;

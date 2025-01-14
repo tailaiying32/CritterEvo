@@ -1,7 +1,9 @@
 package behavior;
 
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import model.Critter;
@@ -18,11 +20,19 @@ import model.WorldModel.CellState;
  * Defines what the critter does next
  */
 public class CritterAI {
+    /**
+     * pathfinder for the critter
+     */
+    private PathFinder pathFinder;
+
+
 
     /**
      * Constructor for ai
      */
-    public CritterAI() {}
+    public CritterAI(WorldModel world) {
+        this.pathFinder = new PathFinder(world);
+    }
 
     /**
      * Calculates priority based off of critter's current state and attributes
@@ -36,8 +46,9 @@ public class CritterAI {
                 double random = Math.random(); // used with aggression to determine if critter tries to kill another critter or decides to search for food
                 if (random < critter.getAggression()) {
                     critter.setPriority(Priority.ATTACK);
+                } else {
+                    critter.setPriority(Priority.FOOD);
                 }
-                critter.setPriority(Priority.FOOD);
             } else if (critter.getHunger() > critter.getThirst()){
                 critter.setPriority(Priority.WATER);
             }
@@ -51,7 +62,6 @@ public class CritterAI {
      * Has the critter take turn based on its priority and state
      */
     public void makeMove(Critter critter) {
-        Point target = locateTarget(critter, critter.getPriority());
         WorldModel world = critter.getWorld();
 
         reduceHunger(critter); // take away some hunger per turn
@@ -64,9 +74,22 @@ public class CritterAI {
             critter.reproduce();
         }
 
+        Point target = locateTarget(critter, critter.getPriority());
+
         // If we're at the same position as the target, we need to orient ourselves correctly
         if (target.equals(critter.getPosition())) {
             return; // We're already on top of it
+        }
+
+        // if the critter does not have a path yet, initialize the path
+        if (critter.getCurrentPath().isEmpty()) {
+            critter.setCurrentPath(pathFinder.findPath(critter.getPosition(), target));
+        }
+
+        // update path if the target's coordinates have changed
+        if (!target.equals(critter.getTarget())) {
+            critter.setTarget(target);
+            critter.setCurrentPath(pathFinder.findPath(critter.getPosition(), target));
         }
 
         // Determine the orientation we need to face the target
@@ -166,10 +189,14 @@ public class CritterAI {
      * calculates the direction (orientation) in which the critter needs to move
      */
     public Orientation determineOrientation(Critter critter) {
-        Point nearestTarget = critter.locateTarget();
+        // the square that the critter needs to move onto next
+        if (critter.getCurrentPath().size() < 2) {
+            return critter.getOrientation(); // Fallback to the current orientation
+        }
+        PathNode nextPoint = critter.getCurrentPath().get(1);
 
-        int dx = nearestTarget.x - critter.getPosition().x;
-        int dy = nearestTarget.y - critter.getPosition().y;
+        int dx = nextPoint.getPosition().x - critter.getPosition().x;
+        int dy = nextPoint.getPosition().y - critter.getPosition().y;
 
         if (dx > 0 && dy > 0) {
             return Orientation.SE;

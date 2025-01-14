@@ -25,13 +25,13 @@ public interface MinQueue<KeyType> {
      * Return the minimum priority associated with an element in this queue.  Throws
      * NoSuchElementException if this queue is empty.
      */
-    int minPriority();
+    double minPriority();
 
     /**
      * If `key` is already contained in this queue, change its associated priority to `priority`.
      * Otherwise, add it to this queue with that priority.
      */
-    void addOrUpdate(KeyType key, int priority);
+    void addOrUpdate(KeyType key, double priority);
 
     /**
      * Remove and return the element associated with the smallest priority in this queue.  If

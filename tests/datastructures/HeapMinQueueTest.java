@@ -184,7 +184,7 @@ class MinQueueTest {
 
         // Remove until 1 left, but no more than nUpdates times (to prevent infinite loop in test)
         for (int i = 0; q.size() > 1 && i < nUpdates; i += 1) {
-            int removedPriority = q.minPriority();
+            double removedPriority = q.minPriority();
             q.remove();
             assertTrue(q.minPriority() >= removedPriority);
         }

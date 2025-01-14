@@ -2,7 +2,10 @@ package model;
 
 import behavior.CritterAI;
 import behavior.InteractionManager;
+import behavior.PathNode;
 import java.awt.Point;
+import java.util.ArrayList;
+import java.util.List;
 
 /** Represents a model of the critters inhabiting the world
  *
@@ -92,6 +95,11 @@ public class Critter{
      * xy coordinates representing the position of the critter's target on the world
      */
     private Point target;
+
+    /**
+     * The current path for the critter to follow
+     */
+    List<PathNode> currentPath;
 
     /**
      * A non-negative integer representing the critter's maximum age.
@@ -228,6 +236,7 @@ public class Critter{
         this.mutationRate = mutationRate;
         this.vision = vision;
         this.world = world;
+        this.currentPath = new ArrayList<>();
         assertInv();
     }
 
@@ -336,6 +345,26 @@ public class Critter{
      * Sets the critters position to "position"
      */
     public void setPosition( Point position) { this.position = position; }
+
+    /**
+     * Returns the critter's target's coordinates
+     */
+    public Point getTarget() { return target; }
+
+    /**
+     * Sets the critter's target to "target"
+     */
+    public void setTarget( Point target) { this.target = target; }
+
+    /**
+     * Returns the critters current path
+     */
+    public List<PathNode> getCurrentPath() { return currentPath; }
+
+    /**
+     * Sets the critters path to "currentPath"
+     */
+    public void setCurrentPath(List<PathNode> currentPath) { this.currentPath = currentPath; }
 
     /**
      * Return's the critter's max age
