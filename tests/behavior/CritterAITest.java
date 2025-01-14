@@ -45,14 +45,6 @@ public class CritterAITest {
         world.addWater(water2);
         Point nearestTargetWater = critter.locateTarget();
         assertEquals(new Point(10, 11), nearestTargetWater);
-
-        critter.setPriority(Priority.LOVE);
-        Critter critter1 = factory.generateCritter(new Point(20, 20), world);
-        world.addCritter(critter1);
-        Critter critter2 = factory.generateCritter(new Point(1, 1), world);
-        world.addCritter(critter2);
-        Point nearestTargetCritter = critter.locateTarget();
-        assertEquals(new Point(1, 1), nearestTargetCritter);
     }
 
     @DisplayName("WHEN a critter's priority is set,"

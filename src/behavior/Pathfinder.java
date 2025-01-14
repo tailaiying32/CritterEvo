@@ -13,7 +13,7 @@ import model.WorldModel.CellState;
 /**
  * Finds the shortest path from one point to another. Used in critter pathfinding
  */
-public class PathFinder {
+public class Pathfinder {
     /**
      * The world that this pathfinder operates on
      */
@@ -22,7 +22,7 @@ public class PathFinder {
     /**
      * Creates a new pathfinder
      */
-    public PathFinder(WorldModel world) {
+    public Pathfinder(WorldModel world) {
         this.world = world;
     }
 
@@ -31,27 +31,32 @@ public class PathFinder {
      * Returns an empty list if the start or target node is not a valid node
      */
     public List<PathNode> findPath(Point start, Point target) {
-        // if start or target is invalid, return empty set of instructions
+        System.out.println("Starting pathfinding from " + start + " to " + target);
+
         if (!isValidPosition(start) || !isValidPosition(target)) {
+            System.out.println("Invalid start or target position");
             return new ArrayList<>();
         }
 
-        // if not, initialize the frontier and add the start node
         HeapMinQueue<PathNode> frontier = new HeapMinQueue<>();
         PathNode startNode = new PathNode(start, null, 0, 0);
         double estimatedHeuristic = calculateHeuristic(start, target);
         frontier.addOrUpdate(startNode, estimatedHeuristic);
 
-        // start the search
-        while (!frontier.isEmpty()) {
+        int iterations = 0;
+        while (!frontier.isEmpty() && iterations < world.getWidth() * world.getHeight()) { // Add iteration limit
+            iterations++;
             PathNode current = frontier.remove();
 
-            // if current node is the target, break the loop
+            if (iterations % 100 == 0) {
+                System.out.println("Iteration " + iterations + ", exploring: " + current.getPosition());
+            }
+
             if (current.getPosition().equals(target)) {
+                System.out.println("Path found in " + iterations + " iterations");
                 return reconstructPath(current);
             }
 
-            // otherwise, check neighbors
             for (Point p: getNeighbors(current.getPosition())) {
                 PathNode neighbor = new PathNode(p, current, current.getFCost() + 1, calculateHeuristic(p, target));
                 double dist = current.getFCost() + 1;
@@ -63,7 +68,7 @@ public class PathFinder {
             }
         }
 
-        // if no path is found, return an empty list
+        System.out.println("No path found after " + iterations + " iterations");
         return new ArrayList<>();
     }
 
@@ -83,17 +88,16 @@ public class PathFinder {
         return validNeighbors;
     }
 
-    /**
-     * Returns whether a given point is a traversable square
-     * In other words, returns whether it is within world bounds and is a GRASS or FOOD square
-     */
     public boolean isValidPosition(Point p) {
+        // Check if this is a valid destination point
         return p.x >= 0 && p.x < world.getWidth() &&
                 p.y >= 0 && p.y < world.getHeight() &&
-                (world.getWorldArray()[p.x][p.y] == CellState.GRASS ||
-                        world.getWorldArray()[p.x][p.y] == CellState.FOOD ||
-                        world.getWorldArray()[p.x][p.y] == null);
+                world.getWorldArray()[p.x][p.y] != CellState.MOUNTAIN &&
+                world.getWorldArray()[p.x][p.y] != CellState.WATER &&
+                world.getWorldArray()[p.x][p.y] != CellState.PEACEFUL_CRITTER &&
+                world.getWorldArray()[p.x][p.y] != CellState.ANGRY_CRITTER;
     }
+
 
     /**
      * calculates the heuristic from the start position to the target position
@@ -119,7 +123,8 @@ public class PathFinder {
     private List<PathNode> reconstructPath(PathNode target) {
         List<PathNode> path = new ArrayList<>();
         PathNode current = target;
-        while (current.getParent() != null) {
+
+        while (current != null) {
             path.add(current);
             current = current.getParent();
         }

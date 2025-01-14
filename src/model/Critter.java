@@ -3,6 +3,7 @@ package model;
 import behavior.CritterAI;
 import behavior.InteractionManager;
 import behavior.PathNode;
+import behavior.Pathfinder;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +12,17 @@ import java.util.List;
  *
  */
 public class Critter{
+
+    /**
+     * pathfinder for the critter
+     */
+    private Pathfinder pathfinder;
+
+    public Pathfinder getPathfinder() {
+        return pathfinder;
+    }
+
+
 
     public enum Sex {
         MALE(0), FEMALE(1);
@@ -236,6 +248,7 @@ public class Critter{
         this.mutationRate = mutationRate;
         this.vision = vision;
         this.world = world;
+        this.pathfinder = new Pathfinder(world);
         this.currentPath = new ArrayList<>();
         assertInv();
     }
@@ -263,6 +276,7 @@ public class Critter{
         this.orientation = orientation;
         this.mutationRate = mutationRate;
         this.world = null;
+
         assertInv();
     }
 

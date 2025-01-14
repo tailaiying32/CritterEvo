@@ -21,7 +21,7 @@ public class CritterFactory {
      * Creates and returns a critter with randomized attributes
      */
     public Critter generateCritter(Point p, WorldModel world) {
-        CritterAI critterai = new CritterAI(world);
+        CritterAI critterai = new CritterAI();
 
         // random number generator for attributes for critter construction
         Orientation[] orientations = Orientation.values();
