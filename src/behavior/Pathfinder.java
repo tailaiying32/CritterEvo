@@ -33,26 +33,24 @@ public class Pathfinder {
      * Returns an empty list if the start or target node is not a valid node
      */
     public List<Point> findPath(Point start, Point target) {
-//        System.out.println("Starting pathfinding from " + start + " to " + target);
-
-
         // initialize frontier, visited, and start node
         HeapMinQueue<PathNode> frontier = new HeapMinQueue<>();
         Set<Point> visited = new HashSet<>();
-
         PathNode startNode = new PathNode(start, null, 0, 0);
         double estimatedHeuristic = calculateHeuristic(start, target);
         frontier.addOrUpdate(startNode, estimatedHeuristic);
 
+        // the search loop
         while (!frontier.isEmpty()) {
             PathNode current = frontier.remove();
             visited.add(current.getPosition());
 
+            // if we are adjacent to our target, return the path
             if (isAdjacent(current.getPosition(), target)) {
-//                System.out.println("Adjacent " + current + " to " + target + ", returning path");
                 return reconstructPath(current);
             }
 
+            // if not, iterate through neighbors and continue loop
             for (Point p: getNeighbors(current.getPosition())) {
                 if (visited.contains(p)) continue;
                 visited.add(p);
@@ -68,7 +66,7 @@ public class Pathfinder {
             }
         }
 
-//        System.out.println("Finished pathfinding from " + start + " to " + target + "No path found");
+        // return empty path if no path can be found
         return new ArrayList<>();
     }
 

@@ -258,8 +258,8 @@ public Point locateTarget(Critter critter, Priority priority) {
     private void reduceHunger(Critter critter) {
         WorldModel world = critter.getWorld();
 
-        // Calculate size factor: smaller critters expend more energy
-        double sizeFactor = Math.log((critter.getSize()) + 2)/2; // Adding 2 to avoid log(0)
+        // Calculate size factor: larger critters expend more energy
+        double sizeFactor = Math.log((critter.getSize()) + 2); // Adding 2 to avoid log(0)
 
         // Base hunger expenditure (scaled by size)
         double baseExpenditure = world.getBASE_HUNGER_EXPENDITURE() * sizeFactor;

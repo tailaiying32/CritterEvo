@@ -249,11 +249,10 @@ public class InteractionManager {
      * (critter 1 attacks critter 2).
      * Takes away health from other critter following this equation: B(S1O1/S2D2)^b,
      * where B and b are baseDamage and damageScalingFactor of the world the critter inhabits
-     * For now, let B=25, and b=1.3 ---DO NOT HARD CODE THESE NUMBERS INTO THE METHOD.
-     * CREATE SOME STATIC VARIABLES INSTEAD
+     * CREATE SOME STATIC VARIABLES FOR THE CONSTANTS
      */
     public void attack(Critter critter1, Critter critter2) {
-        System.out.println("attacking!");
+//        System.out.println("attacking!");
         WorldModel world = critter1.getWorld();
 
         double oldHealth = critter2.getHealth();
