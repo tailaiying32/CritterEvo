@@ -100,4 +100,20 @@ public class PathFinderTest {
         List<Point> path4 = pf.findPath(new Point(0, 0), new Point(5, 5));
         assertEquals(7, path4.size());
     }
+
+    @DisplayName("GIVEN a start and end point"
+            + "THEN a direct path between them should be returned")
+    @Test
+    public void testFindDirectPath() {
+        WorldFactory wf = new WorldFactory();
+        WorldModel wm = wf.generateTestWorld();
+        Pathfinder pf = new Pathfinder(wm);
+        CritterFactory cf = new CritterFactory();
+
+        List<Point> path1 = pf.findPath(new Point(0, 0), new Point(4, 4));
+        assertEquals(4, path1.size());
+
+        List<Point> path2 = pf.findPath(new Point(0, 0), new Point(0, 4));
+        assertEquals(4, path2.size());
+    }
 }

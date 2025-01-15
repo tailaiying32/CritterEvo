@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import model.Food;
 import model.WorldModel;
 import model.WorldModel.CellState;
@@ -17,9 +19,20 @@ import model.WorldModel.CellState;
  */
 public class Pathfinder {
     /**
+     * direct pathing threshold
+     */
+    private final static int DIRECT_PATHING_THRESHOLD = 5;
+
+    /**
      * The world that this pathfinder operates on
      */
     private final WorldModel world;
+
+    /**
+     * A cache of paths to improve performance
+     */
+    private final Map<PathKey, List<Point>> pathCache = new ConcurrentHashMap<>();
+    private final static int CACHE_SIZE = 1000;
 
     /**
      * Creates a new pathfinder
@@ -33,6 +46,13 @@ public class Pathfinder {
      * Returns an empty list if the start or target node is not a valid node
      */
     public List<Point> findPath(Point start, Point target) {
+        // check cache first
+        PathKey key = new PathKey(start, target);
+        List<Point> cachedPath = pathCache.get(key);
+        if (cachedPath != null) {
+            return new ArrayList<>(cachedPath);
+        }
+
         // initialize frontier, visited, and start node
         HeapMinQueue<PathNode> frontier = new HeapMinQueue<>();
         Set<Point> visited = new HashSet<>();
@@ -47,7 +67,13 @@ public class Pathfinder {
 
             // if we are adjacent to our target, return the path
             if (isAdjacent(current.getPosition(), target)) {
-                return reconstructPath(current);
+                List<Point> path = reconstructPath(current);
+                if (pathCache.size() < CACHE_SIZE) {
+                    pathCache.put(key, path);
+                } else {
+                    System.out.println("cache full!");
+                }
+                return path;
             }
 
             // if not, iterate through neighbors and continue loop
@@ -103,7 +129,6 @@ public class Pathfinder {
                 world.getWorldArray()[p.x][p.y] != CellState.ANGRY_CRITTER;
     }
 
-
     /**
      * calculates the heuristic from the start position to the target position
      * Takes into account the Euclidean distance and the value of the target (for food)
@@ -111,17 +136,25 @@ public class Pathfinder {
      */
     public double calculateHeuristic(Point start, Point target) {
         CellState[][] worldArray = world.getWorldArray();
-        int dx = Math.abs(target.x - start.x);
-        int dy = Math.abs(target.y - start.y);
-        double euclidean = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+        double euclidean = calculateDistance(start, target);
 
         if (worldArray[target.x][target.y] == CellState.FOOD) {
             Food food = world.getFood(new Point(target.x, target.y));
-            return (euclidean);
+            return (euclidean) - food.getQuantity() * 0.08;
         } else {
             return (euclidean);
         }
     }
+
+    /**
+     * helper method for calculating Euclidean distance between two points
+     */
+    private double calculateDistance(Point p1, Point p2) {
+        int dx = Math.abs(p1.x - p2.x);
+        int dy = Math.abs(p1.y - p2.y);
+        return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+    }
+
 
     /**
      * Reconstructs the path using back pointer data stored in each pathNode
@@ -136,6 +169,21 @@ public class Pathfinder {
         }
         Collections.reverse(path);
         return path;
+    }
+
+    private record PathKey(Point start, Point target) {
+
+        @Override
+            public boolean equals(Object o) {
+                if (this == o) {
+                    return true;
+                }
+                if (!(o instanceof PathKey(Point start1, Point target1))) {
+                    return false;
+                }
+                return start.equals(start1) && target.equals(target1);
+            }
+
     }
 }
 

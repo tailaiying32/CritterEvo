@@ -29,7 +29,7 @@ public class WorldView extends JPanel {
     /**
      * minimum cell size to ensure visibility
      */
-    private static final int MIN_CELL_SIZE = 4;
+    private static final int MIN_CELL_SIZE = 2;
 
     /**
      * Map to hold the sprites in
@@ -116,7 +116,7 @@ public class WorldView extends JPanel {
                     case FOOD -> g.setColor(new Color(70, 120, 0)); // Food
                     case WATER -> g.setColor(new Color(49, 128, 210));  // Water
                     case PEACEFUL_CRITTER -> g.setColor(new Color(115, 115, 115));
-                    case ANGRY_CRITTER -> g.setColor(new Color(147, 0, 0));
+                    case ANGRY_CRITTER -> g.setColor(new Color(200, 50, 50));
                 }
 
                 // Draw cell

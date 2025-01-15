@@ -1,13 +1,10 @@
 package behavior;
 
-import controller.PathfindingManager;
+import controller.ThreadPool;
 import java.awt.Point;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import model.Critter;
 import model.Critter.Orientation;
 import model.Critter.Priority;
@@ -25,13 +22,13 @@ public class CritterAI {
     /**
      * The thread pool for this ai
      */
-    private PathfindingManager threadPool;
+    private ThreadPool threadPool;
 
     /**
      * Constructor for ai
      */
     public CritterAI(int maxThreads) {
-        this.threadPool = new PathfindingManager(maxThreads);
+        this.threadPool = new ThreadPool(maxThreads);
     }
 
     /**
@@ -70,10 +67,14 @@ public class CritterAI {
         }
 
         // locate target and path to target
-        Point target = locateTarget(critter, critter.getPriority());
-        List<Point> path = pathfinder.findPath(critter.getPosition(), target);
-//        System.out.println("path size: " + path.size());
-        critter.setCurrentPath(path);
+        Runnable pathfindingTask = () -> {
+            synchronized (critter) {
+                Point target = locateTarget(critter, critter.getPriority());
+                List<Point> path = pathfinder.findPath(critter.getPosition(), target);
+                critter.setCurrentPath(path);
+            }
+        };
+        threadPool.submitTask(pathfindingTask);
 
         // Determine the orientation we need to face the target and rotate if critter is facing the wrong way
         Orientation properOrientation = determineOrientation(critter);
@@ -140,32 +141,32 @@ public class CritterAI {
      * locates the nearest instance of the critter's target
      * !!! Eventually change to A* algorithm, but I will figure that out later
      */
-public Point locateTarget(Critter critter, Priority priority) {
-    WorldModel world = critter.getWorld();
-    Point currentPos = critter.getPosition();
+    public Point locateTarget(Critter critter, Priority priority) {
+        WorldModel world = critter.getWorld();
+        Point currentPos = critter.getPosition();
 
-    double shortestDistance = Double.MAX_VALUE;
-    Point nearestTarget = currentPos;
+        double shortestDistance = Double.MAX_VALUE;
+        Point nearestTarget = currentPos;
 
-    // Get the appropriate target set based on priority
-    Map<Point, ?> targets = switch (priority) {
-        case FOOD -> world.getFoods();
-        case WATER -> world.getWaters();
-        case ATTACK -> world.getCritters();
-        default -> new HashMap<>();
-    };
+        // Get the appropriate target set based on priority
+        Map<Point, ?> targets = switch (priority) {
+            case FOOD -> world.getFoods();
+            case WATER -> world.getWaters();
+            case ATTACK -> world.getCritters();
+            default -> new HashMap<>();
+        };
 
-    // Use Euclidean distance for initial target selection
-    for (Point target : targets.keySet()) {
-        double distance = Math.sqrt(Math.pow((target.x - currentPos.x), 2) + Math.pow((target.y - currentPos.y), 2));
-        if (distance < shortestDistance && distance < critter.getVision()) {
-            shortestDistance = distance;
-            nearestTarget = target;
+        // Use Euclidean distance for initial target selection
+        for (Point target : targets.keySet()) {
+            double distance = Math.sqrt(Math.pow((target.x - currentPos.x), 2) + Math.pow((target.y - currentPos.y), 2));
+            if (distance < shortestDistance && distance < critter.getVision()) {
+                shortestDistance = distance;
+                nearestTarget = target;
+            }
         }
-    }
 
-    return nearestTarget;
-}
+        return nearestTarget;
+    }
 
     /**
      * calculates the direction (orientation) in which the critter needs to move
@@ -259,7 +260,7 @@ public Point locateTarget(Critter critter, Priority priority) {
         WorldModel world = critter.getWorld();
 
         // Calculate size factor: larger critters expend more energy
-        double sizeFactor = Math.log((critter.getSize()) + 2); // Adding 2 to avoid log(0)
+        double sizeFactor = Math.sqrt(Math.log((critter.getSize()) + 2)); // Adding 2 to avoid log(0)
 
         // Base hunger expenditure (scaled by size)
         double baseExpenditure = world.getBASE_HUNGER_EXPENDITURE() * sizeFactor;

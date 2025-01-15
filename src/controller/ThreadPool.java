@@ -4,10 +4,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * A fixed pool of threads to allow for critters to calculate paths concurrently while improving
+ * A fixed pool of threads to improve
  * performance by eliminating thread mechanics
  */
-public class PathfindingManager {
+public class ThreadPool {
     /**
      * The pool of threads
      */
@@ -16,7 +16,7 @@ public class PathfindingManager {
     /**
      * Creates a thread pool with "threadCount" threads
      */
-    public PathfindingManager(int threadCount) {
+    public ThreadPool(int threadCount) {
         this.threadPool = Executors.newFixedThreadPool(threadCount);
     }
 

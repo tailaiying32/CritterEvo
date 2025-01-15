@@ -4,7 +4,10 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.management.DescriptorRead;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
@@ -42,7 +45,10 @@ public class WorldUpdater {
      */
     private Timer timer;
 
-
+    /**
+     * The batch size for critters to be processed in
+     */
+    private final static int BATCH_SIZE = 50;
 
     /**
      * Constructor for worldUpdater
@@ -90,6 +96,11 @@ public class WorldUpdater {
      * Updates states of critters in this world
      */
     private void updateCritters(WorldModel worldModel) {
+        Collection<Critter> critters = worldModel.getCritters().values();
+        int numThreads = Runtime.getRuntime().availableProcessors();
+        ThreadPool threadPool = new ThreadPool(numThreads);
+
+
         for (Critter critter : new ArrayList<>(worldModel.getCritters().values())) {
             critter.updatePriority();
             critter.makeMove();

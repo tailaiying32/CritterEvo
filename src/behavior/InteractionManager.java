@@ -81,6 +81,7 @@ public class InteractionManager {
 
             // Remove the food and update the world
             world.removeFood(food.getPosition());
+            world.getDirtyCells().add(food.getPosition());
             world.updateWorldArray();
 
             return critter.getHunger();
@@ -174,6 +175,7 @@ public class InteractionManager {
         critter.setHunger(Math.max(critter.getHunger() - hungerUsed, 0));
 
         // Update world array
+        world.getDirtyCells().add(critter.getPosition());
         world.updateWorldArray();
 
         return critter.getPosition();
@@ -227,6 +229,7 @@ public class InteractionManager {
 
             // then add the critter to the world
             parent.getWorld().addCritter(child);
+            parent.getWorld().getDirtyCells().add(child.getPosition());
         }
         parent.setHunger(world.getBASE_REPRODUCTION_COST() * parent.getMaxHunger());
     }
@@ -273,6 +276,7 @@ public class InteractionManager {
         critter.getWorld().removeCritter(critter.getPosition());
         Food newFood = new Food(currentPos, (int) (critter.getSize() * 2), 0);
         world.addFood(newFood);
+        world.getDirtyCells().add(critter.getPosition());
     }
 
     /**

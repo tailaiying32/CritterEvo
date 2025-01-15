@@ -5,9 +5,11 @@ import controller.WorldGenerator;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import model.Critter.Orientation;
 import model.Critter.Priority;
 
@@ -157,9 +159,12 @@ public class WorldModel {
     private CellState[][] worldArray;
 
     /**
-     * The graph representing this world
+     * list of cells that need to be updated
      */
-//    private WorldGraph worldGraph;
+    private final Set<Point> dirtyCells;
+    public Set<Point> getDirtyCells() {
+        return dirtyCells;
+    }
 
     /**
      * enum for cell state
@@ -235,7 +240,7 @@ public class WorldModel {
         this.BASE_ROTATE_COST = baseRotateCost;
         this.SIZE_COST = sizeCost;
         this.worldArray = new CellState[width][height];
-//        this.worldGraph = new WorldGraph(this);
+        this.dirtyCells = new HashSet<>();
         this.mutationRate = mutationRate;
         this.critters = new HashMap<Point, Critter>();
         this.foods = new HashMap<Point, Food>();
@@ -259,6 +264,7 @@ public class WorldModel {
         this.width = width;
         this.height = height;
         this.worldArray = new CellState[width][height];
+        this.dirtyCells = new HashSet<>();
         this.critters = new HashMap<>();
         this.foods = new HashMap<>();
         this.waters = new HashMap<>();
@@ -357,13 +363,6 @@ public class WorldModel {
     }
 
     /**
-     * Returns the graph representation of this world
-     */
-//    public WorldGraph getWorldGraph() {
-//        return this.worldGraph;
-//    }
-
-    /**
      * Returns the list of all live critters
      */
     public Map<Point, Critter> getCritters() {
@@ -391,6 +390,7 @@ public class WorldModel {
      */
     public void addCritter(Critter critter) {
         critters.put(critter.getPosition(), critter);
+        this.getDirtyCells().add(critter.getPosition());
         updateWorldArray();
     }
 
@@ -399,6 +399,7 @@ public class WorldModel {
      */
     public void removeCritter(Point p) {
         critters.remove(p);
+        this.getDirtyCells().add(p);
         updateWorldArray();
     }
 
@@ -430,6 +431,7 @@ public class WorldModel {
      */
     public void addFood(Food food) {
         this.foods.put(food.getPosition(), food);
+        this.getDirtyCells().add(food.getPosition());
         updateWorldArray();
     }
 
@@ -438,6 +440,7 @@ public class WorldModel {
      */
     public void removeFood(Point p) {
         foods.remove(p);
+        this.getDirtyCells().add(p);
         updateWorldArray();
     }
 
@@ -469,6 +472,7 @@ public class WorldModel {
      */
     public void addWater(Water water) {
         this.waters.put(water.getPosition(), water);
+        this.getDirtyCells().add(water.getPosition());
         updateWorldArray();
     }
 
@@ -477,6 +481,7 @@ public class WorldModel {
      */
     public void removeWater(Point p) {
         waters.remove(p);
+        dirtyCells.add(p);
         updateWorldArray();
     }
 
@@ -492,50 +497,37 @@ public class WorldModel {
      * updates the world array per tick
      */
     public void updateWorldArray() {
-        // Clear the current world array (except for mountains/terrain)
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
-                if (worldArray[i][j] != CellState.MOUNTAIN) { // Don't clear mountains or water
-                    worldArray[i][j] = CellState.GRASS; // Set to grass
-                }
-            }
+        // Only update cells that have changed
+        for (Point p : dirtyCells) {
+            worldArray[p.x][p.y] = CellState.GRASS;
         }
 
-        // Update food positions
-        for (Food food : foods.values()) {
+        // Update only changed positions
+        foods.values().parallelStream().forEach(food -> {
             Point pos = food.getPosition();
-            if (pos.x >= 0 && pos.x < width && pos.y >= 0 && pos.y < height) {
-                worldArray[pos.x][pos.y] = CellState.FOOD; // Food
+            if (isValidPosition(pos)) {
+                worldArray[pos.x][pos.y] = CellState.FOOD;
             }
-        }
+        });
 
-        // Update water positions
-        for (Water water : waters.values()) {
+        waters.values().parallelStream().forEach(water -> {
             Point pos = water.getPosition();
-            if (pos.x >= 0 && pos.x < width && pos.y >= 0 && pos.y < height) {
-                worldArray[pos.x][pos.y] = CellState.WATER; // Water
+            if (isValidPosition(pos)) {
+                worldArray[pos.x][pos.y] = CellState.WATER;
             }
-        }
+        });
 
-        // Update critter positions
-        for (Critter critter : critters.values()) {
+        critters.values().parallelStream().forEach(critter -> {
             Point pos = critter.getPosition();
-            if (pos.x >= 0 && pos.x < width && pos.y >= 0 && pos.y < height) {
-                if (critter.getPriority() == Priority.ATTACK) {
-                    worldArray[pos.x][pos.y] = CellState.ANGRY_CRITTER;
-                } else {
-                    worldArray[pos.x][pos.y] = CellState.PEACEFUL_CRITTER; // Critter
-                }
+            if (isValidPosition(pos)) {
+                worldArray[pos.x][pos.y] = critter.getPriority() == Priority.ATTACK ?
+                        CellState.ANGRY_CRITTER : CellState.PEACEFUL_CRITTER;
             }
-        }
+        });
+
+        dirtyCells.clear();
     }
 
-    /**
-     * Updates the world graph
-     */
-    public void updateGraph() {
-//        worldGraph.updateGraph();
-    }
 
     /**
      * Retrieves all info about critters
@@ -576,6 +568,13 @@ public class WorldModel {
         squaresAround.add(new Point(currentX - 1, currentY - 1));
 
         return squaresAround;
+    }
+
+    /**
+     * Returns whether a point on this world model is valid
+     */
+    private boolean isValidPosition(Point pos) {
+        return pos.x >= 0 && pos.x < width && pos.y >= 0 && pos.y < height;
     }
 
 
