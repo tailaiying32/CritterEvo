@@ -78,26 +78,26 @@ public class PathFinderTest {
         Pathfinder pf = new Pathfinder(wm);
         CritterFactory cf = new CritterFactory();
 
-        List<PathNode> path1 = pf.findPath(new Point(0, 0), new Point(5, 5));
-        assertEquals(6, path1.size());
+        List<Point> path1 = pf.findPath(new Point(0, 0), new Point(5, 5));
+        assertEquals(5, path1.size());
 
         wm.getWorldArray()[1][1] = CellState.MOUNTAIN;
 
         Critter c1 = cf.generateCritter(new Point(1, 1), wm);
         wm.addCritter(c1);
-        List<PathNode> path2 = pf.findPath(new Point(0, 0), new Point(5, 5));
-        assertEquals(7, path2.size());
+        List<Point> path2 = pf.findPath(new Point(0, 0), new Point(5, 5));
+        assertEquals(6, path2.size());
 
         wm.addFood(new Food(new Point(2, 1), 40, 0));
-        List<PathNode> path3 = pf.findPath(new Point(0, 0), new Point(5, 5));
-        assertEquals(7, path3.size());
+        List<Point> path3 = pf.findPath(new Point(0, 0), new Point(5, 5));
+        assertEquals(6, path3.size());
 
         wm.removeFood(new Point(2, 1));
         Critter c2 = cf.generateCritter(new Point(2, 1), wm);
         Critter c3 = cf.generateCritter(new Point(1, 2), wm);
         wm.addCritter(c2);
         wm.addCritter(c3);
-        List<PathNode> path4 = pf.findPath(new Point(0, 0), new Point(5, 5));
-        assertEquals(8, path4.size());
+        List<Point> path4 = pf.findPath(new Point(0, 0), new Point(5, 5));
+        assertEquals(7, path4.size());
     }
 }

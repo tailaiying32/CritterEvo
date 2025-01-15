@@ -21,7 +21,7 @@ public class CritterFactory {
      * Creates and returns a critter with randomized attributes
      */
     public Critter generateCritter(Point p, WorldModel world) {
-        CritterAI critterai = new CritterAI();
+        CritterAI critterai = new CritterAI(5);
 
         // random number generator for attributes for critter construction
         Orientation[] orientations = Orientation.values();
@@ -48,7 +48,7 @@ public class CritterFactory {
 
         double mutationRate = (Math.random() / 10);
 
-        int vision = (int) (Math.random() * 50);
+        int vision = (int) (Math.random() * 30);
 
         Critter critter = new Critter(
                 critterai,

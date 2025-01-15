@@ -5,7 +5,9 @@ import datastructures.HeapMinQueue;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import model.Food;
 import model.WorldModel;
 import model.WorldModel.CellState;
@@ -30,35 +32,33 @@ public class Pathfinder {
      * Finds the optimal path from the start node to the final node using the A* search algorithm
      * Returns an empty list if the start or target node is not a valid node
      */
-    public List<PathNode> findPath(Point start, Point target) {
+    public List<Point> findPath(Point start, Point target) {
         System.out.println("Starting pathfinding from " + start + " to " + target);
 
-        if (!isValidPosition(start) || !isValidPosition(target)) {
-            System.out.println("Invalid start or target position");
-            return new ArrayList<>();
-        }
 
+        // initialize frontier, visited, and start node
         HeapMinQueue<PathNode> frontier = new HeapMinQueue<>();
+        Set<Point> visited = new HashSet<>();
+
         PathNode startNode = new PathNode(start, null, 0, 0);
         double estimatedHeuristic = calculateHeuristic(start, target);
         frontier.addOrUpdate(startNode, estimatedHeuristic);
 
-        int iterations = 0;
-        while (!frontier.isEmpty() && iterations < world.getWidth() * world.getHeight()) { // Add iteration limit
-            iterations++;
+        while (!frontier.isEmpty()) {
             PathNode current = frontier.remove();
+            visited.add(current.getPosition());
 
-            if (iterations % 100 == 0) {
-                System.out.println("Iteration " + iterations + ", exploring: " + current.getPosition());
-            }
-
-            if (current.getPosition().equals(target)) {
-                System.out.println("Path found in " + iterations + " iterations");
+            if (isAdjacent(current.getPosition(), target)) {
+                System.out.println("Adjacent " + current + " to " + target + ", returning path");
                 return reconstructPath(current);
             }
 
             for (Point p: getNeighbors(current.getPosition())) {
+                if (visited.contains(p)) continue;
+                visited.add(p);
+
                 PathNode neighbor = new PathNode(p, current, current.getFCost() + 1, calculateHeuristic(p, target));
+
                 double dist = current.getFCost() + 1;
                 if (!neighbor.discovered() || dist < neighbor.getGCost()) {
                     neighbor.setDiscovered(true);
@@ -68,8 +68,17 @@ public class Pathfinder {
             }
         }
 
-        System.out.println("No path found after " + iterations + " iterations");
+        System.out.println("Finished pathfinding from " + start + " to " + target + "No path found");
         return new ArrayList<>();
+    }
+
+    /**
+     * Returns whether a point is adjacent to another target point
+     */
+    private boolean isAdjacent(Point p1, Point p2) {
+        return Math.abs(p1.x - p2.x) <= 1 &&
+                Math.abs(p1.y - p2.y) <= 1 &&
+                !(p1.x == p2.x && p1.y == p2.y);
     }
 
     /**
@@ -77,8 +86,6 @@ public class Pathfinder {
      */
     public List<Point> getNeighbors(Point p) {
         List<Point> neighbors = world.squaresAround(p);
-
-
         List<Point> validNeighbors = new ArrayList<>();
         for (Point neighbor : neighbors) {
             if (isValidPosition(neighbor)) {
@@ -101,34 +108,37 @@ public class Pathfinder {
 
     /**
      * calculates the heuristic from the start position to the target position
-     * Takes into account the Manhattan distance and the value of the target (for food)
+     * Takes into account the Euclidean distance and the value of the target (for food)
      * h(n) = distance - food value
      */
     public double calculateHeuristic(Point start, Point target) {
         CellState[][] worldArray = world.getWorldArray();
         int dx = Math.abs(target.x - start.x);
         int dy = Math.abs(target.y - start.y);
+        double euclidean = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
 
         if (worldArray[target.x][target.y] == CellState.FOOD) {
             Food food = world.getFood(new Point(target.x, target.y));
-            return dx + dy - food.getQuantity();
+            return (euclidean);
         } else {
-            return dx + dy;
+            return (euclidean);
         }
     }
 
     /**
      * Reconstructs the path using back pointer data stored in each pathNode
      */
-    private List<PathNode> reconstructPath(PathNode target) {
-        List<PathNode> path = new ArrayList<>();
+    private List<Point> reconstructPath(PathNode target) {
+        List<Point> path = new ArrayList<>();
         PathNode current = target;
 
         while (current != null) {
-            path.add(current);
+            path.add(current.getPosition());
             current = current.getParent();
         }
         Collections.reverse(path);
         return path;
     }
 }
+
+

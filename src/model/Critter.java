@@ -111,7 +111,7 @@ public class Critter{
     /**
      * The current path for the critter to follow
      */
-    List<PathNode> currentPath;
+    List<Point> currentPath;
 
     /**
      * A non-negative integer representing the critter's maximum age.
@@ -373,12 +373,12 @@ public class Critter{
     /**
      * Returns the critters current path
      */
-    public List<PathNode> getCurrentPath() { return currentPath; }
+    public List<Point> getCurrentPath() { return currentPath; }
 
     /**
      * Sets the critters path to "currentPath"
      */
-    public void setCurrentPath(List<PathNode> currentPath) { this.currentPath = currentPath; }
+    public void setCurrentPath(List<Point> currentPath) { this.currentPath = currentPath; }
 
     /**
      * Return's the critter's max age

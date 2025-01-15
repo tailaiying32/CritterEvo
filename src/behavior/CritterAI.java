@@ -1,10 +1,13 @@
 package behavior;
 
+import controller.PathfindingManager;
 import java.awt.Point;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import model.Critter;
 import model.Critter.Orientation;
 import model.Critter.Priority;
@@ -19,11 +22,17 @@ import model.WorldModel.CellState;
  * Defines what the critter does next
  */
 public class CritterAI {
+    /**
+     * The thread pool for this ai
+     */
+    private PathfindingManager threadPool;
 
     /**
      * Constructor for ai
      */
-    public CritterAI() {}
+    public CritterAI(int maxThreads) {
+        this.threadPool = new PathfindingManager(maxThreads);
+    }
 
     /**
      * Calculates priority based off of critter's current state and attributes
@@ -35,18 +44,14 @@ public class CritterAI {
         } else {
             if (critter.getHunger() <= critter.getThirst()) {
                 double random = Math.random(); // used with aggression to determine if critter tries to kill another critter or decides to search for food
-//                if (random < critter.getAggression()) {
-//                    critter.setPriority(Priority.ATTACK);
-//                } else {
+                if (random * 100 < critter.getAggression()) {
+                    critter.setPriority(Priority.ATTACK);
+                } else {
                     critter.setPriority(Priority.FOOD);
-//                }
+                }
             } else if (critter.getHunger() > critter.getThirst()){
                 critter.setPriority(Priority.WATER);
             }
-//            else {
-//                critter.setPriority(Priority.REST);
-//            }
-//            critter.setPriority(Priority.FOOD);
         }
     }
 
@@ -57,37 +62,39 @@ public class CritterAI {
         WorldModel world = critter.getWorld();
         Pathfinder pathfinder = critter.getPathfinder();
 
-        reduceHunger(critter); // take away some hunger per turn
-        reduceThirst(critter); // take away some thirst per turn
-        heal(critter); // heal health if hunger and thirst are high enough
-        age(critter); // age the critter by 1 every turn
+        updateCritter(critter); // update the critters state for each turn
 
         // reproduce if priority is love
         if (critter.getPriority() == Priority.LOVE) {
             critter.reproduce();
         }
 
+        // locate target and path to target
         Point target = locateTarget(critter, critter.getPriority());
-//        System.out.println("current pos: " + critter.getPosition().toString());
-//        System.out.println("target: " + target.x + ", " + target.y);
-        List<PathNode> path = pathfinder.findPath(critter.getPosition(), target);
+        List<Point> path = pathfinder.findPath(critter.getPosition(), target);
         System.out.println("path size: " + path.size());
         critter.setCurrentPath(path);
 
         // Determine the orientation we need to face the target and rotate if critter is facing the wrong way
         Orientation properOrientation = determineOrientation(critter);
-//        System.out.println("proper orientation needs to be: " + properOrientation.toString());
-//        System.out.println("my orientation now: " + critter.getOrientation().toString());
         if (!critter.getOrientation().equals(properOrientation)) {
-//            System.out.print("facing the wrong way! rotating now!");
             critter.rotate(properOrientation);
         }
 
+        // then take action
+        takeAction(critter);
+    }
+
+    /**
+     * Once all move conditions have been completed, the critter takes an action
+     */
+    private void takeAction(Critter critter) {
         // Check if there's food or water in front of us
+        WorldModel world = critter.getWorld();
         Point frontSquare = squareInFront(critter);
         if (frontSquare != null) {
             Food foodInFront = world.getFood(frontSquare);
-            if (foodInFront != null && critter.getPriority() == Priority.FOOD) {
+            if (foodInFront != null) {
                 critter.eat(foodInFront);
                 return;
             }
@@ -106,12 +113,10 @@ public class CritterAI {
 
             // If there's nothing to eat/drink in front, and we can move, then move
             if (isValidMove(frontSquare, world)) {
-//                System.out.println("Moving to: " + frontSquare);
                 critter.move(1);
             }
         }
     }
-
 
     /**
      * Check if a move to the given position is valid
@@ -131,46 +136,10 @@ public class CritterAI {
                 worldArray[pos.x][pos.y] != CellState.ANGRY_CRITTER;
     }
 
-
     /**
      * locates the nearest instance of the critter's target
      * !!! Eventually change to A* algorithm, but I will figure that out later
      */
-//    public Point locateTarget(Critter critter, Priority priority) {
-//        WorldModel world = critter.getWorld();
-//        Pathfinder pathfinder = critter.getPathfinder();
-//
-//        double distance = Double.MAX_VALUE;
-//        Point nearestTarget = critter.getPosition();
-//
-//
-//        // Get the appropriate target set based on priority
-//        Map<Point, ?> targets = switch (priority) {
-//            case FOOD -> world.getFoods();
-//            case WATER -> world.getWaters();
-//            case ATTACK -> world.getCritters();
-////            case LOVE -> world.getCritters();
-//            default -> new HashMap<>(); // Empty set for unsupported priorities
-//        };
-//
-//
-//        for (Point target : targets.keySet()) {
-//            double targetDistance = pathfinder.findPath(critter.getPosition(), target).size();
-//
-//            if (targetDistance < distance) {
-//                distance = targetDistance;
-//                nearestTarget = target;
-//            }
-//        }
-//
-//        if (nearestTarget == null) {
-//            System.out.println("No valid target found for priority: " + priority);
-//            return critter.getPosition(); // Fallback to current position or other logic
-//        }
-//
-////        System.out.println("calculated target: " + nearestTarget.toString());
-//        return nearestTarget;
-//    }
 public Point locateTarget(Critter critter, Priority priority) {
     WorldModel world = critter.getWorld();
     Point currentPos = critter.getPosition();
@@ -186,11 +155,11 @@ public Point locateTarget(Critter critter, Priority priority) {
         default -> new HashMap<>();
     };
 
-    // Use Manhattan distance for initial target selection
+    // Use Euclidean distance for initial target selection
     for (Point target : targets.keySet()) {
-        double manhattan = Math.abs(target.x - currentPos.x) + Math.abs(target.y - currentPos.y);
-        if (manhattan < shortestDistance) {
-            shortestDistance = manhattan;
+        double distance = Math.sqrt(Math.pow((target.x - currentPos.x), 2) + Math.pow((target.y - currentPos.y), 2));
+        if (distance < shortestDistance && distance < critter.getVision()) {
+            shortestDistance = distance;
             nearestTarget = target;
         }
     }
@@ -206,7 +175,7 @@ public Point locateTarget(Critter critter, Priority priority) {
         if (critter.getCurrentPath().size() < 2) {
             return critter.getOrientation(); // Fallback to the current orientation
         }
-        Point nextPoint = critter.getCurrentPath().get(1).getPosition();
+        Point nextPoint = critter.getCurrentPath().get(1);
 
         int dx = nextPoint.x - critter.getPosition().x;
         int dy = nextPoint.y - critter.getPosition().y;
@@ -271,6 +240,18 @@ public Point locateTarget(Critter critter, Priority priority) {
         return null;
     }
 
+
+
+    /**
+     * Updates critter per turn before making any moves
+     */
+    private void updateCritter(Critter critter) {
+        reduceHunger(critter);
+        reduceThirst(critter);
+        heal(critter);
+        age(critter);
+    }
+
     /**
      * private helper method for reducing base hunger per turn
      */
@@ -278,7 +259,7 @@ public Point locateTarget(Critter critter, Priority priority) {
         WorldModel world = critter.getWorld();
 
         // Calculate size factor: smaller critters expend more energy
-        double sizeFactor = Math.log((100 - critter.getSize()) + 1); // Adding 1 to avoid log(0)
+        double sizeFactor = Math.log((critter.getSize()) + 2)/2; // Adding 2 to avoid log(0)
 
         // Base hunger expenditure (scaled by size)
         double baseExpenditure = world.getBASE_HUNGER_EXPENDITURE() * sizeFactor;

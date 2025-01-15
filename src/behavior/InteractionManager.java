@@ -30,6 +30,7 @@ public class InteractionManager {
      * give advantage to larger creatures
      */
     public double eat(Critter critter, Food food) {
+        System.out.println("eating!");
         if (food != null) {
             // add in advantage for larger creatures if more than two creatures arrive at the same food source at the same time
             Point foodPos = food.getPosition();
@@ -46,23 +47,23 @@ public class InteractionManager {
                     sizeCrittersAround.add(world.getCritter(p).getSize());
                 }
                 // sum up the sizes and calculate the size advantage of this critter
-//                double sum = 0;
-//                for (double size : sizeCrittersAround) {
-//                    sum += size;
-//                }
-//                ratio = critter.getSize()/sum;
+                double sum = 0;
+                for (double size : sizeCrittersAround) {
+                    sum += size;
+                }
+                ratio = critter.getSize()/sum;
 
                 // if this critter is the largest, it gets all the food, otherwise it gets nothing
-                double largestSize = 0;
-                for (double size : sizeCrittersAround) {
-                    if (size > largestSize) {
-                        largestSize = size;
-                    }
-                }
-
-                if (critter.getSize() < largestSize) {
-                    ratio = 0;
-                }
+//                double largestSize = 0;
+//                for (double size : sizeCrittersAround) {
+//                    if (size > largestSize) {
+//                        largestSize = size;
+//                    }
+//                }
+//
+//                if (critter.getSize() < largestSize) {
+//                    ratio = 0;
+//                }
             }
 
 
@@ -98,6 +99,7 @@ public class InteractionManager {
      * Returns thirst level after drinking.
      */
     public double drink(Critter critter, Water water) {
+        System.out.println("drinking!");
         double newThirst = critter.getMaxThirst();
         critter.setThirst(newThirst);
         return critter.getThirst();
@@ -109,6 +111,7 @@ public class InteractionManager {
      * Uses up a small amount of hunger proportional to its size.
      */
     public Orientation rotate(Critter critter, Orientation orientation) {
+        System.out.println("rotating!");
         WorldModel world = critter.getWorld();
         // calculate how many unit rotations are needed for the critter to arrive at the new orientation
         int before = critter.getOrientation().getValue();
@@ -139,6 +142,7 @@ public class InteractionManager {
      * Returns the new coordinates after moving (remember that x and y start at 0 and at the top left)
      */
     public Point move(Critter critter, int distance) {
+        System.out.println("moving!");
         WorldModel world = critter.getWorld();
         int x = (int) critter.getPosition().getX();
         int y = (int) critter.getPosition().getY();
@@ -225,16 +229,7 @@ public class InteractionManager {
             // then add the critter to the world
             parent.getWorld().addCritter(child);
         }
-
-//        if (parent.getSize() > 50) {
-//            // Larger creatures have better reproduction success
-//            parent.setHunger(world.getBASE_REPRODUCTION_COST() * parent.getHunger() * 0.5);
-//        } else {
-//            parent.setHunger(world.getBASE_REPRODUCTION_COST() * parent.getHunger());
-//        }
         parent.setHunger(world.getBASE_REPRODUCTION_COST() * parent.getMaxHunger());
-
-
     }
 
     /**
@@ -259,6 +254,7 @@ public class InteractionManager {
      * CREATE SOME STATIC VARIABLES INSTEAD
      */
     public void attack(Critter critter1, Critter critter2) {
+        System.out.println("attacking!");
         WorldModel world = critter1.getWorld();
 
         double oldHealth = critter2.getHealth();
