@@ -33,7 +33,7 @@ public class Pathfinder {
      * Returns an empty list if the start or target node is not a valid node
      */
     public List<Point> findPath(Point start, Point target) {
-        System.out.println("Starting pathfinding from " + start + " to " + target);
+//        System.out.println("Starting pathfinding from " + start + " to " + target);
 
 
         // initialize frontier, visited, and start node
@@ -49,7 +49,7 @@ public class Pathfinder {
             visited.add(current.getPosition());
 
             if (isAdjacent(current.getPosition(), target)) {
-                System.out.println("Adjacent " + current + " to " + target + ", returning path");
+//                System.out.println("Adjacent " + current + " to " + target + ", returning path");
                 return reconstructPath(current);
             }
 
@@ -68,7 +68,7 @@ public class Pathfinder {
             }
         }
 
-        System.out.println("Finished pathfinding from " + start + " to " + target + "No path found");
+//        System.out.println("Finished pathfinding from " + start + " to " + target + "No path found");
         return new ArrayList<>();
     }
 

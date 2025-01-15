@@ -72,7 +72,7 @@ public class CritterAI {
         // locate target and path to target
         Point target = locateTarget(critter, critter.getPriority());
         List<Point> path = pathfinder.findPath(critter.getPosition(), target);
-        System.out.println("path size: " + path.size());
+//        System.out.println("path size: " + path.size());
         critter.setCurrentPath(path);
 
         // Determine the orientation we need to face the target and rotate if critter is facing the wrong way

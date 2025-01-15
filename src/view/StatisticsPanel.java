@@ -73,7 +73,7 @@ public class StatisticsPanel extends JPanel {
      * helper function to create the charts
      */
     private void createCharts() {
-        String[] traits = {"Max Health", "Max Hunger", "Max Thirst", "Size", "Offense", "Defense", "Aggression"};
+        String[] traits = {"Max Health", "Max Hunger", "Max Thirst", "Size", "Offense", "Defense", "Aggression", "Vision"};
         for (String trait : traits) {
             BarChartPanel chart = new BarChartPanel(trait);
             charts.put(trait, chart);
@@ -115,6 +115,7 @@ public class StatisticsPanel extends JPanel {
         traitData.put("Offense", new ArrayList<>());
         traitData.put("Defense", new ArrayList<>());
         traitData.put("Aggression", new ArrayList<>());
+        traitData.put("Vision", new ArrayList<>());
 
         for (Critter critter : critters.values()) {
             traitData.get("Max Health").add((double) critter.getMaxHealth());
@@ -124,6 +125,7 @@ public class StatisticsPanel extends JPanel {
             traitData.get("Offense").add((double) critter.getOffense());
             traitData.get("Defense").add((double) critter.getDefense());
             traitData.get("Aggression").add((double) critter.getAggression());
+            traitData.get("Vision").add((double) critter.getVision());
         }
 
         // Update table and charts

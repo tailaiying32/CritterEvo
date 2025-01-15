@@ -30,7 +30,7 @@ public class InteractionManager {
      * give advantage to larger creatures
      */
     public double eat(Critter critter, Food food) {
-        System.out.println("eating!");
+//        System.out.println("eating!");
         if (food != null) {
             // add in advantage for larger creatures if more than two creatures arrive at the same food source at the same time
             Point foodPos = food.getPosition();
@@ -66,7 +66,6 @@ public class InteractionManager {
 //                }
             }
 
-
 //            double sizeBonus = 1.0 + (critter.getSize() / 100.0); // Larger creatures get more from food
             double newHunger = Math.min(
                     (critter.getHunger() + (food.getQuantity()) * ratio),
@@ -99,7 +98,7 @@ public class InteractionManager {
      * Returns thirst level after drinking.
      */
     public double drink(Critter critter, Water water) {
-        System.out.println("drinking!");
+//        System.out.println("drinking!");
         double newThirst = critter.getMaxThirst();
         critter.setThirst(newThirst);
         return critter.getThirst();
@@ -111,7 +110,7 @@ public class InteractionManager {
      * Uses up a small amount of hunger proportional to its size.
      */
     public Orientation rotate(Critter critter, Orientation orientation) {
-        System.out.println("rotating!");
+//        System.out.println("rotating!");
         WorldModel world = critter.getWorld();
         // calculate how many unit rotations are needed for the critter to arrive at the new orientation
         int before = critter.getOrientation().getValue();
@@ -142,7 +141,7 @@ public class InteractionManager {
      * Returns the new coordinates after moving (remember that x and y start at 0 and at the top left)
      */
     public Point move(Critter critter, int distance) {
-        System.out.println("moving!");
+//        System.out.println("moving!");
         WorldModel world = critter.getWorld();
         int x = (int) critter.getPosition().getX();
         int y = (int) critter.getPosition().getY();
