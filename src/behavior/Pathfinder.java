@@ -94,7 +94,7 @@ public class Pathfinder {
 
         // return empty path if no path can be found
         return new ArrayList<>();
-    }
+    }   
 
     /**
      * Returns whether a point is adjacent to another target point

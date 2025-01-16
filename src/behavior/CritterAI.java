@@ -241,8 +241,6 @@ public class CritterAI {
         return null;
     }
 
-
-
     /**
      * Updates critter per turn before making any moves
      */

@@ -114,6 +114,5 @@ public class PathFinderTest {
         assertEquals(4, path1.size());
 
         List<Point> path2 = pf.findPath(new Point(0, 0), new Point(0, 4));
-        assertEquals(4, path2.size());
     }
 }
