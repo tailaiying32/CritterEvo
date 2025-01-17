@@ -6,7 +6,7 @@ import java.awt.Point;
 import model.Critter;
 import model.Critter.Orientation;
 import model.Critter.Priority;
-import model.CritterFactory;
+import controller.CritterFactory;
 import model.Food;
 import model.Water;
 import model.WorldFactory;

@@ -4,6 +4,7 @@ import behavior.CritterAI;
 import behavior.InteractionManager;
 import behavior.PathNode;
 import behavior.Pathfinder;
+import brain.Brain;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,9 +19,18 @@ public class Critter{
      */
     private Pathfinder pathfinder;
 
+    /**
+     * Returns this critter's pathfinder
+     */
     public Pathfinder getPathfinder() {
         return pathfinder;
     }
+
+    /**
+     * This critter's brain
+     */
+    private Brain brain;
+    public Brain brain() { return brain; }
 
 
 
@@ -250,6 +260,7 @@ public class Critter{
         this.world = world;
         this.pathfinder = new Pathfinder(world);
         this.currentPath = new ArrayList<>();
+        this.brain = new Brain(this);
         assertInv();
     }
 

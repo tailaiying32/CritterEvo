@@ -1,5 +1,7 @@
 package model;
 
+import controller.CritterFactory;
+import controller.InnovationManager;
 import controller.WorldGenerator;
 //import graph.WorldGraph;
 import java.awt.Point;
@@ -8,15 +10,20 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
-import model.Critter.Orientation;
 import model.Critter.Priority;
 
 /**
  * Represents the world, and contains all fields necessary to represent the current world state.
  */
 public class WorldModel {
+
+    /**
+     * The innovation number manager for critter brains
+     */
+    private InnovationManager innovationManager;
+    public InnovationManager innovationManager() { return innovationManager; }
+
 
     // energy cost constants
     private double MOVE_COST_FACTOR = 0.001;
@@ -249,6 +256,7 @@ public class WorldModel {
         this.damageScalingFactor = damageScalingFactor;
         this.BASE_HUNGER_EXPENDITURE = baseHungerExpenditure;
         this.FOOD_GENERATION_FACTOR = foodGenRate;
+        this.innovationManager = new InnovationManager();
 
         // generate the terrain
         this.worldGenerator = new WorldGenerator(scale, seed);
@@ -273,6 +281,7 @@ public class WorldModel {
         this.mutationRate = mutationRate;
         this.baseDamage = baseDamage;
         this.damageScalingFactor = damageScalingFactor;
+        this.innovationManager = new InnovationManager();
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {

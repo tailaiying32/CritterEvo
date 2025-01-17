@@ -14,6 +14,10 @@ public class Neuron {
      */
     private final int id;
 
+    /**
+     * The brain that this neuron belongs to
+     */
+    private Brain brain;
 
     /**
      * Integer representing the layer of this neuron: 0 for input layer, -1 for output layer,
@@ -27,6 +31,11 @@ public class Neuron {
     private double activation;
 
     /**
+     * boolean representing if this neuron is enabled or not
+     */
+    private boolean enabled;
+
+    /**
      * All incoming and outgoing synapses from this neuron,
      * where keys are innovation numbers and values are the corresponding synapses
      */
@@ -36,18 +45,33 @@ public class Neuron {
     /**
      * Constructs a new neuron
      */
-    public Neuron(int id, double activation, int layer) {
+    public Neuron(int id, double activation, int layer, Brain brain) {
+        this.brain = brain;
         this.id = id;
         this.activation = activation;
         this.layer = layer;
         this.incomingSynapses = new ArrayList<>();
         this.outgoingSynapses = new ArrayList<>();
+        this.enabled = true;
+
+        assertInv();
     }
 
     /**
      * Returns this neuron's id
      */
     public int getId() { return id; }
+
+    /**
+     * getters and setters for enabled
+     */
+    public boolean isEnabled() { return enabled; }
+    public void setEnabled(boolean enabled) { this.enabled = enabled; }
+
+    /**
+     * Returns this neuron's brain
+     */
+    public Brain brain() { return brain; }
 
     /**
      * Returns this neuron's layer
@@ -81,7 +105,7 @@ public class Neuron {
     }
 
     /**
-     * Returns the synapse with innovation "innovation"
+     * Returns the outgoing synapse with innovation "innovation"
      */
     public Synapse getSynapse(int innovation) {
         return outgoingSynapses.get(innovation);
@@ -129,5 +153,14 @@ public class Neuron {
      */
     private double reLU(double activation) {
         return Math.max(0, activation);
+    }
+
+    /**
+     * asserts the class invariant
+     */
+    private void assertInv() {
+        assert id >= 0;
+        assert layer >= -1;
+        assert activation >= 0.0 || activation <= 1.0;
     }
 }

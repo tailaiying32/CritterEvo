@@ -1,11 +1,13 @@
-package model;
+package controller;
 
 import behavior.CritterAI;
 import behavior.InteractionManager;
 import java.awt.Point;
 import java.util.concurrent.ThreadLocalRandom;
+import model.Critter;
 import model.Critter.Orientation;
 import model.Critter.Sex;
+import model.WorldModel;
 
 /**
  * used for creating randomized critters at the start of a new world

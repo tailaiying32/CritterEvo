@@ -4,20 +4,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import model.Critter;
 
 /**
  * The brain for each critter, represented by a neural network. Controls high level decision-making and priority selection.
  */
 public class Brain {
     /**
+     * The critter that this brain belongs to
+     */
+    private final Critter critter;
+
+    /**
      * Map of all neurons in this brain, with the keys as id's and the values as neurons
      */
     private Map<Integer, Neuron> neurons;
-
-    /**
-     * List of all synapses in this brain
-     */
-//    private List<Synapse> synapses;
 
     /**
      * The number of hidden layers in this network
@@ -25,13 +26,27 @@ public class Brain {
     private int hiddenLayers;
 
     /**
-     * Constructs a new empty brain
+     * Constructs a new empty brain belonging to Critter "critter"
+     */
+    public Brain(Critter critter) {
+        this.critter = critter;
+        this.neurons = new HashMap<>();
+        this.hiddenLayers = 0;
+    }
+
+    /**
+     * constructs a new empty brain with no owner for testing purposes
      */
     public Brain() {
         this.neurons = new HashMap<>();
-//        this.synapses = new ArrayList<>();
         this.hiddenLayers = 0;
+        this.critter = null;
     }
+
+    /**
+     * Returns the critter this brain belongs to
+     */
+    public Critter critter() { return critter; }
 
     /**
      * getters and setters for the number of hidden layers in this network

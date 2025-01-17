@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.awt.Point;
 import java.util.List;
 import model.Critter;
-import model.CritterFactory;
+import controller.CritterFactory;
 import model.Food;
 import model.WorldFactory;
 import model.WorldModel;

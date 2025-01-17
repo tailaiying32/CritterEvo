@@ -1,5 +1,6 @@
 package behavior;
 
+import brain.Brain;
 import controller.ThreadPool;
 import java.awt.Point;
 import java.util.HashMap;

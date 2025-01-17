@@ -2,6 +2,7 @@ package model;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import controller.CritterFactory;
 import java.awt.Point;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

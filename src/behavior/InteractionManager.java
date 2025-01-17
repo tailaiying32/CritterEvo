@@ -2,12 +2,9 @@ package behavior;
 
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import model.Critter;
 import model.Critter.Orientation;
-import model.Critter.Priority;
-import model.CritterFactory;
 import model.Food;
 import model.Water;
 import model.WorldModel;
