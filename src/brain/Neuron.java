@@ -14,17 +14,12 @@ public class Neuron {
      */
     private final int id;
 
-    /**
-     * enum for the type of neuron
-     */
-    public enum Layer {
-        INPUT, OUTPUT, HIDDEN
-    }
 
     /**
-     * The type/layer of this neuron - input, output, or hidden
+     * Integer representing the layer of this neuron: 0 for input layer, -1 for output layer,
+     * and enumerating from 1 up for hidden layers, left-to-right or input-to-output
      */
-    private final Layer layer;
+    private final int layer;
 
     /**
      * The activation for this neuron. Must be in between 0.0 and 1.0, inclusive
@@ -41,7 +36,7 @@ public class Neuron {
     /**
      * Constructs a new neuron
      */
-    public Neuron(int id, int activation, Layer layer) {
+    public Neuron(int id, double activation, int layer) {
         this.id = id;
         this.activation = activation;
         this.layer = layer;
@@ -57,13 +52,33 @@ public class Neuron {
     /**
      * Returns this neuron's layer
      */
-    public Layer getLayer() { return layer; }
+    public int getLayer() { return layer; }
 
     /**
-     * Returns a list of incoming/outgoing synapses for this neuron
+     * Returns a list of incoming synapses for this neuron
      */
-    public List<Synapse> incomingSynapses() { return incomingSynapses; }
-    public List<Synapse> outgoingSynapses() { return outgoingSynapses; }
+    public List<Synapse> incomingSynapses() {
+        List<Synapse> synapses = new ArrayList<>();
+        for (Synapse synapse : incomingSynapses) {
+            if (synapse.isEnabled()) {
+                synapses.add(synapse);
+            }
+        }
+        return synapses;
+    }
+
+    /**
+     * Returns a list of outgoing synapses for this neuron
+     */
+    public List<Synapse> outgoingSynapses() {
+        List<Synapse> synapses = new ArrayList<>();
+        for (Synapse synapse : outgoingSynapses) {
+            if (synapse.isEnabled()) {
+                synapses.add(synapse);
+            }
+        }
+        return synapses;
+    }
 
     /**
      * Returns the synapse with innovation "innovation"
@@ -73,17 +88,46 @@ public class Neuron {
     }
 
     /**
+     * Adds an incoming synapse to this neuron
+     */
+    public void addIncomingSynapse(Synapse synapse) {
+        incomingSynapses.add(synapse);
+    }
+
+    /**
      * Adds an outgoing synapse to this neuron
      */
-    public void addSynapse(Synapse synapse) {
+    public void addOutgoingSynapse(Synapse synapse) {
         outgoingSynapses.add(synapse);
     }
+
+    /**
+     * getters and setters for the neuron's activation
+     */
+    public double activation() { return activation; }
+    public void setActivation(double activation) { this.activation = activation; }
 
     /**
      * Processes incoming data from synapses to create an output
      */
     public double processNeuron() {
-        throw new UnsupportedOperationException();
+        double activation = 0;
+        for (Synapse synapse : incomingSynapses) {
+            if (synapse.isEnabled()) {
+                Neuron start = synapse.start();
+                double weightedActivation = start.activation() * synapse.weight();
+                activation += weightedActivation;
+            }
+        }
+        double normalizedActivation = reLU(activation);
+        setActivation(normalizedActivation);
+        return normalizedActivation;
     }
 
+    /**
+     * The ReLU function, used for normalizing activations to [0.0, 1.0]
+     */
+    private double reLU(double activation) {
+        return Math.max(0, activation);
+    }
 }

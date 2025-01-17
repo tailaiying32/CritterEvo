@@ -8,12 +8,12 @@ public class Synapse {
     /**
      * The id of the in neuron
      */
-    private final int startId;
+    private final Neuron start;
 
     /**
      * The id of the out neuron
      */
-    private final int endId;
+    private final Neuron end;
 
     /**
      * The weight of this synapse
@@ -34,19 +34,22 @@ public class Synapse {
      * Constructs a new synapse with "in" and "out" source and end neurons.
      * The innovation number is incremented from the global innovation number
      */
-    public Synapse(int startId, int endId, double weight, boolean enabled, int innovation) {
-        this.startId = startId;
-        this.endId = endId;
+    public Synapse(Neuron start, Neuron end, double weight, boolean enabled, int innovation) {
+        this.start = start;
+        this.end = end;
         this.weight = weight;
         this.enabled = enabled;
         this.innovation = innovation;
+
+        start.addOutgoingSynapse(this);
+        end.addIncomingSynapse(this);
     }
 
     /**
      * getter methods for synapse attributes
      */
-    public int startId() { return startId; }
-    public int endId() { return endId; }
+    public Neuron start() { return start; }
+    public Neuron end() { return end; }
     public double weight() { return weight; }
     public boolean isEnabled() { return enabled; }
     public int innovation() { return innovation; }
