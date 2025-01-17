@@ -4,8 +4,7 @@ import java.util.LinkedList;
 import java.util.NoSuchElementException;
 
 /**
- * Represents a directed graph whose vertices are labeled by integer IDs.  Edge weights are
- * _extrinsic_ (not part of this interface); see `Weigher`.  IDs must be in the range
+ * Represents a directed graph whose vertices are labeled by integer IDs. IDs must be in the range
  * `[0..vertexCount())`.
  */
 public interface Graph<VertexType extends Vertex<?>> {
