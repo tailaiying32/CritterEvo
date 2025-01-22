@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import model.Critter;
 
 /**
@@ -91,7 +92,7 @@ public class Brain {
 
         // validate input size
         if (input.length != inputNeurons.size()) {
-            throw new IllegalArgumentException("Input array length is not equal to neuron count");
+            throw new IllegalArgumentException("Input array length is not equal to neuron count. Input length: " + input.length + " Neuron count: " + inputNeurons.size());
         }
 
         // set input values
@@ -121,6 +122,55 @@ public class Brain {
      */
     public void mutate() {
         // needs to support adding/removing a hidden neuron, adding/removing a synapse, and changing the weight of a synapse
+
+        // add a neuron (must be added on top of an already existing synapse)
+        assert critter != null;
+        int innovation = critter.getWorld().innovationManager().innovation();
+
+
+    }
+
+    /**
+     * Mutation: adds a neuron
+     * Creates a new neuron, disables the original synapse, and inserts the neuron in between where the old synapse was
+     * Create two new synapses connecting the neuron to the original synapse's endpoints
+     * Parameters: takes in the innovation number of the synapse to disable
+     */
+    public void addNeuronMutation(int innovation) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Mutation: removes a neuron
+     * Removes a neuron and the two outgoing synapses, and replaces it with one larger synapse
+     * Parameters: takes in the id of the neuron to remove
+     */
+    public void removeNeuronMutation(int id) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Mutation: adds a synapse connecting two random neurons
+     * inv: neurons must be in different layers
+     * Parameters: takes in the ids of the two endpoint neurons the synapse will be attached to
+     */
+    public void addSynapseMutation(int id1, int id2) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Mutation: removes a random synapse
+     * Parameters: takes in the innovation number of the to be disabled synapse
+     */
+    public void removeSynapseMutation(int innovation) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Mutation: changes the weight of a synapse by up to 20%
+     * Parameters: takes in the innovation number of the to be disabled synapse
+     */
+    public void changeWeightMutation(int innovation) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -135,5 +185,18 @@ public class Brain {
             }
         }
         return layeredNeurons;
+    }
+
+    /**
+     * Returns the id of the neuron with the largest id, for neuron creation
+     */
+    public int getDiscoveredNeuronCount() {
+        int count = 0;
+        for (Neuron neuron : neurons.values()) {
+            if (neuron.getId() > count) {
+                count = neuron.getId();
+            }
+        }
+        return count;
     }
 }

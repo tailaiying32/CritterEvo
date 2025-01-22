@@ -32,7 +32,6 @@ public class Synapse {
      */
     private final int innovation;
 
-
     /**
      * Constructs a new synapse with "in" and "out" source and end neurons.
      * The innovation number is incremented from the global innovation number

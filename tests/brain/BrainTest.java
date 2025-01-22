@@ -16,16 +16,20 @@ class BrainTest {
     @Test
     void testGetNeuronsByLayer() {
         Brain brain = new Brain();
-        Neuron neuron1 = new Neuron(0, 0, 0, brain);
+        Neuron neuron1 = new Neuron(0, brain);
         brain.addNeuron(neuron1);
-        Neuron neuron2 = new Neuron(1, 0, -1, brain);
+        Neuron neuron2 = new Neuron(-1, brain);
         brain.addNeuron(neuron2);
-        Neuron neuron3 = new Neuron(2, 0, 1, brain);
+        Neuron neuron3 = new Neuron(1, brain);
         brain.addNeuron(neuron3);
 
         assertEquals(neuron1, brain.getNeuronsByLayer(0).getFirst());
         assertEquals(neuron2, brain.getNeuronsByLayer(-1).getFirst());
         assertEquals(neuron3, brain.getNeuronsByLayer(1).getFirst());
+
+        assertEquals(1, neuron1.getId());
+        assertEquals(2, neuron2.getId());
+        assertEquals(3, neuron3.getId());
     }
 
     @DisplayName("WHEN a new synapse is created,"
@@ -40,11 +44,11 @@ class BrainTest {
         Critter critter = cf.generateCritter(new Point(0, 0), wm);
 
         Brain brain = new Brain(critter);
-        Neuron neuron1 = new Neuron(0, 0, 0, brain);
+        Neuron neuron1 = new Neuron(0,  0, brain);
         brain.addNeuron(neuron1);
-        Neuron neuron2 = new Neuron(1, 0, -1, brain);
+        Neuron neuron2 = new Neuron(1,  -1, brain);
         brain.addNeuron(neuron2);
-        Neuron neuron3 = new Neuron(2, 0, 1, brain);
+        Neuron neuron3 = new Neuron(2,  1, brain);
         brain.addNeuron(neuron3);
 
         Synapse synapse1 = new Synapse(neuron1, neuron2, 0.1, true);
@@ -76,21 +80,21 @@ class BrainTest {
         Brain brain = new Brain();
 
         // input layer
-        Neuron neuron1 = new Neuron(0, 0, 0, brain);
-        Neuron neuron2 = new Neuron(1, 0, 0, brain);
+        Neuron neuron1 = new Neuron(0,  0, brain);
+        Neuron neuron2 = new Neuron(1,  0, brain);
         brain.addNeuron(neuron1);
         brain.addNeuron(neuron2);
 
         // hidden layer
-        Neuron neuron3 = new Neuron(2, 0, 1, brain);
+        Neuron neuron3 = new Neuron(2,  1, brain);
         brain.addNeuron(neuron3);
-        Neuron neuron6 = new Neuron(5, 0, 1, brain);
+        Neuron neuron6 = new Neuron(5,  1, brain);
         brain.addNeuron(neuron6);
 
         // output layer
-        Neuron neuron4 = new Neuron(3, 0, -1, brain);
+        Neuron neuron4 = new Neuron(3,  -1, brain);
         brain.addNeuron(neuron4);
-        Neuron neuron5 = new Neuron(4, 0, -1, brain);
+        Neuron neuron5 = new Neuron(4,  -1, brain);
         brain.addNeuron(neuron5);
 
         // add connections

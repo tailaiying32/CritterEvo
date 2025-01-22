@@ -21,7 +21,7 @@ import model.WorldModel.CellState;
  */
 public class CritterAI {
     /**
-     * The thread pool for this ai
+     * The thread pool for this AI
      */
     private ThreadPool threadPool;
 
@@ -37,19 +37,72 @@ public class CritterAI {
      * Returns the calculated priority
      */
     public void updatePriority(Critter critter) {
-        if (critter.getHunger() >= 0.8 * critter.getMaxHunger() && critter.getHealth() >= 0.8 * critter.getMaxHealth()) {
+        Brain brain = critter.brain();
+        double healthInput = critter.getHealth()/critter.getMaxHealth();
+        double hungerInput = critter.getHunger()/critter.getMaxHunger();
+        double thirstInput = critter.getThirst()/critter.getMaxThirst();
+        double populationDensity = Math.pow((critter.getVision() * 2 + 1), 2);
+
+        double[] input = {
+                healthInput,
+                hungerInput,
+                thirstInput
+        };
+
+        double[] brainOutput = brain.feedForward(input);
+        int actionNeuronIndex = 0;
+        for (int i = 0; i < brainOutput.length; i++) {
+            if (brainOutput[i] > brainOutput[actionNeuronIndex]) {
+                actionNeuronIndex = i;
+            }
+        }
+
+        if (actionNeuronIndex == 0) {
+            critter.setPriority(Priority.FOOD);
+        } else if (actionNeuronIndex == 1) {
+            critter.setPriority(Priority.WATER);
+        } else if (actionNeuronIndex == 2) {
+            critter.setPriority(Priority.ATTACK);
+        } else if (actionNeuronIndex == 3) {
             critter.setPriority(Priority.LOVE);
         } else {
-            if (critter.getHunger() <= critter.getThirst()) {
-                double random = Math.random(); // used with aggression to determine if critter tries to kill another critter or decides to search for food
-                if (random * 100 < critter.getAggression()) {
-                    critter.setPriority(Priority.ATTACK);
-                } else {
-                    critter.setPriority(Priority.FOOD);
-                }
-            } else if (critter.getHunger() > critter.getThirst()){
+            critter.setPriority(Priority.REST);
+        }
+
+        System.out.println(critter.getWorld().innovationManager().innovation());
+
+        // If no synapses have been formed yet, just choose a random priority (not love)
+        if (critter.getWorld().innovationManager().innovation() == 0) {
+            double random = (Math.random() * 4);
+            if (random <= 1) {
+                critter.setPriority(Priority.FOOD);
+            } else if (random <= 2) {
                 critter.setPriority(Priority.WATER);
+            } else if (random <= 3) {
+                critter.setPriority(Priority.ATTACK);
+            } else if (random <= 4) {
+                critter.setPriority(Priority.REST);
             }
+
+        // 2.5% chance to reproduce
+        if (Math.random() <= 0.025) {
+            critter.setPriority(Priority.LOVE);
+        }
+
+//            if (critter.getHunger() >= 0.8 * critter.getMaxHunger() && critter.getHealth() >= 0.8 * critter.getMaxHealth()) {
+//                critter.setPriority(Priority.LOVE);
+//            } else {
+//                if (critter.getHunger() <= critter.getThirst()) {
+//                    double random = Math.random(); // used with aggression to determine if critter tries to kill another critter or decides to search for food
+//                    if (random * 100 < critter.getAggression()) {
+//                        critter.setPriority(Priority.ATTACK);
+//                    } else {
+//                        critter.setPriority(Priority.FOOD);
+//                    }
+//                } else if (critter.getHunger() > critter.getThirst()){
+//                    critter.setPriority(Priority.WATER);
+//                }
+//            }
         }
     }
 
@@ -57,6 +110,7 @@ public class CritterAI {
      * Has the critter take turn based on its priority and state
      */
     public void makeMove(Critter critter) {
+        critter.updatePriority();
         WorldModel world = critter.getWorld();
         Pathfinder pathfinder = critter.getPathfinder();
 

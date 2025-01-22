@@ -5,6 +5,7 @@ import behavior.InteractionManager;
 import behavior.PathNode;
 import behavior.Pathfinder;
 import brain.Brain;
+import controller.BrainFactory;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
@@ -260,7 +261,7 @@ public class Critter{
         this.world = world;
         this.pathfinder = new Pathfinder(world);
         this.currentPath = new ArrayList<>();
-        this.brain = new Brain(this);
+        this.brain = new BrainFactory().generateBrain(this);
         assertInv();
     }
 
@@ -623,6 +624,27 @@ public class Critter{
      */
     public void die(Critter this) {
         this.interactionManager.die(this);
+    }
+
+    /**
+     * helper method for finding the number of total squares the critter can see
+     */
+    public int visionArea() {
+        return (int) Math.pow((getVision() * 2 + 1), 2) - 1;
+    }
+
+    /**
+     * helper method for finding the list of squares the critter can see
+     */
+    public List<Point> reachablePoints() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * helper method for finding the population density around the critter
+     */
+    public int populationDensity() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     /**

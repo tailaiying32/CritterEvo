@@ -45,10 +45,23 @@ public class Neuron {
     /**
      * Constructs a new neuron
      */
-    public Neuron(int id, double activation, int layer, Brain brain) {
+    public Neuron(int layer, Brain brain) {
+        this.brain = brain;
+        this.id = brain.getDiscoveredNeuronCount() + 1;
+        this.layer = layer;
+        this.incomingSynapses = new ArrayList<>();
+        this.outgoingSynapses = new ArrayList<>();
+        this.enabled = true;
+
+        assertInv();
+    }
+
+    /**
+     * Constructs a new neuron
+     */
+    public Neuron(int id, int layer, Brain brain) {
         this.brain = brain;
         this.id = id;
-        this.activation = activation;
         this.layer = layer;
         this.incomingSynapses = new ArrayList<>();
         this.outgoingSynapses = new ArrayList<>();
