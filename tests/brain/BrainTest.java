@@ -111,4 +111,54 @@ class BrainTest {
         assertEquals(0.083, brain.feedForward(input)[0]);
         assertEquals(0.085, brain.feedForward(input)[1]);
     }
+
+    @DisplayName("WHEN a neuron is added through mutation,"
+            + "THEN the old synapse should be disabled and two new synapses should be created"
+            + "AND all layers of the neurons connected to the right of the new neuron should be adjusted")
+    @Test
+    public void testAddNeuronMutation() {
+        WorldFactory wf = new WorldFactory();
+        WorldModel wm = wf.generateTestWorld();
+        CritterFactory cf = new CritterFactory();
+        Critter critter = cf.generateCritter(new Point(0, 0), wm);
+
+        Brain brain = new Brain(critter);
+        Neuron inputNeuron = new Neuron(0, brain);
+        brain.addNeuron(inputNeuron);
+        Neuron hidden1 = new Neuron(1, brain);
+        brain.addNeuron(hidden1);
+        Neuron hidden2 = new Neuron(2, brain);
+        brain.addNeuron(hidden2);
+        Neuron hidden3 = new Neuron(2, brain);
+        brain.addNeuron(hidden3);
+        Neuron outputNeuron = new Neuron(-1, brain);
+        brain.addNeuron(outputNeuron);
+
+        Synapse synapse1 = new Synapse(inputNeuron, hidden1, 1, true);
+        Synapse synapse2 = new Synapse(hidden1, hidden2, 0.1, true);
+        Synapse synapse3 = new Synapse(hidden1, hidden3, 0.2, true);
+        Synapse synapse4 = new Synapse(hidden2, outputNeuron, 0.3, true);
+        Synapse synapse5 = new Synapse(hidden3, outputNeuron, 0.4, true);
+
+        assertEquals(5, wm.innovationManager().innovation());
+
+        brain.addNeuronMutation(1);
+
+        assertEquals(7, wm.innovationManager().innovation());
+        assertEquals(1, brain.getNeuronsByLayer(1).size());
+        assertEquals(1, brain.getNeuronsByLayer(2).size());
+        assertEquals(2, brain.getNeuronsByLayer(3).size());
+        assertEquals(0, brain.getNeuronsByLayer(4).size());
+        assertEquals(1, brain.getNeuronsByLayer(-1).size());
+
+        brain.addNeuronMutation(4);
+
+        assertEquals(9, wm.innovationManager().innovation());
+        assertEquals(1, brain.getNeuronsByLayer(1).size());
+        assertEquals(1, brain.getNeuronsByLayer(2).size());
+        assertEquals(2, brain.getNeuronsByLayer(3).size());
+        assertEquals(1, brain.getNeuronsByLayer(4).size());
+        assertEquals(1, brain.getNeuronsByLayer(-1).size());
+    }
+
 }

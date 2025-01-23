@@ -23,7 +23,7 @@ public class Neuron {
      * Integer representing the layer of this neuron: 0 for input layer, -1 for output layer,
      * and enumerating from 1 up for hidden layers, left-to-right or input-to-output
      */
-    private final int layer;
+    private int layer;
 
     /**
      * The activation for this neuron. Must be in between 0.0 and 1.0, inclusive
@@ -86,10 +86,16 @@ public class Neuron {
      */
     public Brain brain() { return brain; }
 
+
     /**
      * Returns this neuron's layer
      */
     public int getLayer() { return layer; }
+
+    /**
+     * Sets this neuron's layer to "layer"
+     */
+    public void setLayer(int layer) { this.layer = layer; }
 
     /**
      * Returns a list of incoming synapses for this neuron

@@ -1,5 +1,6 @@
 package brain;
 
+import controller.InnovationManager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +17,7 @@ public class Brain {
      */
     private final Critter critter;
 
+
     /**
      * Map of all neurons in this brain, with the keys as id's and the values as neurons
      */
@@ -28,11 +30,14 @@ public class Brain {
 
     /**
      * Constructs a new empty brain belonging to Critter "critter"
+     * critter cannot be empty
      */
     public Brain(Critter critter) {
         this.critter = critter;
         this.neurons = new HashMap<>();
         this.hiddenLayers = 0;
+
+        assertInv();
     }
 
     /**
@@ -43,6 +48,7 @@ public class Brain {
         this.hiddenLayers = 0;
         this.critter = null;
     }
+
 
     /**
      * Returns the critter this brain belongs to
@@ -124,7 +130,6 @@ public class Brain {
         // needs to support adding/removing a hidden neuron, adding/removing a synapse, and changing the weight of a synapse
 
         // add a neuron (must be added on top of an already existing synapse)
-        assert critter != null;
         int innovation = critter.getWorld().innovationManager().innovation();
 
 
@@ -137,12 +142,55 @@ public class Brain {
      * Parameters: takes in the innovation number of the synapse to disable
      */
     public void addNeuronMutation(int innovation) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        InnovationManager innovationManager = critter.getWorld().innovationManager();
+        Synapse disabledSynapse = innovationManager.get(innovation);
+        disabledSynapse.setEnabled(false); // disables the synapse
+
+        // get the layers of the endpoint neurons to calculate the layer of the new neuron
+        int layer1 = disabledSynapse.start().getLayer();
+        int layer2 = disabledSynapse.end().getLayer();
+        int newLayer;
+
+        // handle edge case where the synapse connects an input neuron to an output neuron
+        if (layer1 == 0 && layer2 == -1) {
+            newLayer = 1;
+        } else if (layer2 == -1) { // handle case where neuron is inserted right before the output layer - just 1 more than hiddenLayers
+            newLayer = hiddenLayers + 1;
+        } else { // else, newLayer is equal to the endpoint neuron's layer - the layer of every neuron connected to the right of the endpoint neuron is incremented by 1
+            newLayer = layer2;
+        }
+
+        // construct the neuron with the appropriate layer
+        Neuron newNeuron = new Neuron(newLayer, this);
+        addNeuron(newNeuron);
+
+        // add two new synapses to connect the new neuron to the original endpoint neurons
+        // the source-new synapse takes on the weight of the original synapse, while the new-destination synapse take on a weight of 1.0, to preserve network function
+        Synapse startSynapse = new Synapse(disabledSynapse.start(), newNeuron, disabledSynapse.weight(), true);
+        Synapse endSynapse = new Synapse(newNeuron, disabledSynapse.end(), 1.0, true);
+
+        // adjust the layer of all neurons to the right of the newly created neuron
+        adjustAfterAdd(newNeuron);
+    }
+
+    /**
+     * helper method for addNeuronMutation to recursively adjust layers of all neurons to the right of a newly added neuron after the add mutation
+     * takes in a neuron as a parameter as the leftmost neuron
+     */
+    private void adjustAfterAdd(Neuron neuron) {
+        for (Synapse synapse : neuron.outgoingSynapses()) {
+            Neuron endNeuron = synapse.end();
+            if (endNeuron.getLayer() != -1) {
+                endNeuron.setLayer(endNeuron.getLayer() + 1);
+                setHiddenLayers(endNeuron.getLayer());
+                adjustAfterAdd(endNeuron);
+            }
+        }
     }
 
     /**
      * Mutation: removes a neuron
-     * Removes a neuron and the two outgoing synapses, and replaces it with one larger synapse
+     * Removes a neuron and the incoming and outgoing synapses, and replaces it with one larger synapse
      * Parameters: takes in the id of the neuron to remove
      */
     public void removeNeuronMutation(int id) {
@@ -198,5 +246,12 @@ public class Brain {
             }
         }
         return count;
+    }
+
+    /**
+     * asserts class invariant
+     */
+    private void assertInv() {
+        assert critter != null;
     }
 }

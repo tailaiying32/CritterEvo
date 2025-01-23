@@ -90,6 +90,7 @@ public class Synapse {
     private void assertInv() {
         assert start != null;
         assert end != null;
+        assert start != end;
         assert innovation > 0;
     }
 }

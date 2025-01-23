@@ -69,8 +69,6 @@ public class CritterAI {
             critter.setPriority(Priority.REST);
         }
 
-        System.out.println(critter.getWorld().innovationManager().innovation());
-
         // If no synapses have been formed yet, just choose a random priority (not love)
         if (critter.getWorld().innovationManager().innovation() == 0) {
             double random = (Math.random() * 4);
@@ -83,27 +81,27 @@ public class CritterAI {
             } else if (random <= 4) {
                 critter.setPriority(Priority.REST);
             }
+        }
 
         // 2.5% chance to reproduce
         if (Math.random() <= 0.025) {
             critter.setPriority(Priority.LOVE);
         }
 
-//            if (critter.getHunger() >= 0.8 * critter.getMaxHunger() && critter.getHealth() >= 0.8 * critter.getMaxHealth()) {
-//                critter.setPriority(Priority.LOVE);
-//            } else {
-//                if (critter.getHunger() <= critter.getThirst()) {
-//                    double random = Math.random(); // used with aggression to determine if critter tries to kill another critter or decides to search for food
-//                    if (random * 100 < critter.getAggression()) {
-//                        critter.setPriority(Priority.ATTACK);
-//                    } else {
-//                        critter.setPriority(Priority.FOOD);
-//                    }
-//                } else if (critter.getHunger() > critter.getThirst()){
-//                    critter.setPriority(Priority.WATER);
+//        if (critter.getHunger() >= 0.8 * critter.getMaxHunger() && critter.getHealth() >= 0.8 * critter.getMaxHealth()) {
+//            critter.setPriority(Priority.LOVE);
+//        } else {
+//            if (critter.getHunger() <= critter.getThirst()) {
+//                double random = Math.random(); // used with aggression to determine if critter tries to kill another critter or decides to search for food
+//                if (random * 100 < critter.getAggression()) {
+//                    critter.setPriority(Priority.ATTACK);
+//                } else {
+//                    critter.setPriority(Priority.FOOD);
 //                }
+//            } else if (critter.getHunger() > critter.getThirst()){
+//                critter.setPriority(Priority.WATER);
 //            }
-        }
+//        }
     }
 
     /**
