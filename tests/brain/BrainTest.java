@@ -159,6 +159,11 @@ class BrainTest {
         assertEquals(2, brain.getNeuronsByLayer(3).size());
         assertEquals(1, brain.getNeuronsByLayer(4).size());
         assertEquals(1, brain.getNeuronsByLayer(-1).size());
+
+        brain.addNeuronMutation(0);
+
+        assertEquals(11, wm.innovationManager().innovation());
+        assertEquals(2, brain.getNeuronsByLayer(1).size());
     }
 
 }

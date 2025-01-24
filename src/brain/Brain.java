@@ -140,37 +140,58 @@ public class Brain {
      * Creates a new neuron, disables the original synapse, and inserts the neuron in between where the old synapse was
      * Create two new synapses connecting the neuron to the original synapse's endpoints
      * Parameters: takes in the innovation number of the synapse to disable
+     * If innovation is less than or equal to 0, create a new neuron and choose
+     * a random input and random output neuron to place the neuron between
      */
     public void addNeuronMutation(int innovation) {
+        assert innovation >= 0;
         InnovationManager innovationManager = critter.getWorld().innovationManager();
-        Synapse disabledSynapse = innovationManager.get(innovation);
-        disabledSynapse.setEnabled(false); // disables the synapse
 
-        // get the layers of the endpoint neurons to calculate the layer of the new neuron
-        int layer1 = disabledSynapse.start().getLayer();
-        int layer2 = disabledSynapse.end().getLayer();
-        int newLayer;
+        // choose a random input and output neuron if innovation = 0
+        if (innovation == 0) {
+            List<Neuron> inputNeurons = getNeuronsByLayer(0);
+            List<Neuron> outputNeurons = getNeuronsByLayer(-1);
 
-        // handle edge case where the synapse connects an input neuron to an output neuron
-        if (layer1 == 0 && layer2 == -1) {
-            newLayer = 1;
-        } else if (layer2 == -1) { // handle case where neuron is inserted right before the output layer - just 1 more than hiddenLayers
-            newLayer = hiddenLayers + 1;
-        } else { // else, newLayer is equal to the endpoint neuron's layer - the layer of every neuron connected to the right of the endpoint neuron is incremented by 1
-            newLayer = layer2;
+            int inputIndex = new Random().nextInt(inputNeurons.size());
+            int outputIndex = new Random().nextInt(outputNeurons.size());
+
+            Neuron inputNeuron = inputNeurons.get(inputIndex);
+            Neuron outputNeuron = outputNeurons.get(outputIndex);
+
+            Neuron newNeuron = new Neuron(1, this);
+            addNeuron(newNeuron);
+            Synapse startSynapse = new Synapse(inputNeuron, newNeuron, 1,true);
+            Synapse endSynapse = new Synapse(newNeuron, outputNeuron, 1, true);
+        } else { // else, follow the normal logic
+            Synapse disabledSynapse = innovationManager.get(innovation);
+            disabledSynapse.setEnabled(false); // disables the synapse
+
+            // get the layers of the endpoint neurons to calculate the layer of the new neuron
+            int layer1 = disabledSynapse.start().getLayer();
+            int layer2 = disabledSynapse.end().getLayer();
+            int newLayer;
+
+            // handle edge case where the synapse connects an input neuron to an output neuron
+            if (layer1 == 0 && layer2 == -1) {
+                newLayer = 1;
+            } else if (layer2 == -1) { // handle case where neuron is inserted right before the output layer - just 1 more than hiddenLayers
+                newLayer = hiddenLayers + 1;
+            } else { // else, newLayer is equal to the endpoint neuron's layer - the layer of every neuron connected to the right of the endpoint neuron is incremented by 1
+                newLayer = layer2;
+            }
+
+            // construct the neuron with the appropriate layer
+            Neuron newNeuron = new Neuron(newLayer, this);
+            addNeuron(newNeuron);
+
+            // add two new synapses to connect the new neuron to the original endpoint neurons
+            // the source-new synapse takes on the weight of the original synapse, while the new-destination synapse take on a weight of 1.0, to preserve network function
+            Synapse startSynapse = new Synapse(disabledSynapse.start(), newNeuron, disabledSynapse.weight(), true);
+            Synapse endSynapse = new Synapse(newNeuron, disabledSynapse.end(), 1.0, true);
+
+            // adjust the layer of all neurons to the right of the newly created neuron
+            adjustAfterAdd(newNeuron);
         }
-
-        // construct the neuron with the appropriate layer
-        Neuron newNeuron = new Neuron(newLayer, this);
-        addNeuron(newNeuron);
-
-        // add two new synapses to connect the new neuron to the original endpoint neurons
-        // the source-new synapse takes on the weight of the original synapse, while the new-destination synapse take on a weight of 1.0, to preserve network function
-        Synapse startSynapse = new Synapse(disabledSynapse.start(), newNeuron, disabledSynapse.weight(), true);
-        Synapse endSynapse = new Synapse(newNeuron, disabledSynapse.end(), 1.0, true);
-
-        // adjust the layer of all neurons to the right of the newly created neuron
-        adjustAfterAdd(newNeuron);
     }
 
     /**
