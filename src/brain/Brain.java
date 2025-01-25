@@ -203,7 +203,9 @@ public class Brain {
             Neuron endNeuron = synapse.end();
             if (endNeuron.getLayer() != -1) {
                 endNeuron.setLayer(endNeuron.getLayer() + 1);
-                setHiddenLayers(endNeuron.getLayer());
+                if (endNeuron.getLayer() > hiddenLayers) {
+                    setHiddenLayers(endNeuron.getLayer());
+                }
                 adjustAfterAdd(endNeuron);
             }
         }
@@ -211,11 +213,51 @@ public class Brain {
 
     /**
      * Mutation: removes a neuron
-     * Removes a neuron and the incoming and outgoing synapses, and replaces it with one larger synapse
+     * Removes a neuron and the incoming and outgoing synapses
      * Parameters: takes in the id of the neuron to remove
+     * Inv: the parameter neuron cannot be an input or output neuron
      */
     public void removeNeuronMutation(int id) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (getNeuron(id).getLayer() == 0 || getNeuron(id).getLayer() == -1) {
+            throw new IllegalArgumentException("Cannot remove an input or output neuron!");
+        }
+        Neuron disabledNeuron = getNeuron(id);
+
+        for (Synapse synapse : disabledNeuron.outgoingSynapses()) {
+            synapse.setEnabled(false);
+        }
+
+        for (Synapse synapse: disabledNeuron.incomingSynapses()) {
+            synapse.setEnabled(false);
+        }
+
+        adjustAfterRemove(getNeuron(id));
+        removeNeuron(id);
+    }
+
+    /**
+     * private helper method for adjusting layer of neurons to the right of the removed neurons
+     * Recursively subtracts one from the layer
+     */
+    private void adjustAfterRemove(Neuron neuron) {
+        for (Synapse synapse : neuron.outgoingSynapses()) {
+            Neuron endNeuron = synapse.end();
+            if (endNeuron.getLayer() != -1) {
+                endNeuron.setLayer(endNeuron.getLayer() - 1);
+                adjustAfterRemove(endNeuron);
+            }
+        }
+
+        int maxHiddenLayer = 0;
+        for (Neuron hiddenNeuron : neurons.values()) {
+            if (hiddenNeuron.getLayer() > maxHiddenLayer) {
+                maxHiddenLayer = hiddenNeuron.getLayer();
+            }
+        }
+
+        if (maxHiddenLayer < hiddenLayers) {
+            hiddenLayers = maxHiddenLayer;
+        }
     }
 
     /**
@@ -224,7 +266,16 @@ public class Brain {
      * Parameters: takes in the ids of the two endpoint neurons the synapse will be attached to
      */
     public void addSynapseMutation(int id1, int id2) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        InnovationManager innovationManager = critter.getWorld().innovationManager();
+        for (int i = 1; i <= innovationManager.innovation(); i++) {
+            Synapse synapse = innovationManager.get(i);
+            if (synapse.start().getId() == id1 && synapse.end().getId() == id2) {
+                synapse.setEnabled(true);
+                return;
+            }
+        }
+
+        Synapse newSynapse = new Synapse(getNeuron(id1), getNeuron(id2), 1.0, true);
     }
 
     /**
@@ -232,15 +283,27 @@ public class Brain {
      * Parameters: takes in the innovation number of the to be disabled synapse
      */
     public void removeSynapseMutation(int innovation) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        InnovationManager innovationManager = critter.getWorld().innovationManager();
+        innovationManager.get(innovation).setEnabled(false);
     }
 
     /**
-     * Mutation: changes the weight of a synapse by up to 20%
-     * Parameters: takes in the innovation number of the to be disabled synapse
+     * Mutation: changes the weight of a synapse by up to 0.2
+     * Parameters: takes in the innovation number of the to be changed synapse
      */
     public void changeWeightMutation(int innovation) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        InnovationManager innovationManager = critter.getWorld().innovationManager();
+        Synapse synapse = innovationManager.get(innovation);
+
+        double weight = synapse.weight();
+        double randomChange = Math.random()/5;
+        double addOrSubtract = Math.random()/2;
+
+        if (addOrSubtract < 0.5) {
+            synapse.setWeight(Math.max(weight - randomChange, 0));
+        } else {
+            synapse.setWeight(Math.min(weight + randomChange, 1.0));
+        }
     }
 
     /**
