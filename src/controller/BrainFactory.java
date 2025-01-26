@@ -31,7 +31,7 @@ public class BrainFactory {
         Neuron peacefulCrittersNeuron = new Neuron(0, brain);
         Neuron angryCrittersNeuron = new Neuron(0, brain);
         Neuron foodDensityNeuron = new Neuron(0, brain);
-        System.out.println(brain.getNeuronsByLayer(0).size());
+//        System.out.println(brain.getNeuronsByLayer(0).size());
 
 
 //        brain.addNeuron(populationDensityNeuron);

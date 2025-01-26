@@ -44,8 +44,8 @@ public class WorldView extends JPanel {
         this.worldModel = worldModel;
 
         // Initialize the sprites map
-        sprites = new EnumMap<>(CellState.class);
-        loadSprites();
+//        sprites = new EnumMap<>(CellState.class);
+//        loadSprites();
 
         // Set a minimum size to prevent the grid from becoming too small
         setMinimumSize(new Dimension(
@@ -57,18 +57,18 @@ public class WorldView extends JPanel {
     /**
      * helper method to load sprites
      */
-    private void loadSprites() {
-        try {
-            sprites.put(CellState.GRASS, ImageIO.read(new File("C:\\Users\\taila\\Projects\\CritterEvo\\src\\sprites/Grass.png")));
-            sprites.put(CellState.MOUNTAIN, ImageIO.read(new File("C:\\Users\\taila\\Projects\\CritterEvo\\src\\sprites/Mountain.png")));
-            sprites.put(CellState.FOOD, ImageIO.read(new File("C:\\Users\\taila\\Projects\\CritterEvo\\src\\sprites/Food.png")));
-            sprites.put(CellState.WATER, ImageIO.read(new File("C:\\Users\\taila\\Projects\\CritterEvo\\src\\sprites/Water.png")));
-            sprites.put(CellState.PEACEFUL_CRITTER, ImageIO.read(new File("C:\\Users\\taila\\Projects\\CritterEvo\\src\\sprites/Critter.png")));
-            sprites.put(CellState.ANGRY_CRITTER, ImageIO.read(new File("C:\\Users\\taila\\Projects\\CritterEvo\\src\\sprites/Critter.png")));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//    private void loadSprites() {
+//        try {
+//            sprites.put(CellState.GRASS, ImageIO.read(new File("C:\\Users\\taila\\Projects\\CritterEvo\\src\\sprites/Grass.png")));
+//            sprites.put(CellState.MOUNTAIN, ImageIO.read(new File("C:\\Users\\taila\\Projects\\CritterEvo\\src\\sprites/Mountain.png")));
+//            sprites.put(CellState.FOOD, ImageIO.read(new File("C:\\Users\\taila\\Projects\\CritterEvo\\src\\sprites/Food.png")));
+//            sprites.put(CellState.WATER, ImageIO.read(new File("C:\\Users\\taila\\Projects\\CritterEvo\\src\\sprites/Water.png")));
+//            sprites.put(CellState.PEACEFUL_CRITTER, ImageIO.read(new File("C:\\Users\\taila\\Projects\\CritterEvo\\src\\sprites/Critter.png")));
+//            sprites.put(CellState.ANGRY_CRITTER, ImageIO.read(new File("C:\\Users\\taila\\Projects\\CritterEvo\\src\\sprites/Critter.png")));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     /**
      * Calculate the cell size based on the current panel dimensions

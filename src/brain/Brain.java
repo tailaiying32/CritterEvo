@@ -216,59 +216,63 @@ public class Brain {
 
     /**
      * Mutation: removes a neuron
-     * Removes a neuron and the incoming and outgoing synapses
+     * Removes a neuron and the incoming and outgoing synapses, and replaces it with a new singular connecting synapse
      * Parameters: takes in the id of the neuron to remove
      * Inv: the parameter neuron cannot be an input or output neuron
      */
-    public void removeNeuronMutation(int id) {
-        if (getNeuron(id).getLayer() == 0 || getNeuron(id).getLayer() == -1) {
-            throw new IllegalArgumentException("Cannot remove an input or output neuron!");
-        }
-        Neuron disabledNeuron = getNeuron(id);
-
-        for (Synapse synapse : disabledNeuron.outgoingSynapses()) {
-            synapse.setEnabled(false);
-        }
-
-        for (Synapse synapse: disabledNeuron.incomingSynapses()) {
-            synapse.setEnabled(false);
-        }
-
-        adjustAfterRemove(getNeuron(id));
-        removeNeuron(id);
-    }
+//    public void removeNeuronMutation(int id) {
+//        if (getNeuron(id).getLayer() == 0 || getNeuron(id).getLayer() == -1) {
+//            throw new IllegalArgumentException("Cannot remove an input or output neuron!");
+//        }
+//        Neuron disabledNeuron = getNeuron(id);
+//
+//        for (Synapse synapse : disabledNeuron.outgoingSynapses()) {
+//            synapse.setEnabled(false);
+//        }
+//
+//        for (Synapse synapse: disabledNeuron.incomingSynapses()) {
+//            synapse.setEnabled(false);
+//        }
+//
+//        adjustAfterRemove(getNeuron(id));
+//        removeNeuron(id);
+//    }
 
     /**
      * private helper method for adjusting layer of neurons to the right of the removed neurons
      * Recursively subtracts one from the layer
      */
-    private void adjustAfterRemove(Neuron neuron) {
-        for (Synapse synapse : neuron.outgoingSynapses()) {
-            Neuron endNeuron = synapse.end();
-            if (endNeuron.getLayer() != -1) {
-                endNeuron.setLayer(endNeuron.getLayer() - 1);
-                adjustAfterRemove(endNeuron);
-            }
-        }
-
-        int maxHiddenLayer = 0;
-        for (Neuron hiddenNeuron : neurons.values()) {
-            if (hiddenNeuron.getLayer() > maxHiddenLayer) {
-                maxHiddenLayer = hiddenNeuron.getLayer();
-            }
-        }
-
-        if (maxHiddenLayer < hiddenLayers) {
-            hiddenLayers = maxHiddenLayer;
-        }
-    }
+//    private void adjustAfterRemove(Neuron neuron) {
+//        for (Synapse synapse : neuron.outgoingSynapses()) {
+//            Neuron endNeuron = synapse.end();
+//            if (endNeuron.getLayer() != -1) {
+//                endNeuron.setLayer(endNeuron.getLayer() - 1);
+//                adjustAfterRemove(endNeuron);
+//            }
+//        }
+//
+//        int maxHiddenLayer = 0;
+//        for (Neuron hiddenNeuron : neurons.values()) {
+//            if (hiddenNeuron.getLayer() > maxHiddenLayer) {
+//                maxHiddenLayer = hiddenNeuron.getLayer();
+//            }
+//        }
+//
+//        if (maxHiddenLayer < hiddenLayers) {
+//            hiddenLayers = maxHiddenLayer;
+//        }
+//    }
 
     /**
      * Mutation: adds a synapse connecting two random neurons
-     * inv: neurons must be in different layers
+     * inv: neurons must be in different layers, and the start layer must be one less than the end layer
      * Parameters: takes in the ids of the two endpoint neurons the synapse will be attached to
      */
     public void addSynapseMutation(int id1, int id2) {
+        if (getNeuron(id1).getLayer() != getNeuron(id2).getLayer() - 1) {
+            throw new IllegalArgumentException("Neurons must be in neighboring layers!");
+        }
+
         InnovationManager innovationManager = critter.getWorld().innovationManager();
         for (int i = 1; i <= innovationManager.innovation(); i++) {
             Synapse synapse = innovationManager.get(i);
@@ -281,14 +285,14 @@ public class Brain {
         Synapse newSynapse = new Synapse(getNeuron(id1), getNeuron(id2), 1.0, true);
     }
 
-    /**
-     * Mutation: removes a random synapse
-     * Parameters: takes in the innovation number of the to be disabled synapse
-     */
-    public void removeSynapseMutation(int innovation) {
-        InnovationManager innovationManager = critter.getWorld().innovationManager();
-        innovationManager.get(innovation).setEnabled(false);
-    }
+//    /**
+//     * Mutation: removes a random synapse
+//     * Parameters: takes in the innovation number of the to be disabled synapse
+//     */
+//    public void removeSynapseMutation(int innovation) {
+//        InnovationManager innovationManager = critter.getWorld().innovationManager();
+//        innovationManager.get(innovation).setEnabled(false);
+//    }
 
     /**
      * Mutation: changes the weight of a synapse by up to 0.2

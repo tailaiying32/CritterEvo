@@ -166,4 +166,52 @@ class BrainTest {
         assertEquals(2, brain.getNeuronsByLayer(1).size());
     }
 
+    @DisplayName("WHEN a new synapse is added through mutation, "
+            + "THEN the innovation manager should check whether the synapse exists first"
+            + "THEN add to the brain")
+    @Test
+    public void testAddNewSynapseMutation() {
+        WorldFactory wf = new WorldFactory();
+        WorldModel wm = wf.generateTestWorld();
+        CritterFactory cf = new CritterFactory();
+        Critter critter = cf.generateCritter(new Point(0, 0), wm);
+
+        Brain brain = new Brain(critter);
+        Neuron inputNeuron = new Neuron(0, brain);
+        brain.addNeuron(inputNeuron);
+        Neuron hidden1 = new Neuron(1, brain);
+        brain.addNeuron(hidden1);
+        Neuron hidden2 = new Neuron(2, brain);
+        brain.addNeuron(hidden2);
+        Neuron hidden3 = new Neuron(2, brain);
+        brain.addNeuron(hidden3);
+        Neuron outputNeuron = new Neuron(-1, brain);
+        brain.addNeuron(outputNeuron);
+
+        Synapse synapse1 = new Synapse(inputNeuron, hidden1, 1, true);
+        Synapse synapse2 = new Synapse(hidden1, hidden2, 0.1, true);
+        Synapse synapse3 = new Synapse(hidden1, hidden3, 0.2, true);
+        Synapse synapse4 = new Synapse(hidden2, outputNeuron, 0.3, true);
+        Synapse synapse5 = new Synapse(hidden3, outputNeuron, 0.4, true);
+
+        brain.addNeuronMutation(1);
+        brain.addNeuronMutation(4);
+        brain.addNeuronMutation(3);
+
+        brain.addSynapseMutation(8, 7);
+
+        assertEquals(2, brain.getNeuron(7).incomingSynapses().size());
+        assertEquals(2, brain.getNeuron(8).outgoingSynapses().size());
+        assertEquals(2, brain.getNeuronsByLayer(3).size());
+        assertEquals(2, brain.getNeuronsByLayer(4).size());
+
+        brain.critter().getWorld().innovationManager().get(12).setEnabled(false);
+
+        assertEquals(1, brain.getNeuron(7).incomingSynapses().size());
+        assertEquals(1, brain.getNeuron(8).outgoingSynapses().size());
+
+        brain.addSynapseMutation(8, 7);
+        assertEquals(12, brain.critter().getWorld().innovationManager().innovation());
+    }
+
 }
