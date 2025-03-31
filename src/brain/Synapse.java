@@ -48,6 +48,7 @@ public class Synapse {
 
         start.addOutgoingSynapse(this);
         end.addIncomingSynapse(this);
+        start.brain().addSynapse(this);
 
         assertInv();
     }

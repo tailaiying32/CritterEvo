@@ -212,6 +212,7 @@ class BrainTest {
 
         brain.addSynapseMutation(8, 7);
         assertEquals(12, brain.critter().getWorld().innovationManager().innovation());
+        assertEquals(12, brain.getSynapses().size());
     }
 
 }

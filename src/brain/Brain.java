@@ -3,9 +3,11 @@ package brain;
 import controller.InnovationManager;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import model.Critter;
 
 // testing git
@@ -27,6 +29,13 @@ public class Brain {
     private Map<Integer, Neuron> neurons;
 
     /**
+     * Map of all synapses in this brain, with the keys as innovation and the values as synapses
+     */
+    private Map<Integer, Synapse> synapses;
+    public Map<Integer, Synapse> getSynapses() { return synapses; }
+    public void addSynapse(Synapse synapse) { synapses.put(synapse.innovation(), synapse); }
+
+    /**
      * The number of hidden layers in this network
      */
     private int hiddenLayers;
@@ -38,6 +47,7 @@ public class Brain {
     public Brain(Critter critter) {
         this.critter = critter;
         this.neurons = new HashMap<>();
+        this.synapses = new HashMap<>();
         this.hiddenLayers = 0;
 
         assertInv();
@@ -131,11 +141,56 @@ public class Brain {
      */
     public void mutate() {
         // needs to support adding/removing a hidden neuron, adding/removing a synapse, and changing the weight of a synapse
+        double chance = critter.getWorld().getMutationRate() + critter.getMutationRate();
+
+        // change the weights of the synapses - each synapse's rate of mutation is based off the world's mutation rate plus the critter's mutation rate
+        for (Synapse synapse : synapses.values()) {
+            double weight = synapse.weight();
+            if (chance > Math.random()) {
+                double change = Math.random()/5;
+                if (Math.random() > 0.5) {
+                    synapse.setWeight(Math.min(1.0, weight + change));
+                } else {
+                    synapse.setWeight(Math.max(0.0, weight - change));
+                }
+            }
+        }
+
+        // add a synapse i can't fucking figure out how to do this how the fuck do i select integers that are valid and then keep selecting them if the first two aren't valid wtf
+        if (chance > Math.random()) {
+            // need to add logic for making sure that the input and output neurons chosen are not connected to any hidden neurons, which would break the invariant
+            ArrayList<Integer> neuronIds = new ArrayList<>(neurons.keySet());
+            int[] idCheck = new int[2];
+            int id1index = new Random().nextInt(neuronIds.size() + 1);
+            int id1 = neuronIds.get(id1index);
+            idCheck[0] = id1;
+
+            int id2index = new Random().nextInt(neuronIds.size() + 1);
+            int id2 = neuronIds.get(id2index);
+            idCheck[1] = id1;
+
+
+            while (!checkEndNeurons(id1, id2)) {
+                idCheck = new int[2];
+                int id1index = new Random().nextInt(neuronIds.size() + 1);
+                int id1 = neuronIds.get(id1index);
+                idCheck[0] = id1;
+
+                int id2index = new Random().nextInt(neuronIds.size() + 1);
+                int id2 = neuronIds.get(id2index);
+                idCheck[1] = id1;
+
+            }
+        }
 
         // add a neuron (must be added on top of an already existing synapse)
-        int innovation = critter.getWorld().innovationManager().innovation();
-
-
+        if (chance > Math.random()) {
+            int maxInnovation = critter.getWorld().innovationManager().innovation();
+            if (maxInnovation <= 0) {
+                addNeuronMutation(0);
+            } else {
+            }
+        }
     }
 
     /**
@@ -269,10 +324,6 @@ public class Brain {
      * Parameters: takes in the ids of the two endpoint neurons the synapse will be attached to
      */
     public void addSynapseMutation(int id1, int id2) {
-        if (getNeuron(id1).getLayer() != getNeuron(id2).getLayer() - 1) {
-            throw new IllegalArgumentException("Neurons must be in neighboring layers!");
-        }
-
         InnovationManager innovationManager = critter.getWorld().innovationManager();
         for (int i = 1; i <= innovationManager.innovation(); i++) {
             Synapse synapse = innovationManager.get(i);
@@ -281,8 +332,33 @@ public class Brain {
                 return;
             }
         }
-
         Synapse newSynapse = new Synapse(getNeuron(id1), getNeuron(id2), 1.0, true);
+    }
+
+    /**
+     * helper method for checking the endpoints neurons of a new synapse are valid
+     */
+    private boolean checkEndNeurons(int id1, int id2) {
+        Neuron startNeuron = getNeuron(id1);
+        Neuron endNeuron = getNeuron(id2);
+
+        if (startNeuron.getLayer() == 0 && endNeuron.getLayer() == -1) {
+            List<Synapse> startOutgoing = startNeuron.outgoingSynapses();
+            for (Synapse synapse : startOutgoing) {
+                if (synapse.end().getLayer() > 0) {
+                    return false;
+                }
+            }
+
+            List<Synapse> endIncoming = endNeuron.incomingSynapses();
+            for (Synapse synapse : endIncoming) {
+                if (synapse.end().getLayer() > 0) {
+                    return false;
+                }
+            }
+
+        }
+        return startNeuron.getLayer() == endNeuron.getLayer() - 1;
     }
 
 //    /**
