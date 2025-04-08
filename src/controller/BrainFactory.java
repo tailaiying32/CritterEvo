@@ -2,6 +2,7 @@ package controller;
 
 import brain.Brain;
 import brain.Neuron;
+import brain.Synapse;
 import model.Critter;
 
 /**
@@ -54,6 +55,29 @@ public class BrainFactory {
 
         Neuron restNeuron = new Neuron(-1, brain);
         brain.addNeuron(restNeuron);
+
+        // Add basic connections with meaningful initial weights
+
+        // Health connections
+        new Synapse(healthNeuron, foodNeuron, 0.2, true);
+        new Synapse(healthNeuron, waterNeuron, 0.2, true);
+        new Synapse(healthNeuron, attackNeuron, 0.1, true);
+        new Synapse(healthNeuron, reproduceNeuron, 0.6, true); // Higher health -> more likely to reproduce
+        new Synapse(healthNeuron, restNeuron, 0.3, true);
+
+        // Hunger connections
+        new Synapse(hungerNeuron, foodNeuron, 0.8, true);      // Higher hunger -> strongly seek food
+        new Synapse(hungerNeuron, waterNeuron, 0.2, true);
+        new Synapse(hungerNeuron, attackNeuron, 0.3, true);
+        new Synapse(hungerNeuron, reproduceNeuron, -0.5, true); // Higher hunger -> less likely to reproduce
+        new Synapse(hungerNeuron, restNeuron, -0.2, true);
+
+        // Thirst connections
+        new Synapse(thirstNeuron, foodNeuron, 0.1, true);
+        new Synapse(thirstNeuron, waterNeuron, 0.9, true);      // Higher thirst -> strongly seek water
+        new Synapse(thirstNeuron, attackNeuron, 0.1, true);
+        new Synapse(thirstNeuron, reproduceNeuron, -0.5, true); // Higher thirst -> less likely to reproduce
+        new Synapse(thirstNeuron, restNeuron, -0.2, true);
 
         return brain;
     }
