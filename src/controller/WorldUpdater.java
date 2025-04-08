@@ -105,6 +105,8 @@ public class WorldUpdater {
             critter.updatePriority();
             critter.makeMove();
 
+
+
             if (critter.getHunger() <= 0) {
                 critter.starve();
             }

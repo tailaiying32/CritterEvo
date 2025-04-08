@@ -224,6 +224,9 @@ public class InteractionManager {
                     parent.getWorld()
             );
 
+            child.setBrain(parent.brain());
+            child.brain().mutate();
+
             // then add the critter to the world
             parent.getWorld().addCritter(child);
             parent.getWorld().getDirtyCells().add(child.getPosition());

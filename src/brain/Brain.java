@@ -190,9 +190,15 @@ public class Brain {
                 addNeuronMutation(0);
             } else {
                 List<Synapse> allSynapses = new ArrayList<>(synapses.values());
-                int randomIndex = new Random().nextInt(allSynapses.size());
-                Synapse targetSynapse = allSynapses.get(randomIndex);
-                addNeuronMutation(targetSynapse.innovation());
+                if (allSynapses.isEmpty()) {
+                    addNeuronMutation(0);
+                }
+                else {
+                    int randomIndex = new Random().nextInt(allSynapses.size());
+                    Synapse targetSynapse = allSynapses.get(randomIndex);
+                    addNeuronMutation(targetSynapse.innovation());
+                }
+
             }
         }
     }

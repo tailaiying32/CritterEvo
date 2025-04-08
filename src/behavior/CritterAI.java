@@ -84,7 +84,7 @@ public class CritterAI {
         }
 
         // 2.5% chance to reproduce
-        if (Math.random() <= 0.025) {
+        if (Math.random() <= 0.01) {
             critter.setPriority(Priority.LOVE);
         }
 

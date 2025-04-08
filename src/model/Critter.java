@@ -32,6 +32,7 @@ public class Critter{
      */
     private Brain brain;
     public Brain brain() { return brain; }
+    public void setBrain(Brain brain) { this.brain = brain; }
 
 
 
