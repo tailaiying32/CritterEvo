@@ -143,7 +143,7 @@ public class Brain {
         // needs to support adding/removing a hidden neuron, adding/removing a synapse, and changing the weight of a synapse
         double chance = critter.getWorld().getMutationRate() + critter.getMutationRate();
 
-        // change the weights of the synapses - each synapse's rate of mutation is based off the world's mutation rate plus the critter's mutation rate
+        // 1. WEIGHT MUTATION: change the weights of the synapses - each synapse's rate of mutation is based off the world's mutation rate plus the critter's mutation rate
         for (Synapse synapse : synapses.values()) {
             double weight = synapse.weight();
             if (chance > Math.random()) {
@@ -156,42 +156,47 @@ public class Brain {
             }
         }
 
-        // add a synapse i can't fucking figure out how to do this how the fuck do i select integers that are valid and then keep selecting them if the first two aren't valid wtf
+        // 2. ADD SYNAPSE MUTATION: add a synapse
         if (chance > Math.random()) {
-            // need to add logic for making sure that the input and output neurons chosen are not connected to any hidden neurons, which would break the invariant
-            ArrayList<Integer> neuronIds = new ArrayList<>(neurons.keySet());
-            int[] idCheck = new int[2];
-            int id1index = new Random().nextInt(neuronIds.size() + 1);
-            int id1 = neuronIds.get(id1index);
-            idCheck[0] = id1;
+            // get all neurons in brain
+            List<Neuron> allNeurons = new ArrayList<>(neurons.values());
+            if (allNeurons.size() < 2)
+                return; // return if there are less than two neurons, which really should not happen. if it does something massively fucked up lmao
 
-            int id2index = new Random().nextInt(neuronIds.size() + 1);
-            int id2 = neuronIds.get(id2index);
-            idCheck[1] = id1;
+            // make multiple attempts to find a valid connection (10 attempts)
+            for (int attempts = 0; attempts < 10; attempts++) {
+                int indexFrom = new Random().nextInt(allNeurons.size());
+                int indexTo = new Random().nextInt(allNeurons.size());
 
+                Neuron fromNeuron = allNeurons.get(indexFrom);
+                Neuron toNeuron = allNeurons.get(indexTo);
 
-            while (!checkEndNeurons(id1, id2)) {
-                idCheck = new int[2];
-                int id1index = new Random().nextInt(neuronIds.size() + 1);
-                int id1 = neuronIds.get(id1index);
-                idCheck[0] = id1;
+                int id1 = fromNeuron.getId();
+                int id2 = toNeuron.getId();
 
-                int id2index = new Random().nextInt(neuronIds.size() + 1);
-                int id2 = neuronIds.get(id2index);
-                idCheck[1] = id1;
-
+                // check if the connection would be valid
+                if (checkEndNeurons(id1, id2) && id1 != id2) {
+                    Synapse newSynapse = new Synapse(fromNeuron, toNeuron, 1.0, true);
+                    break; // successfully added synapse
+                }
             }
         }
 
-        // add a neuron (must be added on top of an already existing synapse)
+
+        // 3. ADD NEURON  MUTATION: (must be added on top of an already existing synapse)
         if (chance > Math.random()) {
             int maxInnovation = critter.getWorld().innovationManager().innovation();
             if (maxInnovation <= 0) {
                 addNeuronMutation(0);
             } else {
+                List<Synapse> allSynapses = new ArrayList<>(synapses.values());
+                int randomIndex = new Random().nextInt(allSynapses.size());
+                Synapse targetSynapse = allSynapses.get(randomIndex);
+                addNeuronMutation(targetSynapse.innovation());
             }
         }
     }
+
 
     /**
      * Mutation: adds a neuron
