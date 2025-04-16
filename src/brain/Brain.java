@@ -141,12 +141,12 @@ public class Brain {
      */
     public void mutate() {
         // needs to support adding/removing a hidden neuron, adding/removing a synapse, and changing the weight of a synapse
-        double chance = critter.getWorld().getMutationRate() + critter.getMutationRate();
+        double chance_weight = critter.getWorld().getMutationRate() + critter.getMutationRate();
 
         // 1. WEIGHT MUTATION: change the weights of the synapses - each synapse's rate of mutation is based off the world's mutation rate plus the critter's mutation rate
         for (Synapse synapse : synapses.values()) {
             double weight = synapse.weight();
-            if (chance > Math.random()) {
+            if (chance_weight > Math.random()) {
                 double change = Math.random()/5;
                 if (Math.random() > 0.5) {
                     synapse.setWeight(Math.min(1.0, weight + change));
@@ -156,8 +156,10 @@ public class Brain {
             }
         }
 
+
         // 2. ADD SYNAPSE MUTATION: add a synapse
-        if (chance > Math.random()) {
+        double chance_synapse = critter.getWorld().getMutationRate() + critter.getMutationRate();
+        if (chance_synapse > Math.random()) {
             // get all neurons in brain
             List<Neuron> allNeurons = new ArrayList<>(neurons.values());
             if (allNeurons.size() < 2)
@@ -184,7 +186,8 @@ public class Brain {
 
 
         // 3. ADD NEURON  MUTATION: (must be added on top of an already existing synapse)
-        if (chance > Math.random()) {
+        double chance_neuron = critter.getWorld().getMutationRate() + critter.getMutationRate();
+        if (chance_neuron > Math.random()) {
             int maxInnovation = critter.getWorld().innovationManager().innovation();
             if (maxInnovation <= 0) {
                 addNeuronMutation(0);

@@ -57,20 +57,10 @@ public class CritterAI {
             }
         }
 
-        if (actionNeuronIndex == 0) {
-            critter.setPriority(Priority.FOOD);
-        } else if (actionNeuronIndex == 1) {
-            critter.setPriority(Priority.WATER);
-        } else if (actionNeuronIndex == 2) {
-            critter.setPriority(Priority.ATTACK);
-        } else if (actionNeuronIndex == 3) {
-            critter.setPriority(Priority.LOVE);
-        } else {
-            critter.setPriority(Priority.REST);
-        }
 
         // If no synapses have been formed yet, just choose a random priority (not love)
         if (critter.getWorld().innovationManager().innovation() == 0) {
+            System.out.println("choose random priority");
             double random = (Math.random() * 4);
             if (random <= 1) {
                 critter.setPriority(Priority.FOOD);
@@ -81,39 +71,26 @@ public class CritterAI {
             } else if (random <= 4) {
                 critter.setPriority(Priority.REST);
             }
-        }
-
-        // If no synapses yet, use basic survival behaviors
-        if (critter.getWorld().innovationManager().innovation() == 0) {
-            if (hungerInput < 0.3 || thirstInput < 0.3) {
-                // Prioritize most urgent need
-                critter.setPriority(hungerInput < thirstInput ? Priority.FOOD : Priority.WATER);
-            } else if (healthInput < 0.3) {
-                // Low health, rest to recover
-                critter.setPriority(Priority.REST);
-            } else {
-                // Default exploration behavior
-                double random = Math.random();
-                if (random <= 0.6) {
-                    critter.setPriority(Priority.FOOD); // Bias toward seeking food
-                } else if (random <= 0.9) {
-                    critter.setPriority(Priority.WATER);
-                } else if (random <= 0.95) {
-                    critter.setPriority(Priority.REST);
-                } else {
-                    critter.setPriority(Priority.ATTACK);
-                }
+            // 2.5% chance to reproduce
+            if (Math.random() <= 0.025) {
+                critter.setPriority(Priority.LOVE);
             }
+        } else { // if synapses have been formed, use the actionNeuronIndex
+            System.out.println("using brain!");
+            if (actionNeuronIndex == 0) {
+                critter.setPriority(Priority.FOOD);
+            } else if (actionNeuronIndex == 1) {
+                critter.setPriority(Priority.WATER);
+            } else if (actionNeuronIndex == 2) {
+                critter.setPriority(Priority.ATTACK);
+            } else if (actionNeuronIndex == 3) {
+                critter.setPriority(Priority.LOVE);
+            } else {
+                critter.setPriority(Priority.REST);
+            }
+            System.out.println("priority: " + critter.getPriority().toString());
         }
 
-        // Controlled reproduction - require good health and resources
-        boolean canReproduce = critter.getHealth() >= 0.7 * critter.getMaxHealth() &&
-                critter.getHunger() >= 0.7 * critter.getMaxHunger() &&
-                critter.getThirst() >= 0.7 * critter.getMaxThirst();
-
-        if (canReproduce && Math.random() <= 0.05) {
-            critter.setPriority(Priority.LOVE);
-        }
     }
 
     /**
@@ -367,4 +344,3 @@ public class CritterAI {
         critter.setAge(critter.getAge() + 1);
     }
 }
-
