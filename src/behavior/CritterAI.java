@@ -71,10 +71,7 @@ public class CritterAI {
             } else if (random <= 4) {
                 critter.setPriority(Priority.REST);
             }
-            // 2.5% chance to reproduce
-            if (Math.random() <= 0.025) {
-                critter.setPriority(Priority.LOVE);
-            }
+
         } else { // if synapses have been formed, use the actionNeuronIndex
             System.out.println("using brain!");
             if (actionNeuronIndex == 0) {
@@ -88,7 +85,10 @@ public class CritterAI {
             } else {
                 critter.setPriority(Priority.REST);
             }
-            System.out.println("priority: " + critter.getPriority().toString());
+        }
+        // 0.1% chance to reproduce
+        if (Math.random() <= 0.01) {
+            critter.setPriority(Priority.LOVE);
         }
 
     }
