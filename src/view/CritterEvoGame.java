@@ -3,7 +3,6 @@ package view;
 import controller.WorldUpdater;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GraphicsDevice;
 import java.util.Random;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -14,6 +13,7 @@ import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import model.WorldModel;
+
 
 /**
  * A graphical game to simulate evolution!
@@ -85,6 +85,8 @@ public class CritterEvoGame {
      * the stats screen
      */
     public StatisticsPanel statsPanel;
+
+
 
     /**
      * Construct a new application instance. Initializes GUI components, so must be invoked on the
@@ -196,6 +198,7 @@ public class CritterEvoGame {
         controlPanel.add(generateWorldButton);
 //        frame.add(controlPanel, BorderLayout.EAST);
 
+
         gamePanel.add(controlPanel, BorderLayout.EAST);
 
 
@@ -224,15 +227,17 @@ public class CritterEvoGame {
         // Modify the generate world button action
         generateWorldButton.addActionListener(e -> {
             generateWorld();
-            statsPanel.setWorld(world);  // Set the world in stats panel
+            statsPanel.setWorld(world);
         });
 
         // Create statistics panel
         statsPanel = new StatisticsPanel();
 
+
         // Add tabs
         tabbedPane.addTab("Simulation", gamePanel);
         tabbedPane.addTab("Statistics", statsPanel);
+
 
         frame.add(tabbedPane, BorderLayout.CENTER);
         frame.pack();

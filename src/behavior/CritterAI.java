@@ -59,7 +59,7 @@ public class CritterAI {
 
 
         // If no synapses have been formed yet, just choose a random priority (not love)
-        if (critter.getWorld().innovationManager().innovation() == 0) {
+        if (critter.getWorld().innovationManager().innovation() < 20) {
             System.out.println("choose random priority");
             double random = (Math.random() * 4);
             if (random <= 1) {

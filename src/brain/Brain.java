@@ -85,6 +85,14 @@ public class Brain {
     public Neuron getNeuron(int id) { return neurons.get(id); }
 
     /**
+     * Returns a map of all neurons in the brain (added for visualization)
+     * @return A map with neuron IDs as keys and neurons as values
+     */
+    public Map<Integer, Neuron> getNeuronMap() {
+        return new HashMap<>(neurons);
+    }
+
+    /**
      * Adds a neuron to this brain
      */
     public void addNeuron(Neuron neuron) {
@@ -145,20 +153,26 @@ public class Brain {
 
         // 1. WEIGHT MUTATION: change the weights of the synapses - each synapse's rate of mutation is based off the world's mutation rate plus the critter's mutation rate
         for (Synapse synapse : synapses.values()) {
-            double weight = synapse.weight();
-            if (chance_weight > Math.random()) {
-                double change = Math.random()/5;
-                if (Math.random() > 0.5) {
-                    synapse.setWeight(Math.min(1.0, weight + change));
+            if (Math.random() < chance_weight) {
+                // Choose mutation type based on probabilities
+                double r = Math.random();
+                if (r < 0.8) {
+                    // Perturb weight slightly (80% chance)
+                    double change = Math.random() * 0.4 - 0.2; // -0.2 to 0.2 change
+                    synapse.setWeight(Math.max(0.0, Math.min(1.0, synapse.weight() + change)));
+                } else if (r < 0.9) {
+                    // Assign new random weight (10% chance)
+                    synapse.setWeight(Math.random());
                 } else {
-                    synapse.setWeight(Math.max(0.0, weight - change));
+                    // Reset weight to 1.0 (10% chance)
+                    synapse.setWeight(1.0);
                 }
             }
         }
 
 
         // 2. ADD SYNAPSE MUTATION: add a synapse
-        double chance_synapse = critter.getWorld().getMutationRate() + critter.getMutationRate();
+        double chance_synapse = (critter.getWorld().getMutationRate() + critter.getMutationRate()) * 0.3;
         if (chance_synapse > Math.random()) {
             // get all neurons in brain
             List<Neuron> allNeurons = new ArrayList<>(neurons.values());
@@ -178,7 +192,7 @@ public class Brain {
 
                 // check if the connection would be valid
                 if (checkEndNeurons(id1, id2) && id1 != id2) {
-                    Synapse newSynapse = new Synapse(fromNeuron, toNeuron, 1.0, true);
+                    addSynapseMutation(id1, id2);
                     break; // successfully added synapse
                 }
             }
@@ -186,7 +200,7 @@ public class Brain {
 
 
         // 3. ADD NEURON  MUTATION: (must be added on top of an already existing synapse)
-        double chance_neuron = critter.getWorld().getMutationRate() + critter.getMutationRate();
+        double chance_neuron = (critter.getWorld().getMutationRate() + critter.getMutationRate()) * 0.1;
         if (chance_neuron > Math.random()) {
             int maxInnovation = critter.getWorld().innovationManager().innovation();
             if (maxInnovation <= 0) {
