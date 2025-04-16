@@ -59,8 +59,7 @@ public class CritterAI {
 
 
         // If no synapses have been formed yet, just choose a random priority (not love)
-        if (critter.getWorld().innovationManager().innovation() < 20) {
-            System.out.println("choose random priority");
+        if (critter.getWorld().innovationManager().innovation() == 0) {
             double random = (Math.random() * 4);
             if (random <= 1) {
                 critter.setPriority(Priority.FOOD);
@@ -73,7 +72,6 @@ public class CritterAI {
             }
 
         } else { // if synapses have been formed, use the actionNeuronIndex
-            System.out.println("using brain!");
             if (actionNeuronIndex == 0) {
                 critter.setPriority(Priority.FOOD);
             } else if (actionNeuronIndex == 1) {
