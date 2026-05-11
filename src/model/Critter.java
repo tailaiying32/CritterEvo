@@ -547,7 +547,6 @@ public class Critter{
      */
     public void eat(Critter this, Food food) {
         interactionManager.eat(this, food);
-        getWorld().removeFood(food.getPosition());
     }
 
     /**
@@ -617,7 +616,7 @@ public class Critter{
      * decrements health when critter runs out of hunger
      */
     public void starve(Critter this) {
-        this.health -= 25;
+        this.health -= this.maxHealth * 0.05;
     }
 
     /**

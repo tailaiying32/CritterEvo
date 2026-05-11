@@ -78,8 +78,6 @@ public class InteractionManager {
 
             // Remove the food and update the world
             world.removeFood(food.getPosition());
-            world.getDirtyCells().add(food.getPosition());
-            world.updateWorldArray();
 
             return critter.getHunger();
         }
@@ -171,10 +169,6 @@ public class InteractionManager {
         double hungerUsed =  (world.getBASE_MOVE_COST() + distance * world.getMOVE_COST() * Math.pow(critter.getSize(), world.getSIZE_COST()));
         critter.setHunger(Math.max(critter.getHunger() - hungerUsed, 0));
 
-        // Update world array
-        world.getDirtyCells().add(critter.getPosition());
-        world.updateWorldArray();
-
         return critter.getPosition();
     }
 
@@ -185,6 +179,13 @@ public class InteractionManager {
      */
     public void reproduce(Critter parent) {
         WorldModel world = parent.getWorld();
+
+        // Require the parent to be well-fed and healthy before reproducing
+        if (parent.getHunger() < parent.getMaxHunger() * 0.6
+                || parent.getThirst() < parent.getMaxThirst() * 0.6
+                || parent.getHealth() < parent.getMaxHealth() * 0.5) {
+            return;
+        }
 
         double parentMutationRate = parent.getMutationRate();
         double baseMutationRate = parent.getWorld().getMutationRate();
@@ -224,14 +225,13 @@ public class InteractionManager {
                     parent.getWorld()
             );
 
-            child.setBrain(parent.brain());
+            child.setBrain(parent.brain().copy(child));
             child.brain().mutate();
 
             // then add the critter to the world
             parent.getWorld().addCritter(child);
-            parent.getWorld().getDirtyCells().add(child.getPosition());
         }
-        parent.setHunger(world.getBASE_REPRODUCTION_COST() * parent.getMaxHunger());
+        parent.setHunger(Math.max(0, parent.getHunger() - world.getBASE_REPRODUCTION_COST() * parent.getMaxHunger()));
     }
 
     /**
@@ -276,7 +276,6 @@ public class InteractionManager {
         critter.getWorld().removeCritter(critter.getPosition());
         Food newFood = new Food(currentPos, (int) (critter.getSize() * 2), 0);
         world.addFood(newFood);
-        world.getDirtyCells().add(critter.getPosition());
     }
 
     /**
@@ -291,14 +290,14 @@ public class InteractionManager {
         Point birthPos = null;
 
         switch (orientation) {
-            case N:  childY = position.y + 1; break;
-            case NE: childX = position.x + 1; childY = position.y + 1; break;
-            case E:  childX = position.x - 1; break;
-            case SE: childX = position.x - 1; childY = position.y - 1; break;
-            case S:  childY = position.y - 1; break;
-            case SW: childX = position.x + 1; childY = position.y - 1; break;
-            case W:  childX = position.x + 1; break;
-            case NW: childX = position.x - 1; childY = position.y + 1; break;
+            case N:  childY = position.y - 1; break;
+            case NE: childX = position.x + 1; childY = position.y - 1; break;
+            case E:  childX = position.x + 1; break;
+            case SE: childX = position.x + 1; childY = position.y + 1; break;
+            case S:  childY = position.y + 1; break;
+            case SW: childX = position.x - 1; childY = position.y + 1; break;
+            case W:  childX = position.x - 1; break;
+            case NW: childX = position.x - 1; childY = position.y - 1; break;
         }
 
         birthPos = new Point(childX, childY);
@@ -320,26 +319,9 @@ public class InteractionManager {
      * private helper method to return a list of empty squares around the parent
      */
     private List<Point> emptySquares(Critter critter) {
-        List<Point> emptySquares = new ArrayList<>();
-        Point position = critter.getPosition();
-        int currentX = position.x;
-        int currentY = position.y;
-
-        emptySquares.add(new Point(currentX, currentY - 1));
-        emptySquares.add(new Point(currentX, currentY + 1));
-        emptySquares.add(new Point(currentX + 1, currentY));
-        emptySquares.add(new Point(currentX - 1, currentY));
-        emptySquares.add(new Point(currentX + 1, currentY + 1));
-        emptySquares.add(new Point(currentX + 1, currentY - 1));
-        emptySquares.add(new Point(currentX - 1, currentY + 1));
-        emptySquares.add(new Point(currentX - 1, currentY - 1));
-
-        emptySquares.removeIf(p ->
-                p.x < 0 || p.x >= critter.getWorld().getWidth() ||
-                        p.y < 0 || p.y >= critter.getWorld().getHeight() ||
-                        critter.getWorld().getWorldArray()[p.x][p.y] != CellState.GRASS
-        );
-
+        WorldModel world = critter.getWorld();
+        List<Point> emptySquares = world.squaresAround(critter.getPosition());
+        emptySquares.removeIf(p -> world.getWorldArray()[p.x][p.y] != CellState.GRASS);
         return emptySquares;
     }
 }

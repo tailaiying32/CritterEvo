@@ -203,20 +203,23 @@ public class CritterEvoGame {
 
 
         startButton.addActionListener(e -> {
-            // start simulation
+            if (worldView == null) {
+                return; // no world generated yet
+            }
             if (worldUpdater == null) {
                 worldUpdater = new WorldUpdater(worldView.getWorldModel(), worldView, this);
                 worldUpdater.start();
                 worldUpdater.tick();
             } else {
                 worldUpdater.start();
-                worldUpdater.tick();// Resume if paused
+                worldUpdater.tick();
             }
         });
 
         pauseButton.addActionListener(e -> {
-            // pause simulation
-            worldUpdater.stop();
+            if (worldUpdater != null) {
+                worldUpdater.stop();
+            }
         });
 
         resetButton.addActionListener(e -> {

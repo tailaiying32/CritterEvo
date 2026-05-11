@@ -159,13 +159,13 @@ public class Brain {
                 if (r < 0.8) {
                     // Perturb weight slightly (80% chance)
                     double change = Math.random() * 0.4 - 0.2; // -0.2 to 0.2 change
-                    synapse.setWeight(Math.max(0.0, Math.min(1.0, synapse.weight() + change)));
+                    synapse.setWeight(Math.max(-1.0, Math.min(1.0, synapse.weight() + change)));
                 } else if (r < 0.9) {
-                    // Assign new random weight (10% chance)
-                    synapse.setWeight(Math.random());
+                    // Assign new random signed weight (10% chance)
+                    synapse.setWeight(Math.random() * 2.0 - 1.0);
                 } else {
-                    // Reset weight to 1.0 (10% chance)
-                    synapse.setWeight(1.0);
+                    // Flip weight sign (10% chance) — preserves magnitude but allows escape from local minima
+                    synapse.setWeight(-synapse.weight());
                 }
             }
         }
@@ -249,12 +249,18 @@ public class Brain {
             Synapse startSynapse = new Synapse(inputNeuron, newNeuron, 1,true);
             Synapse endSynapse = new Synapse(newNeuron, outputNeuron, 1, true);
         } else { // else, follow the normal logic
-            Synapse disabledSynapse = innovationManager.get(innovation);
-            disabledSynapse.setEnabled(false); // disables the synapse
+            // Use the LOCAL synapse — the globally registered one may belong to a different brain
+            // whose neuron objects are not present in this brain's neurons map.
+            Synapse localSynapse = synapses.get(innovation);
+            if (localSynapse == null) {
+                // This brain doesn't have that synapse; skip the mutation silently.
+                return;
+            }
+            localSynapse.setEnabled(false);
 
             // get the layers of the endpoint neurons to calculate the layer of the new neuron
-            int layer1 = disabledSynapse.start().getLayer();
-            int layer2 = disabledSynapse.end().getLayer();
+            int layer1 = localSynapse.start().getLayer();
+            int layer2 = localSynapse.end().getLayer();
             int newLayer;
 
             // handle edge case where the synapse connects an input neuron to an output neuron
@@ -272,8 +278,8 @@ public class Brain {
 
             // add two new synapses to connect the new neuron to the original endpoint neurons
             // the source-new synapse takes on the weight of the original synapse, while the new-destination synapse take on a weight of 1.0, to preserve network function
-            Synapse startSynapse = new Synapse(disabledSynapse.start(), newNeuron, disabledSynapse.weight(), true);
-            Synapse endSynapse = new Synapse(newNeuron, disabledSynapse.end(), 1.0, true);
+            Synapse startSynapse = new Synapse(localSynapse.start(), newNeuron, localSynapse.weight(), true);
+            Synapse endSynapse = new Synapse(newNeuron, localSynapse.end(), 1.0, true);
 
             // adjust the layer of all neurons to the right of the newly created neuron
             adjustAfterAdd(newNeuron);
@@ -370,23 +376,15 @@ public class Brain {
         Neuron startNeuron = getNeuron(id1);
         Neuron endNeuron = getNeuron(id2);
 
-        if (startNeuron.getLayer() == 0 && endNeuron.getLayer() == -1) {
-            List<Synapse> startOutgoing = startNeuron.outgoingSynapses();
-            for (Synapse synapse : startOutgoing) {
-                if (synapse.end().getLayer() > 0) {
-                    return false;
-                }
-            }
+        // Can't wire from the output layer or into the input layer
+        if (startNeuron.getLayer() == -1) return false;
+        if (endNeuron.getLayer() == 0) return false;
 
-            List<Synapse> endIncoming = endNeuron.incomingSynapses();
-            for (Synapse synapse : endIncoming) {
-                if (synapse.end().getLayer() > 0) {
-                    return false;
-                }
-            }
+        // Any connection to the output layer from a non-output neuron is valid
+        if (endNeuron.getLayer() == -1) return true;
 
-        }
-        return startNeuron.getLayer() == endNeuron.getLayer() - 1;
+        // Otherwise require strict forward direction (allows skip-layer connections)
+        return startNeuron.getLayer() < endNeuron.getLayer();
     }
 
 //    /**
@@ -428,6 +426,37 @@ public class Brain {
             }
         }
         return layeredNeurons;
+    }
+
+    /**
+     * Returns a deep copy of this brain belonging to newOwner.
+     * Neurons and synapses are new objects with the same structure and weights.
+     * Synapse innovation numbers are preserved so NEAT crossover remains meaningful.
+     */
+    public Brain copy(Critter newOwner) {
+        Brain newBrain = new Brain(newOwner);
+
+        // Copy neurons (same id and layer) into the new brain
+        Map<Integer, Neuron> neuronMap = new HashMap<>();
+        for (Neuron original : neurons.values()) {
+            Neuron copy = new Neuron(original.getId(), original.getLayer(), newBrain);
+            newBrain.addNeuron(copy);
+            neuronMap.put(original.getId(), copy);
+        }
+
+        // Copy synapses using the manual-innovation constructor so we don't
+        // re-register with the InnovationManager (same innovation = same gene).
+        for (Synapse original : synapses.values()) {
+            Neuron from = neuronMap.get(original.start().getId());
+            Neuron to   = neuronMap.get(original.end().getId());
+            if (from == null || to == null) {
+                continue; // synapse references a neuron not in this brain; skip it
+            }
+            Synapse copy = new Synapse(from, to, original.weight(), original.isEnabled(), original.innovation());
+            newBrain.addSynapse(copy);
+        }
+
+        return newBrain;
     }
 
     /**

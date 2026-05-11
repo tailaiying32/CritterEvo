@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import model.Food;
 import model.WorldModel;
 import model.WorldModel.CellState;
@@ -29,16 +29,22 @@ public class Pathfinder {
     private final WorldModel world;
 
     /**
-     * A cache of paths to improve performance
+     * LRU path cache: evicts least-recently-used entry once capacity is reached.
      */
-    private final Map<PathKey, List<Point>> pathCache = new ConcurrentHashMap<>();
-    private final static int CACHE_SIZE = 1000;
+    private final Map<PathKey, List<Point>> pathCache;
+    private static final int CACHE_SIZE = 1000;
 
     /**
      * Creates a new pathfinder
      */
     public Pathfinder(WorldModel world) {
         this.world = world;
+        this.pathCache = new LinkedHashMap<>(CACHE_SIZE, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<PathKey, List<Point>> eldest) {
+                return size() > CACHE_SIZE;
+            }
+        };
     }
 
     /**
@@ -68,11 +74,7 @@ public class Pathfinder {
             // if we are adjacent to our target, return the path
             if (isAdjacent(current.getPosition(), target)) {
                 List<Point> path = reconstructPath(current);
-                if (pathCache.size() < CACHE_SIZE) {
-                    pathCache.put(key, path);
-                } else {
-                    System.out.println("cache full!");
-                }
+                pathCache.put(key, path); // LRU eviction handles capacity automatically
                 return path;
             }
 
@@ -120,10 +122,8 @@ public class Pathfinder {
     }
 
     public boolean isValidPosition(Point p) {
-        // Check if this is a valid destination point
-        return p.x >= 0 && p.x < world.getWidth() &&
-                p.y >= 0 && p.y < world.getHeight() &&
-                world.getWorldArray()[p.x][p.y] != CellState.MOUNTAIN &&
+        // Bounds are pre-filtered by squaresAround; only check cell content here
+        return world.getWorldArray()[p.x][p.y] != CellState.MOUNTAIN &&
                 world.getWorldArray()[p.x][p.y] != CellState.WATER &&
                 world.getWorldArray()[p.x][p.y] != CellState.PEACEFUL_CRITTER &&
                 world.getWorldArray()[p.x][p.y] != CellState.ANGRY_CRITTER;

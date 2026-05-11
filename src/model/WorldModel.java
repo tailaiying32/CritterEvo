@@ -166,12 +166,16 @@ public class WorldModel {
     private CellState[][] worldArray;
 
     /**
-     * list of cells that need to be updated
+     * Precomputed list of cells that are not mountain or water (used for food spawning)
+     */
+    private List<Point> spawnableCells;
+    public List<Point> getSpawnableCells() { return spawnableCells; }
+
+    /**
+     * Retained for API compatibility; no longer used internally.
      */
     private final Set<Point> dirtyCells;
-    public Set<Point> getDirtyCells() {
-        return dirtyCells;
-    }
+    public Set<Point> getDirtyCells() { return dirtyCells; }
 
     /**
      * enum for cell state
@@ -263,6 +267,7 @@ public class WorldModel {
         worldGenerator.generateTerrain(this);
         // seed the world with specified parameters
         seedWorld();
+        initSpawnableCells();
     }
 
     /**
@@ -288,6 +293,7 @@ public class WorldModel {
                 worldArray[x][y] = CellState.GRASS;
             }
         }
+        initSpawnableCells();
     }
 
     /**
@@ -383,7 +389,10 @@ public class WorldModel {
      */
     public void setCritters(Map<Point, Critter> critters) {
         this.critters = critters;
-        updateWorldArray();
+        for (Critter c : critters.values()) {
+            Point pos = c.getPosition();
+            worldArray[pos.x][pos.y] = CellState.PEACEFUL_CRITTER;
+        }
     }
 
     /**
@@ -399,8 +408,8 @@ public class WorldModel {
      */
     public void addCritter(Critter critter) {
         critters.put(critter.getPosition(), critter);
-        this.getDirtyCells().add(critter.getPosition());
-        updateWorldArray();
+        Point pos = critter.getPosition();
+        worldArray[pos.x][pos.y] = CellState.PEACEFUL_CRITTER;
     }
 
     /**
@@ -408,8 +417,7 @@ public class WorldModel {
      */
     public void removeCritter(Point p) {
         critters.remove(p);
-        this.getDirtyCells().add(p);
-        updateWorldArray();
+        worldArray[p.x][p.y] = CellState.GRASS;
     }
 
     /**
@@ -424,7 +432,10 @@ public class WorldModel {
      */
     public void setFoods(Map<Point, Food> foods) {
         this.foods = foods;
-        updateWorldArray();
+        for (Food f : foods.values()) {
+            Point pos = f.getPosition();
+            worldArray[pos.x][pos.y] = CellState.FOOD;
+        }
     }
 
     /**
@@ -440,8 +451,8 @@ public class WorldModel {
      */
     public void addFood(Food food) {
         this.foods.put(food.getPosition(), food);
-        this.getDirtyCells().add(food.getPosition());
-        updateWorldArray();
+        Point pos = food.getPosition();
+        worldArray[pos.x][pos.y] = CellState.FOOD;
     }
 
     /**
@@ -449,8 +460,7 @@ public class WorldModel {
      */
     public void removeFood(Point p) {
         foods.remove(p);
-        this.getDirtyCells().add(p);
-        updateWorldArray();
+        worldArray[p.x][p.y] = CellState.GRASS;
     }
 
     /**
@@ -465,7 +475,10 @@ public class WorldModel {
      */
     public void setWaters(Map<Point, Water> waters) {
         this.waters = waters;
-        updateWorldArray();
+        for (Water w : waters.values()) {
+            Point pos = w.getPosition();
+            worldArray[pos.x][pos.y] = CellState.WATER;
+        }
     }
 
     /**
@@ -481,8 +494,8 @@ public class WorldModel {
      */
     public void addWater(Water water) {
         this.waters.put(water.getPosition(), water);
-        this.getDirtyCells().add(water.getPosition());
-        updateWorldArray();
+        Point pos = water.getPosition();
+        worldArray[pos.x][pos.y] = CellState.WATER;
     }
 
     /**
@@ -490,8 +503,7 @@ public class WorldModel {
      */
     public void removeWater(Point p) {
         waters.remove(p);
-        dirtyCells.add(p);
-        updateWorldArray();
+        worldArray[p.x][p.y] = CellState.GRASS;
     }
 
     /**
@@ -506,35 +518,28 @@ public class WorldModel {
      * updates the world array per tick
      */
     public void updateWorldArray() {
-        // Only update cells that have changed
-        for (Point p : dirtyCells) {
-            worldArray[p.x][p.y] = CellState.GRASS;
-        }
-
-        // Update only changed positions
-        foods.values().parallelStream().forEach(food -> {
-            Point pos = food.getPosition();
-            if (isValidPosition(pos)) {
-                worldArray[pos.x][pos.y] = CellState.FOOD;
-            }
-        });
-
-        waters.values().parallelStream().forEach(water -> {
-            Point pos = water.getPosition();
-            if (isValidPosition(pos)) {
-                worldArray[pos.x][pos.y] = CellState.WATER;
-            }
-        });
-
-        critters.values().parallelStream().forEach(critter -> {
+        // All add/remove operations update worldArray directly; this only refreshes
+        // the PEACEFUL vs ANGRY distinction which changes every tick with priority.
+        for (Critter critter : critters.values()) {
             Point pos = critter.getPosition();
-            if (isValidPosition(pos)) {
-                worldArray[pos.x][pos.y] = critter.getPriority() == Priority.ATTACK ?
-                        CellState.ANGRY_CRITTER : CellState.PEACEFUL_CRITTER;
-            }
-        });
-
+            worldArray[pos.x][pos.y] = critter.getPriority() == Priority.ATTACK ?
+                    CellState.ANGRY_CRITTER : CellState.PEACEFUL_CRITTER;
+        }
         dirtyCells.clear();
+    }
+
+    /**
+     * Computes the list of cells that are not mountain or water, used for food spawning.
+     */
+    private void initSpawnableCells() {
+        spawnableCells = new ArrayList<>();
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                if (worldArray[x][y] != CellState.MOUNTAIN && worldArray[x][y] != CellState.WATER) {
+                    spawnableCells.add(new Point(x, y));
+                }
+            }
+        }
     }
 
 
@@ -576,13 +581,14 @@ public class WorldModel {
         squaresAround.add(new Point(currentX - 1, currentY + 1));
         squaresAround.add(new Point(currentX - 1, currentY - 1));
 
+        squaresAround.removeIf(q -> q.x < 0 || q.x >= width || q.y < 0 || q.y >= height);
         return squaresAround;
     }
 
     /**
-     * Returns whether a point on this world model is valid
+     * Returns whether a point on this world model is within bounds
      */
-    private boolean isValidPosition(Point pos) {
+    public boolean isValidPosition(Point pos) {
         return pos.x >= 0 && pos.x < width && pos.y >= 0 && pos.y < height;
     }
 

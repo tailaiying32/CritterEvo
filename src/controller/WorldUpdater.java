@@ -2,14 +2,7 @@ package controller;
 
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import javax.management.DescriptorRead;
-import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import model.Critter;
 import model.Food;
@@ -96,26 +89,17 @@ public class WorldUpdater {
      * Updates states of critters in this world
      */
     private void updateCritters(WorldModel worldModel) {
-        Collection<Critter> critters = worldModel.getCritters().values();
-        int numThreads = Runtime.getRuntime().availableProcessors();
-        ThreadPool threadPool = new ThreadPool(numThreads);
-
-
         for (Critter critter : new ArrayList<>(worldModel.getCritters().values())) {
-            critter.updatePriority();
             critter.makeMove();
-
-
 
             if (critter.getHunger() <= 0) {
                 critter.starve();
             }
-
-            if (critter.getHealth() <= 0) {
-                critter.die();
+            if (critter.getThirst() <= 0) {
+                critter.starve();
             }
 
-            if (critter.getAge() >= critter.getMaxAge()) {
+            if (critter.getHealth() <= 0 || critter.getAge() >= critter.getMaxAge()) {
                 critter.die();
             }
         }
@@ -126,19 +110,20 @@ public class WorldUpdater {
      */
     private void addFood() {
         WorldModel world = worldView.getWorldModel();
-        int numCritters = worldView.getWorldModel().getCritters().size();
+        List<Point> spawnables = world.getSpawnableCells();
+        if (spawnables == null || spawnables.isEmpty()) return;
 
-        for (int i = 0; i < world.getWidth(); i++) {
-            for (int j = 0; j < world.getHeight(); j++) {
-                if (world.getWorldArray()[i][j] == CellState.GRASS) {
-                    // Generate random number between 0 and 1
-                    double random = Math.random();
-                    // Check if random number is less than 1/2N
-                    if (random < 1.0 / (numCritters * world.getFOOD_GENERATION_FACTOR())) {
-                        world.getWorldArray()[i][j] = CellState.FOOD;
-                        world.addFood(new Food(new Point(i, j), (int) (Math.random() * 40), 0));
-                    }
-                }
+        int numCritters = Math.max(1, world.getCritters().size());
+        // Expected spawns = spawnables.size() / (numCritters * factor); use
+        // probabilistic rounding so fractional budgets are handled fairly.
+        double expected = (double) spawnables.size() / (numCritters * world.getFOOD_GENERATION_FACTOR());
+        int budget = (int) expected;
+        if (Math.random() < (expected - budget)) budget++;
+
+        for (int i = 0; i < budget; i++) {
+            Point p = spawnables.get((int) (Math.random() * spawnables.size()));
+            if (world.getWorldArray()[p.x][p.y] == CellState.GRASS) {
+                world.addFood(new Food(new Point(p.x, p.y), (int) (Math.random() * 40), 0));
             }
         }
     }

@@ -1,11 +1,9 @@
 package behavior;
 
 import brain.Brain;
-import controller.ThreadPool;
 import java.awt.Point;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import model.Critter;
 import model.Critter.Orientation;
 import model.Critter.Priority;
@@ -20,16 +18,11 @@ import model.WorldModel.CellState;
  * Defines what the critter does next
  */
 public class CritterAI {
-    /**
-     * The thread pool for this AI
-     */
-    private ThreadPool threadPool;
 
     /**
      * Constructor for ai
      */
-    public CritterAI(int maxThreads) {
-        this.threadPool = new ThreadPool(maxThreads);
+    public CritterAI() {
     }
 
     /**
@@ -38,15 +31,16 @@ public class CritterAI {
      */
     public void updatePriority(Critter critter) {
         Brain brain = critter.brain();
-        double healthInput = critter.getHealth()/critter.getMaxHealth();
-        double hungerInput = critter.getHunger()/critter.getMaxHunger();
-        double thirstInput = critter.getThirst()/critter.getMaxThirst();
-        double populationDensity = Math.pow((critter.getVision() * 2 + 1), 2);
+        // Inputs are "need" signals in [0,1]: high value = critter needs that thing.
+        double healthNeed = 1.0 - (critter.getHealth() / critter.getMaxHealth());
+        double hungerNeed = 1.0 - (critter.getHunger() / critter.getMaxHunger());
+        double thirstNeed = 1.0 - (critter.getThirst() / critter.getMaxThirst());
 
         double[] input = {
-                healthInput,
-                hungerInput,
-                thirstInput
+                healthNeed,
+                hungerNeed,
+                thirstNeed,
+                1.0 // bias
         };
 
         double[] brainOutput = brain.feedForward(input);
@@ -77,17 +71,17 @@ public class CritterAI {
             } else if (actionNeuronIndex == 1) {
                 critter.setPriority(Priority.WATER);
             } else if (actionNeuronIndex == 2) {
-                critter.setPriority(Priority.ATTACK);
-            } else if (actionNeuronIndex == 3) {
                 critter.setPriority(Priority.LOVE);
+            } else if (actionNeuronIndex == 3) {
+                critter.setPriority(Priority.ATTACK);
             } else {
                 critter.setPriority(Priority.REST);
             }
         }
-        // 0.1% chance to reproduce
-        if (Math.random() <= 0.01) {
-            critter.setPriority(Priority.LOVE);
-        }
+//        // 0.1% chance to reproduce
+//        if (Math.random() <= 0.005) {
+//            critter.setPriority(Priority.LOVE);
+//        }
 
     }
 
@@ -106,15 +100,23 @@ public class CritterAI {
             critter.reproduce();
         }
 
-        // locate target and path to target
-        Runnable pathfindingTask = () -> {
-            synchronized (critter) {
-                Point target = locateTarget(critter, critter.getPriority());
-                List<Point> path = pathfinder.findPath(critter.getPosition(), target);
-                critter.setCurrentPath(path);
-            }
-        };
-        threadPool.submitTask(pathfindingTask);
+        // Locate the nearest target for the current priority
+        Point target = locateTarget(critter, critter.getPriority());
+        List<Point> currentPath = critter.getCurrentPath();
+        Point lastTarget = critter.getTarget();
+
+        boolean targetChanged = lastTarget == null || !target.equals(lastTarget);
+        boolean pathExhausted = currentPath.size() < 2;
+
+        if (targetChanged || pathExhausted) {
+            // Only run A* when we actually need a new path
+            critter.setCurrentPath(pathfinder.findPath(critter.getPosition(), target));
+            critter.setTarget(target);
+        } else if (critter.getPosition().equals(currentPath.get(1))) {
+            // Critter moved to the next step last tick — advance the path
+            critter.setCurrentPath(new ArrayList<>(currentPath.subList(1, currentPath.size())));
+        }
+        // else: critter didn't move (was blocked), keep existing path
 
         // Determine the orientation we need to face the target and rotate if critter is facing the wrong way
         Orientation properOrientation = determineOrientation(critter);
@@ -140,8 +142,10 @@ public class CritterAI {
                 return;
             }
 
+            // Drink whenever thirsty and water is in front — don't gate on the priority bit,
+            // since the brain may pick FOOD/REST while still adjacent to water.
             Water waterInFront = world.getWater(frontSquare);
-            if (waterInFront != null && critter.getPriority() == Priority.WATER) {
+            if (waterInFront != null && critter.getThirst() < critter.getMaxThirst()) {
                 critter.drink(waterInFront);
                 return;
             }
@@ -183,43 +187,62 @@ public class CritterAI {
      */
     public Point locateTarget(Critter critter, Priority priority) {
         WorldModel world = critter.getWorld();
-        Point currentPos = critter.getPosition();
+        Point pos = critter.getPosition();
+        int vision = critter.getVision();
 
-        double shortestDistance = Double.MAX_VALUE;
-        Point nearestTarget = currentPos;
+        double shortestDist = Double.MAX_VALUE;
+        Point nearest = pos;
 
-        // Get the appropriate target set based on priority
-        Map<Point, ?> targets = switch (priority) {
-            case FOOD -> world.getFoods();
-            case WATER -> world.getWaters();
-            case ATTACK -> world.getCritters();
-            default -> new HashMap<>();
-        };
+        for (int dx = -vision; dx <= vision; dx++) {
+            for (int dy = -vision; dy <= vision; dy++) {
+                if (dx == 0 && dy == 0) continue;
+                int nx = pos.x + dx;
+                int ny = pos.y + dy;
+                if (nx < 0 || nx >= world.getWidth() || ny < 0 || ny >= world.getHeight()) continue;
 
-        // Use Euclidean distance for initial target selection
-        for (Point target : targets.keySet()) {
-            double distance = Math.sqrt(Math.pow((target.x - currentPos.x), 2) + Math.pow((target.y - currentPos.y), 2));
-            if (distance < shortestDistance && distance < critter.getVision()) {
-                shortestDistance = distance;
-                nearestTarget = target;
+                Point candidate = new Point(nx, ny);
+                boolean isTarget = switch (priority) {
+                    case FOOD   -> world.getFood(candidate) != null;
+                    case WATER  -> world.getWater(candidate) != null;
+                    case ATTACK -> {
+                        Critter other = world.getCritter(candidate);
+                        yield other != null && other != critter;
+                    }
+                    default -> false;
+                };
+
+                if (isTarget) {
+                    double dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < shortestDist) {
+                        shortestDist = dist;
+                        nearest = candidate;
+                    }
+                }
             }
         }
 
-        return nearestTarget;
+        return nearest;
     }
 
     /**
      * calculates the direction (orientation) in which the critter needs to move
      */
     public Orientation determineOrientation(Critter critter) {
-        // the square that the critter needs to move onto next
-        if (critter.getCurrentPath().size() < 2) {
-            return critter.getOrientation(); // Fallback to the current orientation
+        Point pos = critter.getPosition();
+        Point aim;
+        if (critter.getCurrentPath().size() >= 2) {
+            // Normal case: aim at the next step on the path.
+            aim = critter.getCurrentPath().get(1);
+        } else if (critter.getTarget() != null && !critter.getTarget().equals(pos)) {
+            // Path exhausted but target still distinct (critter is adjacent to the target,
+            // e.g. food/water/critter on a non-traversable tile). Face the target directly.
+            aim = critter.getTarget();
+        } else {
+            return critter.getOrientation();
         }
-        Point nextPoint = critter.getCurrentPath().get(1);
 
-        int dx = nextPoint.x - critter.getPosition().x;
-        int dy = nextPoint.y - critter.getPosition().y;
+        int dx = aim.x - pos.x;
+        int dy = aim.y - pos.y;
 
         if (dx > 0 && dy > 0) {
             return Orientation.SE;
@@ -325,10 +348,11 @@ public class CritterAI {
      * private helper method for healing when hunger and thirst are high enough
      */
     private void heal(Critter critter) {
-        if (critter.getHunger() > critter.getMaxHunger() * 0.8) {
+        if (critter.getHunger() > critter.getMaxHunger() * 0.8
+                && critter.getThirst() > critter.getMaxThirst() * 0.8) {
             double newHealth = Math.min(
-                    critter.getHealth() + critter.getMaxHealth() * 0.01,  // Regenerate 1% health per tick
-                    critter.getMaxHealth()    // But don't exceed maxHealth
+                    critter.getHealth() + critter.getMaxHealth() * 0.01,
+                    critter.getMaxHealth()
             );
             critter.setHealth(newHealth);
         }

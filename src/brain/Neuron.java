@@ -162,16 +162,9 @@ public class Neuron {
                 activation += weightedActivation;
             }
         }
-        double normalizedActivation = reLU(activation);
+        double normalizedActivation = Math.tanh(activation);
         setActivation(normalizedActivation);
         return normalizedActivation;
-    }
-
-    /**
-     * The ReLU function, used for normalizing activations to [0.0, 1.0]
-     */
-    private double reLU(double activation) {
-        return Math.max(0, activation);
     }
 
     /**

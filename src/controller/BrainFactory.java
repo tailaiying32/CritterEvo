@@ -20,13 +20,15 @@ public class BrainFactory {
     public Brain generateBrain(Critter critter) {
         Brain brain = new Brain(critter);
 
-        // input neurons: health, hunger, thirst, peaceful critter density, angry critter density, food density
+        // input neurons: health, hunger, thirst, bias (constant 1.0)
         Neuron healthNeuron = new Neuron(0, brain);
         brain.addNeuron(healthNeuron);
         Neuron hungerNeuron = new Neuron(0, brain);
         brain.addNeuron(hungerNeuron);
         Neuron thirstNeuron = new Neuron(0, brain);
         brain.addNeuron(thirstNeuron);
+        Neuron biasNeuron = new Neuron(0, brain);
+        brain.addNeuron(biasNeuron);
 
 //        Neuron populationDensityNeuron = new Neuron(0, brain);
 //        brain.addNeuron(populationDensityNeuron);
@@ -72,15 +74,15 @@ public class BrainFactory {
         Synapse health_rest = new Synapse (healthNeuron, restNeuron, randomWeight(), true);
         brain.addSynapse(health_rest);
 
-        Synapse hunger_food = new Synapse (healthNeuron, foodNeuron, randomWeight(), true);
+        Synapse hunger_food = new Synapse (hungerNeuron, foodNeuron, randomWeight(), true);
         brain.addSynapse(hunger_food);
-        Synapse hunger_water = new Synapse (healthNeuron, waterNeuron, randomWeight(), true);
+        Synapse hunger_water = new Synapse (hungerNeuron, waterNeuron, randomWeight(), true);
         brain.addSynapse(hunger_water);
-        Synapse hunger_attack = new Synapse (healthNeuron, attackNeuron, randomWeight(), true);
+        Synapse hunger_attack = new Synapse (hungerNeuron, attackNeuron, randomWeight(), true);
         brain.addSynapse(hunger_attack);
-        Synapse hunger_reproduce = new Synapse (healthNeuron, reproduceNeuron, randomWeight(), true);
+        Synapse hunger_reproduce = new Synapse (hungerNeuron, reproduceNeuron, randomWeight(), true);
         brain.addSynapse(hunger_reproduce);
-        Synapse hunger_rest = new Synapse (healthNeuron, restNeuron, randomWeight(), true);
+        Synapse hunger_rest = new Synapse (hungerNeuron, restNeuron, randomWeight(), true);
         brain.addSynapse(hunger_rest);
 
         Synapse thirst_food = new Synapse (thirstNeuron, foodNeuron, randomWeight(), true);
@@ -94,13 +96,24 @@ public class BrainFactory {
         Synapse thirst_rest = new Synapse (thirstNeuron, restNeuron, randomWeight(), true);
         brain.addSynapse(thirst_rest);
 
+        Synapse bias_food = new Synapse (biasNeuron, foodNeuron, randomWeight(), true);
+        brain.addSynapse(bias_food);
+        Synapse bias_water = new Synapse (biasNeuron, waterNeuron, randomWeight(), true);
+        brain.addSynapse(bias_water);
+        Synapse bias_attack = new Synapse (biasNeuron, attackNeuron, randomWeight(), true);
+        brain.addSynapse(bias_attack);
+        Synapse bias_reproduce = new Synapse (biasNeuron, reproduceNeuron, randomWeight(), true);
+        brain.addSynapse(bias_reproduce);
+        Synapse bias_rest = new Synapse (biasNeuron, restNeuron, randomWeight(), true);
+        brain.addSynapse(bias_rest);
+
         return brain;
     }
 
     /**
-     * Helper method to generate a random weight between 0.0 and 1.0
+     * Helper method to generate a random weight in [-1.0, 1.0]
      */
     private double randomWeight() {
-        return Math.random();
+        return Math.random() * 2.0 - 1.0;
     }
 }
